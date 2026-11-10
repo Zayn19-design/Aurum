@@ -1383,19 +1383,19 @@ function hGuideSheet() {
     <ol class="guide">
       <li>Open the <b>Shortcuts</b> app → <b>+</b> (new shortcut) → name it <b>Send to Aurum</b>.</li>
       <li>For each item below, add <b>Find Health Samples</b> → set <b>Type</b> → <b>Start Date is today</b>. Then add <b>Calculate Statistics</b> → <b>Sum</b> (use <b>Average</b> for heart rate).<br><span class="muted small">Steps · Walking + Running Distance · Active Energy · Exercise Minutes · Resting Heart Rate</span></li>
-      <li>For <b>Weight</b> and <b>Height</b>: Find Health Samples → Type → Sort by <b>Start Date, Latest First</b> → Limit <b>1</b>.</li>
-      <li>Add a <b>Text</b> action with this, putting each result in the matching spot:<code>${esc(base)}?steps=[Steps]&amp;distance=[Distance]&amp;active=[Active Energy]&amp;exercise=[Exercise]&amp;rhr=[Heart Rate]&amp;weight=[Weight]&amp;height=[Height]</code></li>
+      <li>For <b>Weight</b>: Find Health Samples → Type <b>Weight</b> → Sort by <b>End Date, Latest First</b> → Limit <b>1</b> → then <b>Get Details of Health Sample → Value</b>. Enter your <b>height</b> once by hand in Aurum.</li>
+      <li>Add a <b>Text</b> action with this, putting each result in the matching spot:<code>${esc(base)}?steps=[Steps]&amp;distance=[Distance]&amp;active=[Active Energy]&amp;exercise=[Exercise]&amp;rhr=[Heart Rate]&amp;weight=[Weight]</code></li>
       <li>Add <b>Open URLs</b> and choose the Text from the step before. Tap the play button to test it.</li>
       <li>Optional: <b>Automation</b> tab → <b>Time of Day</b> → 9:00 PM daily → <b>Run Immediately</b> → Send to Aurum. Now it fills itself in every night.</li>
     </ol>
-    <p class="small muted" style="margin:0">Units are read automatically (kg or lb, km or mi, cm or ft). You can always fix a number by tapping it.</p>
+    <p class="small muted" style="margin:0">Numbers are read in the units set at the bottom of the Health page, so match them to your Health app (lb or kg, km or miles). Also sign in to Aurum once in Safari, because the Shortcut opens it there. You can always fix a number by tapping it.</p>
     <div class="row" style="justify-content:flex-end"><button class="btn primary" data-act="closeSheet">Done</button></div></div></div>`;
   sheetHandlers = { fields: [], onSave() {}, onDelete: null };
 }
 // read numbers coming from a Shortcut, with whatever unit text Health added
 function hParse(k, s) {
   if (s == null) return null; const str = String(s).toLowerCase().replace(/,/g, ""); const n = parseFloat(str.replace(/[^0-9.\-]/g, " ").trim().split(/\s+/)[0]); if (isNaN(n)) return null;
-  if (k === "distance") return /mi/.test(str) ? n / 0.621371 : /\bm\b|meter|metre/.test(str) && !/km/.test(str) ? n / 1000 : n;
+  if (k === "distance") return /mi/.test(str) ? n / 0.621371 : /km/.test(str) ? n : /\bm\b|meter|metre/.test(str) ? n / 1000 : (hUnits().distance === "mi" ? n / 0.621371 : n);
   if (k === "weight") return /lb|pound/.test(str) ? n / 2.20462 : /kg/.test(str) ? n : (hUnits().weight === "lb" ? n / 2.20462 : n);
   if (k === "height") { const ft = str.match(/(\d+)\s*(?:ft|'|′)\s*(\d+(?:\.\d+)?)?/); if (ft) return ((+ft[1]) * 12 + (+ft[2] || 0)) * 2.54; if (/cm/.test(str)) return n; if (/\bm\b/.test(str) || n < 3) return n * 100; if (/in/.test(str)) return n * 2.54; return n > 100 ? n : n * 2.54; }
   if (k === "active" && /kj/.test(str)) return n / 4.184;
