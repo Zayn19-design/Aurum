@@ -371,6 +371,45 @@ main{overflow-y:auto;padding:28px 32px 40px}
 @keyframes slideR{from{opacity:0;transform:translateX(-18%)}to{opacity:1;transform:none}}
 main{overscroll-behavior-x:none;overflow-x:hidden}
 .wrap{will-change:transform}
+
+/* exams */
+.examcd{border-radius:20px;padding:18px;background:linear-gradient(135deg,#40392A,var(--surface) 60%);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));display:flex;flex-direction:column;gap:12px}
+.examcd-k{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.examcd h2{font-size:22px;color:#F6E7B8}
+.examcd h2 .num{color:var(--accent);font-size:28px}
+.examcd-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;padding-right:4px}
+.examcd-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--bg);border:0;border-left:4px solid var(--s);text-align:left;cursor:pointer;color:var(--ink)}
+.examcd-sub{font-family:var(--font-display);font-weight:700;color:var(--s);min-width:84px;font-size:13px}
+.examcd-p{font-size:12px;color:var(--muted);min-width:52px}
+.examcd-row b{color:var(--accent);white-space:nowrap}
+.subj-cd{color:var(--s)}.subj-cd b{font-size:13px}
+.exgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.excard{border-radius:14px;padding:14px;background:color-mix(in srgb,var(--s) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--s) 45%,var(--line));display:flex;flex-direction:column;gap:2px}
+.excard b{font-size:40px;line-height:1.1;color:var(--s)}
+.exk{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+/* lifts */
+.body-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.body-stats>div{display:flex;flex-direction:column;gap:2px}
+.body-stats b{font-size:26px;font-weight:500}
+.wtrend{display:flex;align-items:flex-end;gap:4px;height:40px}
+.wtrend i{flex:1;background:var(--accent);opacity:.7;border-radius:3px 3px 0 0}
+.liftgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.liftcard{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:6px;text-align:left;cursor:pointer;color:var(--ink)}
+.liftcard:hover{border-color:var(--accent)}
+.liftcard-n{font-family:var(--font-display);font-weight:700;font-size:17px}
+.liftcard b{font-size:22px;font-weight:500;color:var(--accent)}
+.liftcard b small{font-size:14px;color:var(--muted)}
+.liftcard .pill{align-self:flex-start}
+.lift-hero{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:18px;border-radius:18px;background:linear-gradient(120deg,#40392A,var(--surface) 70%);border:1px solid var(--line);border-left:6px solid var(--accent)}
+.lchart{display:flex;flex-direction:column;gap:6px;overflow-x:auto}
+.lc-plot{height:200px;display:grid;grid-template-columns:repeat(var(--n),minmax(44px,1fr));gap:8px;align-items:end;border-bottom:1px solid var(--muted);padding-top:34px;background:repeating-linear-gradient(to top,transparent 0 49px,var(--line) 49px 50px)}
+.lc-col{height:100%;display:flex;align-items:flex-end;justify-content:center}
+.lc-bar{position:relative;width:100%;max-width:56px;background:linear-gradient(180deg,#F5D97A,#B8901F);border-radius:6px 6px 0 0;min-height:3px}
+.lc-bar em{position:absolute;top:-32px;left:50%;transform:translateX(-50%);font:600 12px var(--font-mono);font-style:normal;color:var(--ink);text-align:center;white-space:nowrap;line-height:1.2}
+.lc-bar em small{display:block;font-size:10px;color:var(--muted);font-weight:400}
+.lc-x{display:grid;grid-template-columns:repeat(var(--n),minmax(44px,1fr));gap:8px;font-size:11px;color:var(--muted);text-align:center}
+.hrow{width:100%;background:none;border-left:0;border-right:0;border-bottom:0;cursor:pointer;color:var(--ink);text-align:left}
+@media (max-width:860px){.liftgrid{grid-template-columns:1fr 1fr}.excard b{font-size:32px}.examcd-sub{min-width:70px}.examcd-row .grow{font-size:11px}}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 /* standalone app */
 .app{padding-top:env(safe-area-inset-top)}
@@ -430,14 +469,14 @@ const COLORS = { blue:"var(--accent)", coral:"var(--flame)", green:"var(--good)"
 const weekStart = s => addDays(s, -dow(s));
 
 /* ---------- state ---------- */
-const SECTIONS = ["todos","schedule","events","gym","study","streaks","meta","health"];
-let S = { todos:{}, schedule:[], events:[], gym:{}, study:[], streaks:[], meta:{}, health:{} };
+const SECTIONS = ["todos","schedule","events","gym","study","streaks","meta","health","lifts"];
+let S = { todos:{}, schedule:[], events:[], gym:{}, study:[], streaks:[], meta:{}, health:{}, lifts:[] };
 let chat = [];
 let view = "today", taskDate = today(), studySubject = null;
 
 function seed() {
   const t = today();
-  S.health = {}; S.todos = {}; S.schedule = LESSONS(); S.events = []; S.gym = {}; S.study = []; S.streaks = [];
+  S.health = {}; S.lifts = []; S.todos = {}; S.schedule = LESSONS(); S.events = []; S.gym = {}; S.study = []; S.streaks = [];
   S.meta = { sample: false, created: t, studyV2: true, lockV1: true, schedV1: true, debateV1: true, dailyV1: true, dailyV2: true, dailyV3: true,
     lockedIn: { start: "2026-10-25" }, dailyTasks: DEFAULT_DAILY.map(x => ({ ...x })), dailySince: t };
 }
@@ -503,6 +542,8 @@ const LESSONS = () => [
   ];
 function migrate() {
   if (!S.meta) S.meta = {};
+  if (!Array.isArray(S.lifts)) S.lifts = [];
+  if (!S.meta.bodyV1) { S.meta.body = { height: 180, weights: [{ date: "2026-11-09", lb: 146.2 }] }; S.meta.bodyV1 = true; save("meta"); }
   if (!S.meta.studyV2) { S.study = []; S.meta.studyV2 = true; save("study", "meta"); }
   if (!S.meta.schedV1) { S.schedule = LESSONS(); S.meta.schedV1 = true; save("schedule", "meta"); }
   if (!S.meta.debateV1) { if (!S.schedule.some(b => /debate/i.test(b.title))) S.schedule.push({ id: uid(), day: 2, start: "12:00", end: "12:30", title: "Debate club", color: "violet" }); S.meta.debateV1 = true; save("schedule", "meta"); }
@@ -1046,11 +1087,12 @@ function dayDetail(d) {
 
 function vGym() {
   const t = today(), d = parseYMD(t), y = d.getFullYear();
-  const tabs = [["today","Today"],["week","Week"],["month","Month"],["year","Year"],["freq","Frequency"]];
+  const tabs = [["today","Today"],["lifts","Lifts"],["week","Week"],["month","Month"],["year","Year"],["freq","Stats"]];
   const head = `<div class="head"><div><h1>Workouts</h1><p class="sub">${gymDays().length} gym day${gymDays().length === 1 ? "" : "s"} logged${gymDays().length ? " since " + fmtDate(gymDays()[0]) : ""}</p></div></div>
   <div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button class="tab" role="tab" aria-selected="${gymTab === k}" data-act="gymTab" data-v="${k}">${l}</button>`).join("")}</div>`;
   const nav = (label) => `<div class="row" style="justify-content:space-between"><button class="btn" data-act="gymNav" data-n="-1" aria-label="Previous">←</button><h2>${label}</h2><button class="btn" data-act="gymNav" data-n="1" aria-label="Next">→</button></div>`;
 
+  if (gymTab === "lifts") return vLifts(head);
   if (gymTab === "today") {
     const done = wentOn(t), ws = weekStart(t);
     const monthStart = `${y}-${pad(d.getMonth() + 1)}-01`;
@@ -1147,17 +1189,108 @@ const SUBJ = Object.fromEntries(SUBJECTS.map(s => [s.k, s]));
 
 const matsFor = k => S.study.filter(m => m.subject === k);
 
+/* ---------- CSEC May–June 2027 exam dates (CXC final timetable, 29 Sept 2026) ---------- */
+// session AM starts 09:00, PM starts 13:00
+const EXAMS = {
+  addmath: [{ p: 1, d: "2027-06-10", s: "AM", len: "1 hr 30 min" }, { p: 2, d: "2027-05-17", s: "AM", len: "2 hr 40 min" }],
+  math:    [{ p: 1, d: "2027-05-27", s: "AM", len: "1 hr 30 min" }, { p: 2, d: "2027-05-11", s: "AM", len: "2 hr 30 min" }],
+  english: [{ p: 1, d: "2027-06-03", s: "AM", len: "1 hr 30 min" }, { p: 2, d: "2027-05-04", s: "AM", len: "2 hr 45 min" }],
+  pob:     [{ p: 1, d: "2027-06-09", s: "AM", len: "1 hr 15 min" }, { p: 2, d: "2027-05-25", s: "AM", len: "2 hr" }],
+  it:      [{ p: 1, d: "2027-05-28", s: "AM", len: "1 hr 15 min" }, { p: 2, d: "2027-05-13", s: "PM", len: "2 hr" }],
+  chem:    [{ p: 1, d: "2027-06-08", s: "PM", len: "1 hr 15 min" }, { p: 2, d: "2027-05-14", s: "AM", len: "2 hr 30 min" }],
+  bio:     [{ p: 1, d: "2027-06-04", s: "AM", len: "1 hr 15 min" }, { p: 2, d: "2027-05-13", s: "AM", len: "2 hr 30 min" }],
+  phys:    [{ p: 1, d: "2027-06-01", s: "PM", len: "1 hr 15 min" }, { p: 2, d: "2027-05-21", s: "PM", len: "2 hr 30 min" }]
+};
+const examTime = e => e.s === "AM" ? "9:00am" : "1:00pm";
+const daysTo = d => daysBetween(today(), d);
+const dLabel = n => n < 0 ? "Done" : n === 0 ? "Today" : n === 1 ? "Tomorrow" : `${n} days`;
+function allPapers() { return Object.entries(EXAMS).flatMap(([k, ps]) => ps.map(e => ({ ...e, k }))).sort((a, b) => (a.d + a.s).localeCompare(b.d + b.s)); }
+function nextPaper(k) { const ps = (EXAMS[k] || []).filter(e => daysTo(e.d) >= 0).sort((a, b) => a.d.localeCompare(b.d)); return ps[0] || null; }
+function examCountdownCard() {
+  const ps = allPapers(), up = ps.filter(e => daysTo(e.d) >= 0), first = up[0];
+  if (!first) return "";
+  return `<section class="examcd">
+    <div class="examcd-h"><div><p class="examcd-k">CSEC May–June 2027</p><h2><span class="num">${daysTo(first.d)}</span> days to your first paper</h2><p class="muted small" style="margin:0">${SUBJ[first.k].name} Paper ${first.p} · ${fmtDate(first.d)} · ${examTime(first)}</p></div></div>
+    <div class="examcd-list">${up.map(e => { const n = daysTo(e.d); return `<button class="examcd-row" style="--s:${SUBJ[e.k].color}" data-act="openSubject" data-v="${e.k}"><span class="examcd-sub">${TTNAME[e.k] || SUBJ[e.k].sym}</span><span class="examcd-p">Paper ${e.p}</span><span class="grow small muted">${fmtDate(e.d)} · ${examTime(e)} · ${e.len}</span><b class="num">${dLabel(n)}</b></button>`; }).join("")}</div>
+  </section>`;
+}
+function subjExamCard(s) {
+  const ps = (EXAMS[s.k] || []).slice().sort((a, b) => a.d.localeCompare(b.d));
+  return `<section class="card" style="--s:${s.color}"><h2>CSEC exams · May–June 2027</h2>
+    <div class="exgrid">${ps.map(e => { const n = daysTo(e.d); return `<div class="excard"><span class="exk">Paper ${e.p}</span><b class="num">${n < 0 ? "Done" : n}</b><span class="small">${n < 0 ? "" : n === 1 ? "day to go" : "days to go"}</span><span class="small muted">${DAYS[dow(e.d)]}, ${fmtDate(e.d).slice(5)} ${e.d.slice(0, 4)}<br>${examTime(e)} · ${e.len}</span></div>`; }).join("")}</div>
+    <p class="small muted" style="margin:0">From CXC's final May–June 2027 timetable. Always check your personal timetable from school in April.</p></section>`;
+}
+
+/* ---------- lifts (weight training log) ---------- */
+let liftSel = null;
+const LIFT_SUGGEST = ["Bench press", "Incline dumbbell press", "Squat", "Deadlift", "Overhead press", "Barbell row", "Lat pulldown", "Pull-ups", "Bicep curl", "Hammer curl", "Tricep pushdown", "Skull crushers", "Leg press", "Leg curl", "Lateral raise", "Wrist curl", "Cable crunch"];
+const liftById = id => (S.lifts || []).find(l => l.id === id);
+const e1rm = (w, r) => r > 1 ? w * (1 + r / 30) : w; // Epley estimate
+function liftStats(l) {
+  const es = (l.entries || []).slice().sort((a, b) => (a.date + a.id).localeCompare(b.date + b.id));
+  if (!es.length) return null;
+  const last = es[es.length - 1], best = es.reduce((m, e) => (e.weight > m.weight || (e.weight === m.weight && e.reps > m.reps)) ? e : m, es[0]);
+  const months = {}; es.forEach(e => { const k = e.date.slice(0, 7); if (!months[k] || e.weight > months[k].weight || (e.weight === months[k].weight && e.reps > months[k].reps)) months[k] = e; });
+  const mk = Object.keys(months).sort(), firstM = months[mk[0]], lastM = months[mk[mk.length - 1]];
+  return { es, last, best, months, mk, gain: lastM.weight - firstM.weight, since: mk[0] };
+}
+const lb = w => `${(+w).toLocaleString(undefined, { maximumFractionDigits: 1 })} lb`;
+const monLabel = k => { const [y, m] = k.split("-"); return `${MON[+m - 1]} ’${y.slice(2)}`; };
+function bodyCard() {
+  const b = (S.meta && S.meta.body) || {}, ws = (b.weights || []).slice().sort((a, c) => a.date.localeCompare(c.date));
+  const cur = ws[ws.length - 1], prev = ws.length > 1 ? ws[ws.length - 2] : null, inch = b.height ? Math.round(b.height / 2.54) : null;
+  return `<section class="card body-card"><div class="card-h"><h2>Body</h2><button class="btn ghost sm" data-act="bodyEdit">Update</button></div>
+    <div class="body-stats">
+      <div><span class="exk">Weight</span><b class="num">${cur ? lb(cur.lb) : "–"}</b><span class="small muted">${cur ? (prev ? `${cur.lb - prev.lb >= 0 ? "+" : ""}${(cur.lb - prev.lb).toFixed(1)} lb since ${fmtDate(prev.date)}` : `as of ${fmtDate(cur.date)}`) : "Tap Update"}</span></div>
+      <div><span class="exk">Height</span><b class="num">${b.height ? `${b.height} cm` : "–"}</b><span class="small muted">${inch ? `${Math.floor(inch / 12)}′${inch % 12}″` : ""}</span></div>
+    </div>
+    ${ws.length > 1 ? `<div class="wtrend">${ws.slice(-12).map(w => { const lo = Math.min(...ws.slice(-12).map(x => x.lb)), hi = Math.max(...ws.slice(-12).map(x => x.lb)); return `<i title="${fmtDate(w.date)}: ${lb(w.lb)}" style="height:${hi === lo ? 60 : 20 + (w.lb - lo) / (hi - lo) * 80}%"></i>`; }).join("")}</div>` : ""}
+  </section>`;
+}
+function vLifts(head) {
+  const l = liftSel && liftById(liftSel);
+  if (l) {
+    const st = liftStats(l);
+    const chart = st ? (() => { const vals = st.mk.map(k => st.months[k].weight), mx = Math.max(...vals) * 1.15 || 1;
+      return `<div class="lchart" style="--n:${st.mk.length}"><div class="lc-plot">${st.mk.map(k => { const e = st.months[k]; return `<div class="lc-col"><span class="lc-bar" style="height:${e.weight / mx * 100}%"><em>${(+e.weight).toLocaleString(undefined, { maximumFractionDigits: 1 })}<small>×${e.reps}</small></em></span></div>`; }).join("")}</div><div class="lc-x">${st.mk.map(k => `<span>${monLabel(k)}</span>`).join("")}</div></div>`; })() : "";
+    return `${head}<div class="row"><button class="btn ghost" data-act="liftBack">← All exercises</button></div>
+      <section class="lift-hero"><div><p class="exk" style="margin:0">Exercise</p><h1>${esc(l.name)}</h1></div><div class="row"><button class="btn ghost sm" data-act="liftRename" data-id="${l.id}">Rename</button><button class="btn primary" data-act="liftLog" data-id="${l.id}">Log a set</button></div></section>
+      ${st ? `<div class="stats">
+        <div class="stat"><b>${lb(st.best.weight)}</b><span>best · ${st.best.reps} reps</span></div>
+        <div class="stat"><b>${lb(st.last.weight)}</b><span>last · ${st.last.reps} reps · ${fmtDate(st.last.date)}</span></div>
+        <div class="stat ${st.gain > 0 ? "flame" : ""}"><b>${st.gain >= 0 ? "+" : ""}${lb(st.gain)}</b><span>since ${monLabel(st.since)}</span></div>
+        <div class="stat"><b>${lb(Math.round(e1rm(st.best.weight, st.best.reps)))}</b><span>estimated 1-rep max</span></div></div>
+      <section class="card"><h2>Monthly progression</h2>${chart}<p class="small muted" style="margin:0">Each bar is your heaviest set that month (weight × reps).</p></section>
+      <section class="card"><h2>All sets</h2><div class="list">${st.es.slice().reverse().map(e => `<button class="item hrow" data-act="liftEditSet" data-id="${l.id}" data-e="${e.id}"><span class="grow">${fmtDate(e.date)} ${e.date.slice(0, 4)}</span><b class="num">${lb(e.weight)}</b><span class="num muted">× ${e.reps}</span>${e.id === st.best.id ? `<span class="pill accent">PR</span>` : ""}</button>`).join("")}</div></section>`
+      : `<section class="card"><p class="empty">No sets yet. Tap <b>Log a set</b> to add your first weight and reps.</p></section>`}
+      <div class="row" style="justify-content:flex-end"><button class="btn ghost sm" style="color:var(--flame)" data-act="liftDelete" data-id="${l.id}">Delete exercise</button></div>`;
+  }
+  const lifts = S.lifts || [];
+  return `${head}${bodyCard()}
+    <div class="head" style="margin-top:4px"><div><h2>Exercises</h2><p class="sub small">Log weight and reps each time (or once a month) to see your progression.</p></div><button class="btn primary" data-act="liftAdd">Add exercise</button></div>
+    <div class="liftgrid">${lifts.map(x => { const st = liftStats(x); return `<button class="liftcard" data-act="liftOpen" data-id="${x.id}"><span class="liftcard-n">${esc(x.name)}</span>
+      ${st ? `<b class="num">${lb(st.best.weight)}<small> × ${st.best.reps}</small></b><span class="small muted">Best · last ${fmtDate(st.last.date)}</span>${st.gain > 0 ? `<span class="pill flame">+${lb(st.gain)} since ${monLabel(st.since)}</span>` : ""}` : `<span class="small muted">No sets yet</span>`}</button>`; }).join("") || `<p class="empty">Add your first exercise, like Bench press or Squat.</p>`}</div>`;
+}
+function liftSetForm(l, e) {
+  openForm(e ? `Edit set · ${l.name}` : `Log a set · ${l.name}`, [{ k: "date", label: "Date", type: "date", req: true, def: today() }, [{ k: "weight", label: "Weight (lb)", type: "number", req: true }, { k: "reps", label: "Reps", type: "number", req: true }]],
+    e ? { date: e.date, weight: e.weight, reps: e.reps } : { date: today() },
+    v => { if (!(v.weight > 0) || !(v.reps > 0)) return; const rec = { date: v.date > today() ? today() : v.date, weight: +v.weight, reps: Math.round(+v.reps) };
+      if (e) Object.assign(e, rec); else (l.entries = l.entries || []).push({ id: uid(), ...rec }); save("lifts"); render(); },
+    e ? () => { l.entries = l.entries.filter(x => x !== e); save("lifts"); render(); } : null);
+  setTimeout(() => document.querySelectorAll(".sheet input[type=number]").forEach(i => { i.step = "any"; i.min = "0"; i.inputMode = "decimal"; }));
+}
+
 function vStudy() {
   const s = studySubject && SUBJ[studySubject];
   if (!s) {
     const tabs = `<div class="tabs" role="tablist">${[["subjects","Subjects"],["timetable","Timetable"]].map(([k, l]) => `<button class="tab" role="tab" aria-selected="${studyTab === k}" data-act="studyTab" data-v="${k}">${l}</button>`).join("")}</div>`;
     if (studyTab === "timetable") return tabs + packCard() + vSchool();
-    return `${tabs}<div class="head"><div><h1>CSEC subjects</h1><p class="sub">${SUBJECTS.length} subjects · tap one to open its syllabus and your notes</p></div></div>
+    return `${tabs}${examCountdownCard()}<div class="head"><div><h1>CSEC subjects</h1><p class="sub">${SUBJECTS.length} subjects · tap one to open its syllabus and your notes</p></div></div>
     <div class="subjgrid">${SUBJECTS.map((x, i) => { const n = matsFor(x.k).length; return `<button class="subj" style="--s:${x.color}" data-act="openSubject" data-v="${x.k}" aria-label="Open ${x.name}">
       <span class="subj-top"><span class="subj-no num">${String(i + 1).padStart(2, "0")}</span><span class="subj-area">${x.area}</span></span>
       <span class="subj-sym" style="--len:${x.sym.length}">${x.sym}</span>
       <span class="subj-name">${x.sym === x.name.toUpperCase() ? "CSEC " + x.area.replace(/s$/, "") : x.name}</span>
-      <span class="subj-foot"><span>Syllabus ↗</span><span class="num">${n} note${n === 1 ? "" : "s"}</span></span>
+      <span class="subj-foot">${(() => { const np = nextPaper(x.k); return np ? `<span class="subj-cd"><b class="num">${daysTo(np.d)}</b> days to P${np.p}</span>` : `<span>Exams done</span>`; })()}<span class="num">${n} note${n === 1 ? "" : "s"}</span></span>
     </button>`; }).join("")}</div>`;
   }
   const mats = matsFor(s.k).sort((a, b) => (b.created || "").localeCompare(a.created || ""));
@@ -1166,6 +1299,7 @@ function vStudy() {
     <span class="subj-sym big" style="--len:${s.sym.length}">${s.sym}</span>
     <div><p class="subj-area" style="margin:0">${s.area} · CSEC</p><h1>${s.name}</h1></div>
   </section>
+  ${subjExamCard(s)}
   <section class="card" style="--s:${s.color}"><h2>Syllabus</h2>
     <div class="list">${s.syl.map((y, i) => `<a class="syl" href="${y.url}" target="_blank" rel="noopener" data-stop="1">
       <span class="syl-ic" aria-hidden="true">PDF</span>
@@ -1232,7 +1366,7 @@ const VIEWS = { today: vToday, tasks: vTasks, week: vWeek, events: vEvents, work
 /* ---------- swipe between sections and their sub-tabs ---------- */
 let slideDir = "";
 const SUBTABS = {
-  workouts: { get: () => gymTab, set: v => { gymTab = v; gymCursor = today(); gymSel = null; }, list: ["today", "week", "month", "year", "freq"] },
+  workouts: { get: () => gymTab, set: v => { liftSel = null; gymTab = v; gymCursor = today(); gymSel = null; }, list: ["today", "lifts", "week", "month", "year", "freq"] },
   study: { get: () => studySubject ? null : studyTab, set: v => { studySubject = null; studyTab = v; }, list: ["subjects", "timetable"] }
 };
 function swipeStep(dir, sub) {
@@ -1336,6 +1470,7 @@ function celebrate() {
 function backOut() {
   if (view === "study" && studySubject) { studySubject = null; render(); return; }
   if (view === "study" && studyTab !== "subjects") { studyTab = "subjects"; render(); return; }
+  if (view === "workouts" && gymTab === "lifts" && liftSel) { liftSel = null; render(); return; }
   if (view === "workouts" && gymTab !== "today") { gymTab = "today"; gymCursor = today(); gymSel = null; render(); return; }
   if (view === "tasks" && taskDate !== today()) { taskDate = today(); render(); return; }
   if (view === "events" && (evCursor.slice(0, 7) !== today().slice(0, 7) || evSel !== today())) { evCursor = today(); evSel = today(); render(); return; }
@@ -1390,6 +1525,17 @@ document.addEventListener("click", e => {
   if (a === "sheetDelete") { const h = sheetHandlers; closeSheet(); h && h.onDelete && h.onDelete(); return; }
   switch (a) {
     case "go": go(el.dataset.v); break;
+    case "liftOpen": liftSel = el.dataset.id; render(); $("#main").scrollTop = 0; break;
+    case "liftBack": liftSel = null; render(); break;
+    case "liftAdd": openForm("Add exercise", [{ k: "name", label: "Exercise name", req: true, list: LIFT_SUGGEST }], {}, v => { if (!v.name) return; const l = { id: uid(), name: v.name, entries: [] }; S.lifts.push(l); save("lifts"); liftSel = l.id; render(); setTimeout(() => liftSetForm(l), 50); }); break;
+    case "liftRename": { const l = liftById(id); if (l) openForm("Rename exercise", [{ k: "name", label: "Exercise name", req: true }], { name: l.name }, v => { if (v.name) { l.name = v.name; save("lifts"); render(); } }); break; }
+    case "liftLog": { const l = liftById(id); if (l) liftSetForm(l); break; }
+    case "liftEditSet": { const l = liftById(id), e = l && l.entries.find(x => x.id === el.dataset.e); if (e) liftSetForm(l, e); break; }
+    case "liftDelete": { const l = liftById(id); if (l) { openForm(`Delete ${l.name}?`, [], {}, () => {}, () => { S.lifts = S.lifts.filter(x => x !== l); liftSel = null; save("lifts"); render(); }); setTimeout(() => { const b = document.querySelector('[data-act="sheetDelete"]'); if (b) b.textContent = "Delete exercise and all sets"; const s = document.querySelector('.sheet .btn.primary'); if (s) s.remove(); }); } break; }
+    case "bodyEdit": { const b = S.meta.body || (S.meta.body = { weights: [] }), ws = (b.weights || []).slice().sort((a, c) => a.date.localeCompare(c.date)), cur = ws[ws.length - 1];
+      openForm("Update body stats", [{ k: "date", label: "Date", type: "date", req: true }, [{ k: "lb", label: "Weight (lb)", type: "number" }, { k: "height", label: "Height (cm)", type: "number" }]], { date: today(), lb: cur ? cur.lb : "", height: b.height || "" },
+        v => { if (v.height > 0) b.height = +v.height; if (v.lb > 0) { b.weights = (b.weights || []).filter(w => w.date !== v.date); b.weights.push({ date: v.date, lb: +v.lb }); } save("meta"); render(); });
+      setTimeout(() => document.querySelectorAll(".sheet input[type=number]").forEach(i => { i.step = "any"; i.inputMode = "decimal"; })); break; }
     case "signOut": if (unsub) unsub(); firebase.auth().signOut(); try { localStorage.removeItem("aurum-cache"); } catch (e) {} location.reload(); break;
     case "toggleTodo": { const d = el.dataset.d, allDone = () => { const l = visibleTodos(d); return l.length > 0 && l.every(x => x.done); };
       const before = allDone(), t = todosFor(d).find(x => x.id === id); if (t) { t.done = !t.done; save("todos"); render(); if (!before && allDone() && d === today()) celebrate(); } break; }
@@ -1405,7 +1551,7 @@ document.addEventListener("click", e => {
     case "addBlock": crud("schedule", () => F.block(), "New schedule block", null, { day: el.dataset.day ?? dow(today()), remind: "yes" }); break;
     case "editBlock": { const bl = S.schedule.find(x => x.id === id); if (bl) crud("schedule", () => F.block(), "", Object.assign(bl, { remind: remindOn(bl) ? "yes" : "no" })); break; }
     case "exportLessons": exportLessons(); break;
-    case "gymTab": gymTab = el.dataset.v; gymCursor = today(); gymSel = null; render(); break;
+    case "gymTab": liftSel = null; gymTab = el.dataset.v; gymCursor = today(); gymSel = null; render(); break;
     case "gymPick": { if (wentOn(today())) break; const k = el.dataset.v; gymPick.has(k) ? gymPick.delete(k) : gymPick.add(k); render(); break; }
     case "gymLog": if (logGymToday()) render(); break;
     case "gymSel": gymSel = el.dataset.d; render(); break;
