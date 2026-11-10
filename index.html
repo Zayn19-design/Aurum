@@ -373,7 +373,7 @@ main{overscroll-behavior-x:none;overflow-x:hidden}
 .wrap{will-change:transform}
 
 /* exams */
-.examcd{border-radius:20px;padding:18px;background:linear-gradient(135deg,#40392A,var(--surface) 60%);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));display:flex;flex-direction:column;gap:12px}
+.examcd{border-radius:20px;padding:18px 20px;background:linear-gradient(135deg,#40392A,var(--surface) 60%);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));display:flex;flex-direction:column;gap:12px}
 .examcd-k{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
 .examcd h2{font-size:22px;color:#F6E7B8}
 .examcd h2 .num{color:var(--accent);font-size:28px}
@@ -1211,7 +1211,6 @@ function examCountdownCard() {
   if (!first) return "";
   return `<section class="examcd">
     <div class="examcd-h"><div><p class="examcd-k">CSEC May–June 2027</p><h2><span class="num">${daysTo(first.d)}</span> days to your first paper</h2><p class="muted small" style="margin:0">${SUBJ[first.k].name} Paper ${first.p} · ${fmtDate(first.d)} · ${examTime(first)}</p></div></div>
-    <div class="examcd-list">${up.map(e => { const n = daysTo(e.d); return `<button class="examcd-row" style="--s:${SUBJ[e.k].color}" data-act="openSubject" data-v="${e.k}"><span class="examcd-sub">${TTNAME[e.k] || SUBJ[e.k].sym}</span><span class="examcd-p">Paper ${e.p}</span><span class="grow small muted">${fmtDate(e.d)} · ${examTime(e)} · ${e.len}</span><b class="num">${dLabel(n)}</b></button>`; }).join("")}</div>
   </section>`;
 }
 function subjExamCard(s) {
@@ -1259,7 +1258,7 @@ function vLifts(head) {
         <div class="stat"><b>${lb(st.best.weight)}</b><span>best · ${st.best.reps} reps</span></div>
         <div class="stat"><b>${lb(st.last.weight)}</b><span>last · ${st.last.reps} reps · ${fmtDate(st.last.date)}</span></div>
         <div class="stat ${st.gain > 0 ? "flame" : ""}"><b>${st.gain >= 0 ? "+" : ""}${lb(st.gain)}</b><span>since ${monLabel(st.since)}</span></div>
-        <div class="stat"><b>${lb(Math.round(e1rm(st.best.weight, st.best.reps)))}</b><span>estimated 1-rep max</span></div></div>
+</div>
       <section class="card"><h2>Monthly progression</h2>${chart}<p class="small muted" style="margin:0">Each bar is your heaviest set that month (weight × reps).</p></section>
       <section class="card"><h2>All sets</h2><div class="list">${st.es.slice().reverse().map(e => `<button class="item hrow" data-act="liftEditSet" data-id="${l.id}" data-e="${e.id}"><span class="grow">${fmtDate(e.date)} ${e.date.slice(0, 4)}</span><b class="num">${lb(e.weight)}</b><span class="num muted">× ${e.reps}</span>${e.id === st.best.id ? `<span class="pill accent">PR</span>` : ""}</button>`).join("")}</div></section>`
       : `<section class="card"><p class="empty">No sets yet. Tap <b>Log a set</b> to add your first weight and reps.</p></section>`}
