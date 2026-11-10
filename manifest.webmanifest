@@ -1,0 +1,16 @@
+{
+  "name": "Aurum",
+  "short_name": "Aurum",
+  "description": "Zayn's daily planner: tasks, timetable, workouts, events and streaks.",
+  "start_url": "./#today",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#26272B",
+  "theme_color": "#26272B",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

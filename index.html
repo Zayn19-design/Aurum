@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#26272B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Aurum">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Aurum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: left rail on desktop, bottom tab bar on phones; content as cards on a cool paper ground */
+  /* Gray and gold: one charcoal world, gold as the accent */
+  --bg:#26272B; --surface:#313237; --ink:#F3EEE3; --muted:#B0ABA0; --line:#44454B;
+  --accent:#D9B440; --accent-ink:#1E1F22; --accent-soft:#4A4130;
+  --flame:#E9A23B; --flame-soft:#2E2210;
+  --good:#5BC48C; --good-soft:#12291C;
+  --amber:#D4AF37; --violet:#A98BFF;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --radius:14px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--font-body);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:28px;font-weight:700;color:#F6E7B8}
+h2{font-size:17px;font-weight:700}
+.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.app{display:grid;grid-template-columns:220px 1fr;height:100%}
+.rail{border-right:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));padding:20px 12px;display:flex;flex-direction:column;gap:4px;background:var(--surface);overflow-y:auto}
+.brand{font-family:var(--font-display);font-weight:700;font-size:22px;padding:4px 10px 16px;display:flex;align-items:center;gap:8px}
+.brand{color:var(--accent);letter-spacing:.02em}
+.brand i{width:10px;height:10px;border-radius:2px;background:linear-gradient(135deg,#F5D97A,#B8901F);display:inline-block;transform:rotate(45deg)}
+.nav{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;border:0;background:none;cursor:pointer;text-align:left;color:var(--muted);font-weight:500}
+.nav svg{width:18px;height:18px;flex:none}
+.nav:hover{background:var(--bg);color:var(--ink)}
+.nav[aria-current="page"]{background:var(--accent-soft);color:var(--accent)}
+.rail .sync{margin-top:auto;font-size:12px;color:var(--muted);padding:10px;display:flex;gap:6px;align-items:center}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.dot.ok{background:var(--good)} .dot.err{background:var(--flame)}
+
+main{overflow-y:auto;padding:28px 32px 40px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.sub{color:var(--muted);margin:4px 0 0}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--accent) 22%,transparent);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.empty{color:var(--muted);font-size:14px;padding:6px 0}
+
+.btn{border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:linear-gradient(180deg,#E6C35A,#C9A227);border-color:#C9A227;color:#1E1F22;font-weight:600}
+.btn.ghost{border-color:transparent;background:none;color:var(--muted);padding:6px 8px}
+.btn.ghost:hover{color:var(--ink);background:var(--bg)}
+.btn.sm{padding:5px 10px;font-size:13px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);min-width:0}
+.input:focus{border-color:var(--accent);outline:none}
+.addrow{display:flex;gap:8px}
+
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.stat b{display:block;font-family:var(--font-mono);font-size:24px;font-weight:500}
+.stat span{font-size:13px;color:var(--muted)}
+.stat.flame b{color:var(--flame)}
+
+.list{display:flex;flex-direction:column}
+.item{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.item .grow{flex:1;min-width:0;overflow-wrap:anywhere}
+.item.done .grow{color:var(--muted);text-decoration:line-through}
+.check{width:22px;height:22px;border-radius:7px;border:1.5px solid var(--muted);background:none;cursor:pointer;flex:none;display:grid;place-items:center;padding:0}
+.check.on{background:var(--good);border-color:var(--good)}
+.check.on::after{content:"";width:10px;height:6px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translate(1px,-1px)}
+.x{opacity:.45}
+.item:hover .x{opacity:1}
+
+.pill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;background:var(--bg);color:var(--muted);white-space:nowrap}
+.pill.accent{background:var(--accent-soft);color:var(--accent)}
+.pill.flame{background:var(--flame-soft);color:var(--flame)}
+.pill.good{background:var(--good-soft);color:var(--good)}
+
+.block{border-left:4px solid var(--c,var(--accent));background:var(--bg);border-radius:8px;padding:8px 10px;cursor:pointer;display:flex;flex-direction:column;gap:1px;text-align:left;border-top:0;border-right:0;border-bottom:0;width:100%}
+.block .t{font-weight:600;overflow-wrap:anywhere}
+.block .tm{font-size:12px;color:var(--muted)}
+.block.now{box-shadow:0 0 0 2px var(--c,var(--accent)) inset}
+.week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.day{display:flex;flex-direction:column;gap:8px;min-width:0}
+.day h3{font-size:14px;font-family:var(--font-body);font-weight:600;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+.day.today h3{color:var(--accent)}
+
+.ev{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+.ev:first-child{border-top:0}
+.cal{width:48px;flex:none;text-align:center;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.cal small{display:block;background:var(--flame);color:#fff;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.cal b{display:block;font-family:var(--font-mono);font-size:18px;padding:2px 0}
+
+.bars{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;align-items:end;height:150px;padding-top:18px;border-bottom:1px solid var(--line);background:repeating-linear-gradient(to top,transparent 0,transparent 37px,var(--line) 37px,var(--line) 38px)}
+.bar{position:relative;background:var(--accent);border-radius:6px 6px 0 0;min-height:2px;opacity:.55}
+.bar.cur{opacity:1}
+.bar span{position:absolute;top:-18px;left:0;right:0;text-align:center;font:500 11px var(--font-mono);color:var(--muted)}
+.barlbl{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;font-size:11px;color:var(--muted);text-align:center}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.study{cursor:pointer}
+.study p{margin:0;color:var(--muted);font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+
+.streak .big{font-family:var(--font-mono);font-size:34px;color:var(--flame);line-height:1}
+.dots{display:grid;grid-template-columns:repeat(21,1fr);gap:3px}
+.dots i{aspect-ratio:1;border-radius:3px;background:var(--line)}
+.dots i.on{background:var(--flame)}
+.dots i.today{outline:1.5px solid var(--ink);outline-offset:1px}
+
+.banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--accent-soft);color:var(--ink);border-radius:var(--radius);padding:12px 16px;font-size:14px}
+
+/* AI */
+.chat{display:flex;flex-direction:column;gap:12px;min-height:200px}
+.msg{max-width:85%;padding:10px 14px;border-radius:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.user{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:4px}
+.msg.ai{align-self:flex-start;background:var(--bg);border-bottom-left-radius:4px}
+.msg.note{align-self:center;font-size:12px;color:var(--muted);background:none;padding:0}
+.ask{display:flex;gap:8px;align-items:flex-end}
+.ask textarea{resize:none;min-height:44px;max-height:140px}
+
+/* sheet */
+.overlay{position:fixed;inset:0;background:rgba(10,14,22,.45);display:grid;place-items:center;z-index:50;padding:16px}
+.sheet{background:var(--surface);border-radius:18px;padding:20px;width:100%;max-width:440px;max-height:90%;overflow-y:auto;display:flex;flex-direction:column;gap:14px;border:1px solid var(--line)}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:13px;font-weight:600;color:var(--muted)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.tabbar{display:none}
+
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;grid-template-rows:1fr auto}
+  .rail{display:none}
+  main{padding:18px 16px 24px}
+  .tabbar{display:flex;overflow-x:auto;background:var(--surface);border-top:1px solid var(--line);padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+  .tabbar .nav{flex-direction:column;gap:2px;font-size:11px;padding:6px 4px;min-width:64px;flex:1;align-items:center}
+  .g2,.g3{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .week{grid-template-columns:1fr}
+  .day h3{font-size:15px}
+  h1{font-size:24px}
+  .msg{max-width:92%}
+}
+
+/* gym */
+:root{--teal:#3FC7C2}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;width:fit-content;max-width:100%;overflow-x:auto}
+.tab{border:0;background:none;padding:7px 16px;border-radius:9px;cursor:pointer;font-weight:600;color:var(--muted)}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.mg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.mgbtn{border:1.5px solid var(--line);background:var(--bg);border-radius:12px;padding:14px 6px;cursor:pointer;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:6px}
+.mgbtn i{width:12px;height:12px;border-radius:50%;background:var(--g)}
+.mgbtn[aria-pressed="true"]{border-color:var(--g);background:color-mix(in srgb,var(--g) 16%,var(--surface))}
+.logbtn{font-size:16px;padding:14px;border-radius:12px;width:100%;white-space:normal}
+.logbtn:disabled{background:var(--line);border-color:var(--line);color:var(--muted);cursor:not-allowed}
+.locked{display:flex;align-items:center;gap:14px;padding:16px;border-radius:12px;background:var(--good-soft)}
+.locked .seal{width:48px;height:48px;border-radius:50%;background:var(--good);display:grid;place-items:center;color:#fff;font-size:24px;flex:none}
+.calhead,.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.calhead span{font-size:12px;color:var(--muted);text-align:center;font-weight:600}
+.cd{aspect-ratio:1;border-radius:10px;background:var(--bg);border:1.5px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:500 14px var(--font-mono);cursor:pointer;padding:2px;color:var(--ink);min-width:0}
+.cd.blank{background:none;cursor:default}
+.cd.future{opacity:.4;cursor:default}
+.cd.went{background:var(--accent);color:var(--accent-ink)}
+.cd.today{border-color:var(--ink)}
+.cd.sel{box-shadow:0 0 0 2px var(--flame)}
+.gd{display:flex;gap:2px;flex-wrap:wrap;justify-content:center}
+.gd i{width:6px;height:6px;border-radius:50%;background:var(--g);box-shadow:0 0 0 1px var(--surface)}
+.yr{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.mini{border:1px solid var(--line);border-radius:12px;padding:10px;background:var(--surface);cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left}
+.mini:hover{border-color:var(--accent)}
+.mini .calgrid{gap:2px}
+.mini .cd{border-radius:3px;cursor:inherit;border-width:1px;padding:0}
+.wk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.wkd{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;min-height:110px;background:var(--bg);min-width:0}
+.wkd.went{background:var(--accent-soft);border-color:var(--accent)}
+.wkd.today{box-shadow:0 0 0 1.5px var(--ink)}
+.hb{display:grid;grid-template-columns:80px 1fr 28px;gap:8px 10px;align-items:center;font-size:14px}
+.hbt{height:10px;background:var(--bg);border-radius:6px;overflow:hidden}
+.hbt div{height:100%;border-radius:6px;min-width:2px}
+@media (max-width:860px){
+  .mg{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .mgbtn{padding:12px 4px;font-size:13px}
+  .yr{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .wk{grid-template-columns:1fr}
+  .wkd{min-height:0}
+  .calhead,.calgrid{gap:4px}
+  .cd{font-size:13px;border-radius:8px}
+  .gd i{width:5px;height:5px}
+}
+
+/* study subjects */
+.subjgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.subj{position:relative;border:1px solid var(--line);border-top:6px solid var(--s);border-radius:16px;background:linear-gradient(160deg,color-mix(in srgb,var(--s) 13%,var(--surface)) 0%,var(--surface) 60%);padding:14px 16px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left;min-height:190px;transition:transform .15s,box-shadow .15s}
+.subj:hover{transform:translateY(-2px);box-shadow:0 8px 24px color-mix(in srgb,var(--s) 25%,transparent);border-color:var(--s)}
+.subj-top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.subj-area{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--s)}
+.subj-sym{font-family:var(--font-display);font-weight:700;font-size:clamp(22px, calc(150px / var(--len, 3)), 44px);line-height:1;color:var(--s);margin-top:4px;letter-spacing:.01em;white-space:nowrap}
+.subj-sym.big{font-size:clamp(15px, calc(130px / var(--len, 3)), 34px);min-width:76px;height:76px;padding:0 14px;border-radius:18px;background:var(--s);color:#fff;display:grid;place-items:center;flex:none}
+.subj-name{font-family:var(--font-display);font-weight:700;font-size:17px;line-height:1.2;text-wrap:balance}
+.subj-foot{margin-top:auto;display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--muted)}
+.subj-hero{display:flex;gap:16px;align-items:center;padding:18px;border-radius:18px;border:1px solid var(--line);border-left:6px solid var(--s);background:linear-gradient(120deg,color-mix(in srgb,var(--s) 16%,var(--surface)),var(--surface) 70%)}
+.syl{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;border:1px solid var(--line);text-decoration:none;color:var(--ink);margin-bottom:8px;background:var(--bg)}
+.syl:hover{border-color:var(--s)}
+.syl-ic{width:42px;height:48px;border-radius:8px;background:var(--s);color:#fff;font:700 11px var(--font-mono);display:grid;place-items:center;flex:none}
+@media (max-width:1100px){.subjgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:860px){.subjgrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.subj{min-height:160px;padding:12px}.subj-sym{font-size:clamp(18px, calc(118px / var(--len, 3)), 36px)}.subj-name{font-size:15px}.subj-foot span:first-child{display:none}}
+
+/* school timetable */
+.tt-title{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:20px;border-radius:18px;background:var(--surface);border:1px solid var(--line);border-top:6px solid var(--accent)}
+.tt-eyebrow{margin:0 0 4px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.tt-wrap{overflow-x:auto}
+.ttgrid{display:grid;grid-template-columns:64px repeat(3,minmax(84px,1fr)) 30px repeat(2,minmax(84px,1fr)) 30px repeat(3,minmax(84px,1fr));grid-template-rows:auto repeat(6,minmax(64px,auto));gap:6px;min-width:860px}
+.tt-corner{grid-row:1;grid-column:1}
+.tt-h{grid-row:1;display:flex;flex-direction:column;align-items:center;font-size:11px;color:var(--muted);padding-bottom:4px}
+.tt-h b{font-family:var(--font-display);font-size:16px;color:var(--ink)}
+.tt-h.tt-brk{writing-mode:vertical-rl;transform:rotate(180deg);justify-content:center;align-items:center;font-size:0}
+.tt-h.tt-brk b{font-size:11px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.tt-day{grid-column:1;display:flex;flex-direction:column;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:16px;padding-left:4px}
+.tt-day small{font:600 10px var(--font-body);text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+.tt-day.cur{color:var(--accent)}
+.tt-c{border-radius:10px;padding:8px 10px;background:color-mix(in srgb,var(--s) 14%,var(--surface));border-left:4px solid var(--s);display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0}
+.tt-c b{font-family:var(--font-display);font-size:14px;color:var(--s);letter-spacing:.02em}
+.tt-c span{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+.tt-c.live{box-shadow:0 0 0 2px var(--s)}
+.tt-free{border-radius:10px;border:1.5px dashed var(--line);display:grid;place-items:center;font-size:12px;color:var(--muted)}
+.tt-gap{border-radius:8px;background:repeating-linear-gradient(135deg,var(--line) 0 2px,transparent 2px 8px);opacity:.6}
+.tt-mobile{display:none}
+.tt-li{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;border-left:4px solid var(--s,var(--line));background:color-mix(in srgb,var(--s,var(--bg)) 10%,var(--surface));margin-top:6px}
+.tt-li.free{border-left-style:dashed}
+.tt-li.live{box-shadow:0 0 0 2px var(--s)}
+.tt-li .tm{font-size:12px;color:var(--muted);width:118px;flex:none}
+@media (max-width:860px){.tt-wrap{display:none}.tt-mobile{display:flex}.tt-li .tm{width:96px;font-size:11px}}
+
+.pack{border-radius:20px;padding:20px;background:#2B2C30;color:var(--ink);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);display:flex;flex-direction:column;gap:16px}
+.pack h2{font-size:22px;color:var(--ink)}
+.pack-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.pack-k{margin:0 0 4px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
+.pack-day{display:inline-block;background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:0 8px}
+.pack-n{font-size:40px;line-height:1;text-align:right}
+.pack-n small{display:block;font:600 11px var(--font-body);text-transform:uppercase;letter-spacing:.06em;opacity:.7}
+.pack-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.pack-i{background:var(--s);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;color:#fff;box-shadow:0 3px 0 color-mix(in srgb,var(--s) 55%,#000)}
+.pack-i b{font-family:var(--font-display);font-size:20px;letter-spacing:.03em}
+.pack-i span{font-size:12px;opacity:.9}
+@media (max-width:860px){.pack{padding:16px}.pack h2{font-size:18px}.pack-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pack-i b{font-size:17px}}
+
+/* locked in */
+.lock{display:grid;grid-template-columns:220px 1fr;gap:28px;align-items:center;padding:28px;border-radius:22px;background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--accent) 26%,#2B2C30) 0%,#2B2C30 62%);color:#fff;border:1px solid color-mix(in srgb,var(--accent) 35%,transparent)}
+.lock-ring{position:relative;width:220px;height:220px}
+.lock-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.lr-bg{fill:none;stroke:rgba(255,255,255,.12);stroke-width:14}
+.lr-fg{fill:none;stroke:var(--accent);stroke-width:14;stroke-linecap:round;filter:drop-shadow(0 0 10px color-mix(in srgb,var(--flame) 60%,transparent))}
+.lock-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.lock-num b{font-size:76px;line-height:1;font-weight:500}
+.lock-num span{font-size:13px;text-transform:uppercase;letter-spacing:.12em;opacity:.7}
+.lock-body{display:flex;flex-direction:column;gap:10px;min-width:0}
+.lock-k{margin:0;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.lock-h{font-size:34px;color:#fff}
+.lock-sub{margin:0;opacity:.75}
+.lock-next{margin-top:6px;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.lock-bar{height:10px;border-radius:6px;background:color-mix(in srgb,var(--accent) 18%,transparent);overflow:hidden}
+.lock-bar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#B8901F,#F5D97A)}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:10px}
+.badge{border:1.5px dashed var(--line);border-radius:14px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:2px;color:var(--muted)}
+.badge b{font-size:22px}
+.badge span{font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.badge.on{border-style:solid;border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.badge.nextb{border-style:solid;border-color:var(--ink);color:var(--ink)}
+@media (max-width:860px){.lock{grid-template-columns:1fr;justify-items:center;text-align:center;padding:22px}.lock-ring{width:190px;height:190px}.lock-num b{font-size:64px}.lock-h{font-size:26px}.lock-body{width:100%}}
+
+/* events calendar */
+.ev-layout{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);align-items:start}
+.ecal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.ec{min-height:92px;border-radius:10px;background:var(--bg);border:1.5px solid transparent;display:flex;flex-direction:column;gap:4px;padding:6px;cursor:pointer;text-align:left;min-width:0;color:var(--ink)}
+.ec:hover{border-color:var(--line)}
+.ec.blank{background:none;cursor:default}
+.ec.past .ec-n{color:var(--muted)}
+.ec.today .ec-n{background:var(--accent);color:var(--accent-ink);border-radius:999px;padding:0 7px}
+.ec.sel{border-color:var(--accent);background:var(--accent-soft)}
+.ec-n{font-size:13px;align-self:flex-start}
+.ec-list{display:flex;flex-direction:column;gap:3px;min-width:0}
+.ec-chip{font-size:11px;font-weight:600;padding:2px 6px;border-radius:5px;background:color-mix(in srgb,var(--c) 18%,var(--surface));border-left:3px solid var(--c);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ec-more{font-size:11px;color:var(--muted)}
+.ec-dots{display:none;gap:3px;justify-content:center}
+.ec-dots i{width:6px;height:6px;border-radius:50%;background:var(--c)}
+@media (max-width:1100px){.ev-layout{grid-template-columns:1fr}}
+@media (max-width:860px){.ecal{gap:4px}.ec{min-height:52px;align-items:center;padding:4px 2px}.ec-n{align-self:center}.ec-list{display:none}.ec-dots{display:flex}}
+
+/* verse */
+.verse{position:relative;padding:22px 24px 18px 28px;border-radius:18px;background:linear-gradient(135deg,#40392A,#313237 70%);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);border-left:5px solid var(--accent)}
+.verse-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.verse-foot .verse-ref{margin:0}
+.verse-btn{text-decoration:none;color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:transparent}
+.verse-k{margin:0 0 6px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.verse blockquote{margin:0;font-family:var(--font-display);font-weight:500;font-size:20px;color:#F7EBC8;line-height:1.4;text-wrap:pretty;max-width:70ch}
+.verse-ref{margin:10px 0 0;font-weight:600;color:var(--accent)}
+.verse-ref span{color:var(--muted);font-weight:400}
+@media (max-width:860px){.verse{padding:16px 16px 14px 18px}.verse blockquote{font-size:17px}}
+
+/* frequency chart */
+.fq{display:grid;grid-template-columns:32px 1fr;grid-template-rows:240px auto;gap:8px 10px}
+.fq-y{display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;font-size:11px;color:var(--muted);transform:translateY(-6px);height:calc(100% + 12px)}
+.fq-plot{position:relative;border-bottom:1px solid var(--muted)}
+.fq-grid{position:absolute;left:0;right:0;height:1px;background:var(--line)}
+.fq-bars{position:absolute;inset:0;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px;align-items:end;padding:0 4px}
+.fq-col{height:100%;display:flex;align-items:flex-end}
+.fq-bar{position:relative;width:100%;background:linear-gradient(180deg,var(--g),color-mix(in srgb,var(--g) 55%,var(--surface)));border-radius:8px 8px 0 0;min-height:3px}
+.fq-bar.top{box-shadow:0 0 0 2px var(--accent)}
+.fq-bar span{position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:12px;color:var(--ink)}
+.fq-x{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:10px;padding:0 4px;font-size:12px;color:var(--muted);text-align:center}
+.fq-x span{display:flex;flex-direction:column;align-items:center;gap:4px;overflow-wrap:anywhere}
+.fq-x i{width:8px;height:8px;border-radius:50%}
+@media (max-width:860px){.fq{grid-template-rows:200px auto}.fq-bars,.fq-x{gap:4px;padding:0}.fq-x{font-size:10px}}
+
+/* celebration */
+.cele{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:rgba(20,20,22,.55);animation:celeIn .3s ease-out;cursor:pointer}
+.cele.out{animation:celeOut .4s ease-in forwards}
+.cele canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.cele-card{position:relative;text-align:center;padding:28px 36px;border-radius:22px;background:radial-gradient(120% 120% at 50% 0%,#4A4130,#2B2C30 70%);border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 40px color-mix(in srgb,var(--accent) 25%,transparent);animation:celePop .55s cubic-bezier(.2,1.4,.4,1)}
+.cele-card h2{font-size:34px;color:#F6E7B8}
+.cele-k{margin:10px 0 4px;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.cele-sub{margin:6px 0 0;color:var(--muted)}
+.cele-check{width:96px;height:96px}
+.cele-check circle{fill:none;stroke:var(--accent);stroke-width:6;stroke-dasharray:327;stroke-dashoffset:327;animation:celeDraw .6s .1s ease-out forwards}
+.cele-check path{fill:none;stroke:#F5D97A;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:80;stroke-dashoffset:80;animation:celeDraw .4s .55s ease-out forwards}
+@keyframes celeDraw{to{stroke-dashoffset:0}}
+@keyframes celePop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes celeIn{from{opacity:0}to{opacity:1}}
+@keyframes celeOut{to{opacity:0}}
+.tasks-done{border-color:color-mix(in srgb,var(--accent) 60%,var(--line));box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 30%,transparent),0 0 24px color-mix(in srgb,var(--accent) 12%,transparent)}
+.tasks-done h2{color:var(--accent)}
+@media (prefers-reduced-motion: reduce){.cele-check circle,.cele-check path{stroke-dashoffset:0}}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+/* standalone app */
+.app{padding-top:env(safe-area-inset-top)}
+.rail{padding-left:max(12px,env(safe-area-inset-left))}
+.signout{border:0;background:none;color:var(--muted);font-size:12px;cursor:pointer;padding:0 10px 10px;text-align:left;text-decoration:underline}
+.auth{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:24px;background:radial-gradient(120% 90% at 50% 0%,#4A4130 0%,var(--bg) 60%)}
+.auth[hidden]{display:none}
+.auth-card{width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px;background:var(--surface);border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));border-radius:22px;padding:28px}
+.auth-logo{font-family:var(--font-display);font-weight:700;font-size:34px;color:var(--accent);display:flex;align-items:center;gap:10px}
+.auth-logo i{width:14px;height:14px;border-radius:3px;background:linear-gradient(135deg,#F5D97A,#B8901F);transform:rotate(45deg)}
+.auth-err{color:var(--flame);font-size:13px;margin:0;min-height:1em}
+.auth-switch{border:0;background:none;color:var(--accent);cursor:pointer;font-size:14px;padding:0}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+</head>
+<body>
+<div class="app">
+  <nav class="rail" id="rail" aria-label="Sections"></nav>
+  <main id="main"><div class="wrap"><p class="muted">Loading your Aurum…</p></div></main>
+  <nav class="tabbar" id="tabbar" aria-label="Sections"></nav>
+</div>
+<div id="sheetRoot"></div>
+<div class="auth" id="auth" hidden>
+  <form class="auth-card" id="authForm">
+    <div class="auth-logo"><i></i>Aurum</div>
+    <p class="muted" style="margin:0" id="authLead">Sign in to sync your data across your phone and PC.</p>
+    <div class="field"><label for="authEmail">Email</label><input class="input" id="authEmail" type="email" autocomplete="email" required></div>
+    <div class="field"><label for="authPass">Password</label><input class="input" id="authPass" type="password" autocomplete="current-password" minlength="6" required></div>
+    <p class="auth-err" id="authErr"></p>
+    <button class="btn primary" id="authBtn" style="padding:12px">Sign in</button>
+    <button type="button" class="auth-switch" id="authSwitch">New here? Create an account</button>
+    <button type="button" class="auth-switch" id="authReset" style="color:var(--muted)">Forgot password?</button>
+  </form>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const pad = n => String(n).padStart(2, "0");
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseYMD = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const addDays = (s, n) => { const d = parseYMD(s); d.setDate(d.getDate()+n); return ymd(d); };
+const today = () => ymd(new Date());
+const daysBetween = (a, b) => Math.round((parseYMD(b) - parseYMD(a)) / 864e5);
+const dow = s => (parseYMD(s).getDay() + 6) % 7; // Mon=0
+const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const fmtDate = s => { const d = parseYMD(s); return `${DAYS[dow(s)].slice(0,3)}, ${MON[d.getMonth()]} ${d.getDate()}`; };
+const fmtTime = t => { if (!t) return ""; let [h,m] = t.split(":").map(Number); const ap = h >= 12 ? "pm" : "am"; h = h % 12 || 12; return `${h}:${pad(m)}${ap}`; };
+const nowHM = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const COLORS = { blue:"var(--accent)", coral:"var(--flame)", green:"var(--good)", amber:"var(--amber)", violet:"var(--violet)", addmath:"#4F46E5", math:"#0284C7", english:"#E11D48", pob:"#B45309", it:"#0D9488", chem:"#A21CAF", bio:"#15803D", phys:"#EA580C" };
+const weekStart = s => addDays(s, -dow(s));
+
+/* ---------- state ---------- */
+const SECTIONS = ["todos","schedule","events","gym","study","streaks","meta"];
+let S = { todos:{}, schedule:[], events:[], gym:{}, study:[], streaks:[], meta:{} };
+let chat = [];
+let view = "today", taskDate = today(), studySubject = null;
+
+function seed() {
+  const t = today();
+  S.todos = {}; S.schedule = LESSONS(); S.events = []; S.gym = {}; S.study = []; S.streaks = [];
+  S.meta = { sample: false, created: t, studyV2: true, lockV1: true, schedV1: true, debateV1: true, dailyV1: true, dailyV2: true, dailyV3: true,
+    lockedIn: { start: "2026-10-25" }, dailyTasks: DEFAULT_DAILY.map(x => ({ ...x })), dailySince: t };
+}
+
+/* ---------- persistence: synced db, with this-device cache as fallback ---------- */
+let db = null, colPath = null, syncState = "local";
+const timers = {}, timerActive = {}, writing = {};
+function cacheLocal() { try { localStorage.setItem("aurum-cache", JSON.stringify(S)); } catch (e) {} }
+function loadLocal() { try { const raw = localStorage.getItem("aurum-cache"); if (raw) { const v = JSON.parse(raw); SECTIONS.forEach(k => { if (v[k] !== undefined) S[k] = v[k]; }); return true; } } catch (e) {} return false; }
+function save(...secs) {
+  cacheLocal();
+  if (!db) return;
+  secs.forEach(sec => { clearTimeout(timers[sec]); timerActive[sec] = true; timers[sec] = setTimeout(() => flush(sec), 500); });
+}
+async function flush(sec) {
+  timerActive[sec] = false;
+  if (writing[sec]) { timerActive[sec] = true; timers[sec] = setTimeout(() => flush(sec), 300); return; }
+  writing[sec] = true;
+  try { await db.collection(colPath).doc(sec).set({ json: JSON.stringify(S[sec]), updated: Date.now() }); setSync("ok"); }
+  catch (e) { setSync("err"); }
+  finally { writing[sec] = false; }
+}
+function setSync(s) { syncState = s; const el = document.querySelectorAll(".syncText"); const txt = s === "ok" ? "Synced across your devices" : s === "err" ? "Sync problem: saved on this device" : s === "wait" ? "Offline: changes will sync" : "Saved on this device only"; el.forEach(e => { e.textContent = txt; e.previousElementSibling.className = "dot " + (s === "ok" ? "ok" : s === "err" ? "err" : ""); }); }
+
+let fbUser = null, unsub = null;
+async function connect() {
+  setSync("wait");
+  try {
+    db = firebase.firestore(); colPath = "users/" + fbUser.uid + "/data";
+    let first = true;
+    const loadTimer = setTimeout(() => { if (first) setSync("err"); }, 10000);
+    const handle = snap => {
+      clearTimeout(loadTimer);
+      const docs = snap.docs || [];
+      if (first) {
+        if (!docs.length && snap.metadata && snap.metadata.fromCache) return; // wait for the server before deciding this is a new account
+        first = false;
+        if (!docs.length) { seed(); migrate(); save(...SECTIONS); render(); setSync("ok"); return; }
+      }
+      let changed = false;
+      docs.forEach(d => {
+        const key = d.id; if (!SECTIONS.includes(key)) return;
+        if (timerActive[key] || writing[key]) return;
+        const data = d.data();
+        if (!data || typeof data.json !== "string") return;
+        if (data.json === JSON.stringify(S[key])) return;
+        try { S[key] = JSON.parse(data.json); changed = true; } catch (e) {}
+      });
+      if (changed) { migrate(); cacheLocal(); render(); }
+      setSync(snap.metadata && snap.metadata.fromCache ? "wait" : "ok");
+    };
+    unsub = db.collection(colPath).onSnapshot({ includeMetadataChanges: false }, handle, () => setSync("err"));
+  } catch (e) { setSync("err"); }
+}
+
+const LESSONS = () => [
+    { id: uid(), day: 0, start: "16:30", end: "17:30", title: "Siewserran IT lessons", color: "it" },
+    { id: uid(), day: 2, start: "12:00", end: "12:30", title: "Debate club", color: "violet" },
+    { id: uid(), day: 2, start: "16:00", end: "19:00", title: "Ramdath Physics lessons", color: "phys" },
+    { id: uid(), day: 3, start: "16:00", end: "18:00", title: "Gyshan Add Math lessons", color: "addmath" },
+    { id: uid(), day: 4, start: "16:00", end: "19:00", title: "Ramdath Chemistry lessons", color: "chem" },
+    { id: uid(), day: 5, start: "10:30", end: "12:00", title: "Neil Singh Biology lessons", color: "bio" }
+  ];
+function migrate() {
+  if (!S.meta) S.meta = {};
+  if (!S.meta.studyV2) { S.study = []; S.meta.studyV2 = true; save("study", "meta"); }
+  if (!S.meta.schedV1) { S.schedule = LESSONS(); S.meta.schedV1 = true; save("schedule", "meta"); }
+  if (!S.meta.debateV1) { if (!S.schedule.some(b => /debate/i.test(b.title))) S.schedule.push({ id: uid(), day: 2, start: "12:00", end: "12:30", title: "Debate club", color: "violet" }); S.meta.debateV1 = true; save("schedule", "meta"); }
+  if (!S.meta.dailyV1) { S.meta.dailyTasks = [{ id: "water", text: "Drink 100 oz of water" }, { id: "bible", text: "Read Bible" }, { id: "nojunk", text: "No junk food" }]; S.meta.dailySince = today(); S.meta.dailyV1 = true; save("meta"); }
+  if (!S.meta.dailyV2) { for (const k in S.todos) S.todos[k].forEach(t => { if (t.daily) delete t.hidden; }); S.meta.dailyV2 = true; save("todos", "meta"); }
+  if (!S.meta.dailyV3) { S.meta.dailyTasks = DEFAULT_DAILY.map(x => ({ ...x })); S.meta.dailySince = S.meta.dailySince && S.meta.dailySince <= today() ? S.meta.dailySince : today(); S.meta.dailyV3 = true; save("meta"); }
+  if (!S.meta.lockV1) { S.streaks = []; S.meta.lockedIn = { start: "2026-10-25" }; S.meta.lockV1 = true; save("streaks", "meta"); }
+}
+/* ---------- derived ---------- */
+const DEFAULT_DAILY = [{ id: "water", text: "Drink 100 oz of water" }, { id: "bible", text: "Read Bible" }, { id: "nojunk", text: "No junk food" }, { id: "chess", text: "Play one chess match" }];
+function dailyList() { const l = S.meta && S.meta.dailyTasks; return Array.isArray(l) && l.length ? l : DEFAULT_DAILY; }
+function todosFor(d) {
+  const list = S.todos[d] || (S.todos[d] = []);
+  const since = (S.meta && S.meta.dailySince) || today(), daily = dailyList();
+  if (since && d >= since) [...daily].reverse().forEach(x => { const id = `daily-${x.id}-${d}`; if (!list.some(t => t.id === id)) list.unshift({ id, text: x.text, done: false, daily: true }); });
+  return list;
+}
+const visibleTodos = d => todosFor(d).filter(t => t.daily);
+function streakInfo(s) {
+  const set = new Set(s.dates), t = today();
+  let d = set.has(t) ? t : addDays(t, -1), cur = 0;
+  while (set.has(d)) { cur++; d = addDays(d, -1); }
+  const sorted = [...set].sort(); let best = 0, run = 0, prev = null;
+  sorted.forEach(x => { run = prev && daysBetween(prev, x) === 1 ? run + 1 : 1; best = Math.max(best, run); prev = x; });
+  return { cur, best, doneToday: set.has(t) };
+}
+function upcomingEvents(days = 3650) {
+  const t = today();
+  return S.events.map(e => e.repeat === "yearly" ? { ...e, date: nextOcc(e, t) } : e).filter(e => { const n = daysBetween(t, e.date); return n >= 0 && n <= days; })
+    .sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")));
+}
+function whenLabel(date) { const n = daysBetween(today(), date); return n === 0 ? "Today" : n === 1 ? "Tomorrow" : n < 0 ? `${-n} days ago` : `in ${n} days`; }
+
+
+/* ---------- icons + nav ---------- */
+const ICON = {
+  today: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  tasks: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
+  week: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  events: '<path d="M12 21s-7-4.4-7-11a7 7 0 0 1 14 0c0 6.6-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  workouts: '<path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/>',
+  study: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/>',
+  streaks: '<path d="M12 22c4 0 7-2.7 7-7 0-4-3-6-4-9-1 2-2 3-3 3 0-2-1-4-3-6-1 4-4 6-4 11 0 4.3 3 8 7 8z"/>',
+  ai: '<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>'
+};
+const NAV = [["today","Today"],["tasks","Tasks"],["week","Week"],["events","Events"],["workouts","Workouts"],["study","Study"],["streaks","Streaks"]];
+function navHTML() {
+  return NAV.map(([k, label]) => `<button class="nav" data-act="go" data-v="${k}" ${view === k ? 'aria-current="page"' : ""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>${label}</button>`).join("");
+}
+function renderNav() {
+  $("#rail").innerHTML = `<div class="brand"><i></i>Aurum</div>${navHTML()}<div class="sync"><span class="dot"></span><span class="syncText"></span></div><button class="signout" data-act="signOut">Sign out</button>`;
+  $("#tabbar").innerHTML = navHTML();
+  setSync(syncState);
+}
+
+/* ---------- views ---------- */
+function sampleBanner() {
+  return S.meta && S.meta.sample ? `<div class="banner"><span>These are sample entries so you can see how everything works. Clear them when you're ready to start with your own.</span><button class="btn sm" data-act="clearSample">Clear sample data</button></div>` : "";
+}
+function todoList(d, opts = {}) {
+  const list = visibleTodos(d);
+  const items = list.map(t => `<div class="item ${t.done ? "done" : ""}"><button class="check ${t.done ? "on" : ""}" data-act="toggleTodo" data-d="${d}" data-id="${t.id}" aria-label="Mark ${esc(t.text)} ${t.done ? "not done" : "done"}"></button><span class="grow">${esc(t.text)}</span><button hidden class="btn ghost sm x" data-act="delTodo" data-d="${d}" data-id="${t.id}" aria-label="Delete task">✕</button></div>`).join("");
+  return `<div class="list">${items || `<p class="empty">No daily tasks yet. Add them on the Tasks page.</p>`}</div>`;
+}
+function blockHTML(b, isToday) {
+  const now = nowHM(), live = isToday && b.start <= now && now < b.end;
+  return `<button class="block ${live ? "now" : ""}" style="--c:${COLORS[b.color] || COLORS.blue}" data-act="editBlock" data-id="${b.id}"><span class="t">${esc(b.title)}</span><span class="tm num">${fmtTime(b.start)}–${fmtTime(b.end)}${live ? " · now" : ""}</span></button>`;
+}
+function evRow(e) {
+  const d = parseYMD(e.date); if (e.type === "birthday" && !/birthday/i.test(e.notes || "")) e = { ...e, notes: ["Birthday", e.notes].filter(Boolean).join(" · ") };
+  return `<div class="ev" data-act="editEvent" data-id="${e.id}" role="button" tabindex="0"><div class="cal"><small>${MON[d.getMonth()]}</small><b>${d.getDate()}</b></div><div class="grow" style="flex:1;min-width:0"><div style="font-weight:600;overflow-wrap:anywhere">${esc(e.title)}</div><div class="small muted">${fmtDate(e.date)}${e.time ? " · " + fmtTime(e.time) : ""}${e.notes ? " · " + esc(e.notes) : ""}</div></div><span class="pill ${daysBetween(today(), e.date) <= 2 ? "flame" : "accent"}">${whenLabel(e.date)}</span></div>`;
+}
+
+/* ---------- verse of the day (KJV, public domain) ---------- */
+const VERSES = [
+["Philippians 4:13","I can do all things through Christ which strengtheneth me."],
+["Jeremiah 29:11","For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end."],
+["Proverbs 3:5–6","Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths."],
+["Joshua 1:9","Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest."],
+["Isaiah 40:31","But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint."],
+["Psalm 23:1","The LORD is my shepherd; I shall not want."],
+["Romans 8:28","And we know that all things work together for good to them that love God, to them who are the called according to his purpose."],
+["John 3:16","For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life."],
+["Psalm 46:1","God is our refuge and strength, a very present help in trouble."],
+["2 Timothy 1:7","For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind."],
+["Matthew 6:33","But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you."],
+["Proverbs 16:3","Commit thy works unto the LORD, and thy thoughts shall be established."],
+["Colossians 3:23","And whatsoever ye do, do it heartily, as to the Lord, and not unto men."],
+["Galatians 6:9","And let us not be weary in well doing: for in due season we shall reap, if we faint not."],
+["Psalm 119:105","Thy word is a lamp unto my feet, and a light unto my path."],
+["Isaiah 41:10","Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness."],
+["Matthew 11:28","Come unto me, all ye that labour and are heavy laden, and I will give you rest."],
+["Philippians 4:6","Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God."],
+["Philippians 4:7","And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus."],
+["Psalm 37:4","Delight thyself also in the LORD; and he shall give thee the desires of thine heart."],
+["Proverbs 1:7","The fear of the LORD is the beginning of knowledge: but fools despise wisdom and instruction."],
+["James 1:5","If any of you lack wisdom, let him ask of God, that giveth to all men liberally, and upbraideth not; and it shall be given him."],
+["1 Corinthians 10:13","There hath no temptation taken you but such as is common to man: but God is faithful, who will not suffer you to be tempted above that ye are able; but will with the temptation also make a way to escape, that ye may be able to bear it."],
+["Hebrews 11:1","Now faith is the substance of things hoped for, the evidence of things not seen."],
+["1 Peter 5:7","Casting all your care upon him; for he careth for you."],
+["Psalm 27:1","The LORD is my light and my salvation; whom shall I fear? the LORD is the strength of my life; of whom shall I be afraid?"],
+["Lamentations 3:22–23","It is of the LORD's mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness."],
+["Romans 12:2","And be not conformed to this world: but be ye transformed by the renewing of your mind, that ye may prove what is that good, and acceptable, and perfect, will of God."],
+["1 Timothy 4:12","Let no man despise thy youth; but be thou an example of the believers, in word, in conversation, in charity, in spirit, in faith, in purity."],
+["Proverbs 4:23","Keep thy heart with all diligence; for out of it are the issues of life."],
+["Psalm 118:24","This is the day which the LORD hath made; we will rejoice and be glad in it."],
+["Deuteronomy 31:6","Be strong and of a good courage, fear not, nor be afraid of them: for the LORD thy God, he it is that doth go with thee; he will not fail thee, nor forsake thee."],
+["Romans 15:13","Now the God of hope fill you with all joy and peace in believing, that ye may abound in hope, through the power of the Holy Ghost."],
+["2 Corinthians 5:7","For we walk by faith, not by sight."],
+["Matthew 5:16","Let your light so shine before men, that they may see your good works, and glorify your Father which is in heaven."],
+["Psalm 121:1–2","I will lift up mine eyes unto the hills, from whence cometh my help. My help cometh from the LORD, which made heaven and earth."],
+["Isaiah 26:3","Thou wilt keep him in perfect peace, whose mind is stayed on thee: because he trusteth in thee."],
+["John 14:27","Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you. Let not your heart be troubled, neither let it be afraid."],
+["Micah 6:8","He hath shewed thee, O man, what is good; and what doth the LORD require of thee, but to do justly, and to love mercy, and to walk humbly with thy God?"],
+["Psalm 34:8","O taste and see that the LORD is good: blessed is the man that trusteth in him."],
+["Proverbs 18:10","The name of the LORD is a strong tower: the righteous runneth into it, and is safe."],
+["1 Corinthians 16:13","Watch ye, stand fast in the faith, quit you like men, be strong."],
+["James 1:12","Blessed is the man that endureth temptation: for when he is tried, he shall receive the crown of life, which the Lord hath promised to them that love him."],
+["Psalm 55:22","Cast thy burden upon the LORD, and he shall sustain thee: he shall never suffer the righteous to be moved."],
+["Romans 8:31","What shall we then say to these things? If God be for us, who can be against us?"],
+["2 Chronicles 15:7","Be ye strong therefore, and let not your hands be weak: for your work shall be rewarded."],
+["Proverbs 13:4","The soul of the sluggard desireth, and hath nothing: but the soul of the diligent shall be made fat."],
+["Psalm 16:8","I have set the LORD always before me: because he is at my right hand, I shall not be moved."],
+["Mark 9:23","Jesus said unto him, If thou canst believe, all things are possible to him that believeth."],
+["1 John 4:18","There is no fear in love; but perfect love casteth out fear: because fear hath torment. He that feareth is not made perfect in love."],
+["Matthew 7:7","Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you."],
+["Psalm 32:8","I will instruct thee and teach thee in the way which thou shalt go: I will guide thee with mine eye."],
+["Isaiah 43:2","When thou passest through the waters, I will be with thee; and through the rivers, they shall not overflow thee: when thou walkest through the fire, thou shalt not be burned; neither shall the flame kindle upon thee."],
+["Proverbs 27:17","Iron sharpeneth iron; so a man sharpeneth the countenance of his friend."],
+["1 Thessalonians 5:16–18","Rejoice evermore. Pray without ceasing. In every thing give thanks: for this is the will of God in Christ Jesus concerning you."],
+["Psalm 91:1","He that dwelleth in the secret place of the most High shall abide under the shadow of the Almighty."],
+["Matthew 19:26","But Jesus beheld them, and said unto them, With men this is impossible; but with God all things are possible."],
+["Philippians 1:6","Being confident of this very thing, that he which hath begun a good work in you will perform it until the day of Jesus Christ."],
+["Ecclesiastes 9:10","Whatsoever thy hand findeth to do, do it with thy might."],
+["Ephesians 2:8","For by grace are ye saved through faith; and that not of yourselves: it is the gift of God."],
+["Psalm 19:14", "Let the words of my mouth, and the meditation of my heart, be acceptable in thy sight, O LORD, my strength, and my redeemer."],
+["Psalm 30:5", "For his anger endureth but a moment; in his favour is life: weeping may endure for a night, but joy cometh in the morning."],
+["Psalm 37:5", "Commit thy way unto the LORD; trust also in him; and he shall bring it to pass."],
+["Psalm 37:23", "The steps of a good man are ordered by the LORD: and he delighteth in his way."],
+["Psalm 42:11", "Why art thou cast down, O my soul? and why art thou disquieted within me? hope thou in God: for I shall yet praise him, who is the health of my countenance, and my God."],
+["Psalm 46:10", "Be still, and know that I am God: I will be exalted among the heathen, I will be exalted in the earth."],
+["Psalm 51:10", "Create in me a clean heart, O God; and renew a right spirit within me."],
+["Psalm 56:3", "What time I am afraid, I will trust in thee."],
+["Psalm 62:1", "Truly my soul waiteth upon God: from him cometh my salvation."],
+["Psalm 73:26", "My flesh and my heart faileth: but God is the strength of my heart, and my portion for ever."],
+["Psalm 90:12", "So teach us to number our days, that we may apply our hearts unto wisdom."],
+["Psalm 91:2", "I will say of the LORD, He is my refuge and my fortress: my God; in him will I trust."],
+["Psalm 91:11", "For he shall give his angels charge over thee, to keep thee in all thy ways."],
+["Psalm 100:4", "Enter into his gates with thanksgiving, and into his courts with praise: be thankful unto him, and bless his name."],
+["Psalm 103:2", "Bless the LORD, O my soul, and forget not all his benefits."],
+["Psalm 107:1", "O give thanks unto the LORD, for he is good: for his mercy endureth for ever."],
+["Psalm 119:11", "Thy word have I hid in mine heart, that I might not sin against thee."],
+["Psalm 121:8", "The LORD shall preserve thy going out and thy coming in from this time forth, and even for evermore."],
+["Psalm 127:1", "Except the LORD build the house, they labour in vain that build it: except the LORD keep the city, the watchman waketh but in vain."],
+["Psalm 138:8", "The LORD will perfect that which concerneth me: thy mercy, O LORD, endureth for ever: forsake not the works of thine own hands."],
+["Psalm 139:14", "I will praise thee; for I am fearfully and wonderfully made: marvellous are thy works; and that my soul knoweth right well."],
+["Psalm 143:8", "Cause me to hear thy lovingkindness in the morning; for in thee do I trust: cause me to know the way wherein I should walk; for I lift up my soul unto thee."],
+["Psalm 145:18", "The LORD is nigh unto all them that call upon him, to all that call upon him in truth."],
+["Psalm 147:3", "He healeth the broken in heart, and bindeth up their wounds."],
+["Psalm 4:8", "I will both lay me down in peace, and sleep: for thou, LORD, only makest me dwell in safety."],
+["Psalm 9:10", "And they that know thy name will put their trust in thee: for thou, LORD, hast not forsaken them that seek thee."],
+["Psalm 18:2", "The LORD is my rock, and my fortress, and my deliverer; my God, my strength, in whom I will trust; my buckler, and the horn of my salvation, and my high tower."],
+["Psalm 28:7", "The LORD is my strength and my shield; my heart trusted in him, and I am helped: therefore my heart greatly rejoiceth; and with my song will I praise him."],
+["Psalm 31:24", "Be of good courage, and he shall strengthen your heart, all ye that hope in the LORD."],
+["Psalm 34:4", "I sought the LORD, and he heard me, and delivered me from all my fears."],
+["Psalm 34:18", "The LORD is nigh unto them that are of a broken heart; and saveth such as be of a contrite spirit."],
+["Psalm 40:1", "I waited patiently for the LORD; and he inclined unto me, and heard my cry."],
+["Psalm 84:11", "For the LORD God is a sun and shield: the LORD will give grace and glory: no good thing will he withhold from them that walk uprightly."],
+["Proverbs 2:6", "For the LORD giveth wisdom: out of his mouth cometh knowledge and understanding."],
+["Proverbs 4:7", "Wisdom is the principal thing; therefore get wisdom: and with all thy getting get understanding."],
+["Proverbs 9:10", "The fear of the LORD is the beginning of wisdom: and the knowledge of the holy is understanding."],
+["Proverbs 10:4", "He becometh poor that dealeth with a slack hand: but the hand of the diligent maketh rich."],
+["Proverbs 11:2", "When pride cometh, then cometh shame: but with the lowly is wisdom."],
+["Proverbs 12:1", "Whoso loveth instruction loveth knowledge: but he that hateth reproof is brutish."],
+["Proverbs 12:25", "Heaviness in the heart of man maketh it stoop: but a good word maketh it glad."],
+["Proverbs 13:20", "He that walketh with wise men shall be wise: but a companion of fools shall be destroyed."],
+["Proverbs 14:23", "In all labour there is profit: but the talk of the lips tendeth only to penury."],
+["Proverbs 15:1", "A soft answer turneth away wrath: but grievous words stir up anger."],
+["Proverbs 15:22", "Without counsel purposes are disappointed: but in the multitude of counsellors they are established."],
+["Proverbs 16:9", "A man's heart deviseth his way: but the LORD directeth his steps."],
+["Proverbs 16:18", "Pride goeth before destruction, and an haughty spirit before a fall."],
+["Proverbs 17:17", "A friend loveth at all times, and a brother is born for adversity."],
+["Proverbs 17:22", "A merry heart doeth good like a medicine: but a broken spirit drieth the bones."],
+["Proverbs 18:21", "Death and life are in the power of the tongue: and they that love it shall eat the fruit thereof."],
+["Proverbs 19:21", "There are many devices in a man's heart; nevertheless the counsel of the LORD, that shall stand."],
+["Proverbs 22:1", "A good name is rather to be chosen than great riches, and loving favour rather than silver and gold."],
+["Proverbs 24:16", "For a just man falleth seven times, and riseth up again: but the wicked shall fall into mischief."],
+["Proverbs 28:1", "The wicked flee when no man pursueth: but the righteous are bold as a lion."],
+["Proverbs 29:25", "The fear of man bringeth a snare: but whoso putteth his trust in the LORD shall be safe."],
+["Proverbs 16:32", "He that is slow to anger is better than the mighty; and he that ruleth his spirit than he that taketh a city."],
+["Proverbs 6:6", "Go to the ant, thou sluggard; consider her ways, and be wise."],
+["Ecclesiastes 3:1", "To every thing there is a season, and a time to every purpose under the heaven."],
+["Ecclesiastes 4:9", "Two are better than one; because they have a good reward for their labour."],
+["Isaiah 12:2", "Behold, God is my salvation; I will trust, and not be afraid: for the LORD JEHOVAH is my strength and my song; he also is become my salvation."],
+["Isaiah 40:29", "He giveth power to the faint; and to them that have no might he increaseth strength."],
+["Isaiah 40:8", "The grass withereth, the flower fadeth: but the word of our God shall stand for ever."],
+["Isaiah 54:17", "No weapon that is formed against thee shall prosper; and every tongue that shall rise against thee in judgment thou shalt condemn. This is the heritage of the servants of the LORD, and their righteousness is of me, saith the LORD."],
+["Isaiah 55:8", "For my thoughts are not your thoughts, neither are your ways my ways, saith the LORD."],
+["Isaiah 60:1", "Arise, shine; for thy light is come, and the glory of the LORD is risen upon thee."],
+["Isaiah 9:6", "For unto us a child is born, unto us a son is given: and the government shall be upon his shoulder: and his name shall be called Wonderful, Counsellor, The mighty God, The everlasting Father, The Prince of Peace."],
+["Jeremiah 17:7", "Blessed is the man that trusteth in the LORD, and whose hope the LORD is."],
+["Jeremiah 33:3", "Call unto me, and I will answer thee, and shew thee great and mighty things, which thou knowest not."],
+["Jeremiah 32:27", "Behold, I am the LORD, the God of all flesh: is there any thing too hard for me?"],
+["Joshua 1:8", "This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success."],
+["Numbers 6:24–26", "The LORD bless thee, and keep thee: The LORD make his face shine upon thee, and be gracious unto thee: The LORD lift up his countenance upon thee, and give thee peace."],
+["Deuteronomy 31:8", "And the LORD, he it is that doth go before thee; he will be with thee, he will not fail thee, neither forsake thee: fear not, neither be dismayed."],
+["1 Chronicles 16:11", "Seek the LORD and his strength, seek his face continually."],
+["Habakkuk 3:19", "The LORD God is my strength, and he will make my feet like hinds' feet, and he will make me to walk upon mine high places."],
+["Zephaniah 3:17", "The LORD thy God in the midst of thee is mighty; he will save, he will rejoice over thee with joy; he will rest in his love, he will joy over thee with singing."],
+["Nahum 1:7", "The LORD is good, a strong hold in the day of trouble; and he knoweth them that trust in him."],
+["Exodus 14:14", "The LORD shall fight for you, and ye shall hold your peace."],
+["Genesis 1:1", "In the beginning God created the heaven and the earth."],
+["Job 42:2", "I know that thou canst do every thing, and that no thought can be withholden from thee."],
+["Matthew 5:9", "Blessed are the peacemakers: for they shall be called the children of God."],
+["Matthew 5:14", "Ye are the light of the world. A city that is set on an hill cannot be hid."],
+["Matthew 6:34", "Take therefore no thought for the morrow: for the morrow shall take thought for the things of itself. Sufficient unto the day is the evil thereof."],
+["Matthew 7:12", "Therefore all things whatsoever ye would that men should do to you, do ye even so to them: for this is the law and the prophets."],
+["Matthew 11:29", "Take my yoke upon you, and learn of me; for I am meek and lowly in heart: and ye shall find rest unto your souls."],
+["Matthew 22:37", "Jesus said unto him, Thou shalt love the Lord thy God with all thy heart, and with all thy soul, and with all thy mind."],
+["Mark 10:27", "And Jesus looking upon them saith, With men it is impossible, but not with God: for with God all things are possible."],
+["Mark 11:24", "Therefore I say unto you, What things soever ye desire, when ye pray, believe that ye receive them, and ye shall have them."],
+["Luke 1:37", "For with God nothing shall be impossible."],
+["Luke 6:31", "And as ye would that men should do to you, do ye also to them likewise."],
+["Luke 16:10", "He that is faithful in that which is least is faithful also in much: and he that is unjust in the least is unjust also in much."],
+["John 1:5", "And the light shineth in darkness; and the darkness comprehended it not."],
+["John 8:12", "Then spake Jesus again unto them, saying, I am the light of the world: he that followeth me shall not walk in darkness, but shall have the light of life."],
+["John 8:32", "And ye shall know the truth, and the truth shall make you free."],
+["John 10:10", "The thief cometh not, but for to steal, and to kill, and to destroy: I am come that they might have life, and that they might have it more abundantly."],
+["John 13:34", "A new commandment I give unto you, That ye love one another; as I have loved you, that ye also love one another."],
+["John 14:1", "Let not your heart be troubled: ye believe in God, believe also in me."],
+["John 14:6", "Jesus saith unto him, I am the way, the truth, and the life: no man cometh unto the Father, but by me."],
+["John 15:5", "I am the vine, ye are the branches: He that abideth in me, and I in him, the same bringeth forth much fruit: for without me ye can do nothing."],
+["John 15:13", "Greater love hath no man than this, that a man lay down his life for his friends."],
+["John 16:33", "These things I have spoken unto you, that in me ye might have peace. In the world ye shall have tribulation: but be of good cheer; I have overcome the world."],
+["John 11:25", "Jesus said unto her, I am the resurrection, and the life: he that believeth in me, though he were dead, yet shall he live."],
+["Romans 5:8", "But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us."],
+["Romans 6:23", "For the wages of sin is death; but the gift of God is eternal life through Jesus Christ our Lord."],
+["Romans 8:1", "There is therefore now no condemnation to them which are in Christ Jesus, who walk not after the flesh, but after the Spirit."],
+["Romans 8:37", "Nay, in all these things we are more than conquerors through him that loved us."],
+["Romans 8:38–39", "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come, Nor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord."],
+["Romans 10:17", "So then faith cometh by hearing, and hearing by the word of God."],
+["Romans 12:12", "Rejoicing in hope; patient in tribulation; continuing instant in prayer."],
+["Romans 12:21", "Be not overcome of evil, but overcome evil with good."],
+["Romans 1:16", "For I am not ashamed of the gospel of Christ: for it is the power of God unto salvation to every one that believeth; to the Jew first, and also to the Greek."],
+["1 Corinthians 2:9", "But as it is written, Eye hath not seen, nor ear heard, neither have entered into the heart of man, the things which God hath prepared for them that love him."],
+["1 Corinthians 13:13", "And now abideth faith, hope, charity, these three; but the greatest of these is charity."],
+["1 Corinthians 15:58", "Therefore, my beloved brethren, be ye stedfast, unmoveable, always abounding in the work of the Lord, forasmuch as ye know that your labour is not in vain in the Lord."],
+["1 Corinthians 16:14", "Let all your things be done with charity."],
+["1 Corinthians 9:24", "Know ye not that they which run in a race run all, but one receiveth the prize? So run, that ye may obtain."],
+["2 Corinthians 4:16", "For which cause we faint not; but though our outward man perish, yet the inward man is renewed day by day."],
+["2 Corinthians 5:17", "Therefore if any man be in Christ, he is a new creature: old things are passed away; behold, all things are become new."],
+["2 Corinthians 12:9", "And he said unto me, My grace is sufficient for thee: for my strength is made perfect in weakness. Most gladly therefore will I rather glory in my infirmities, that the power of Christ may rest upon me."],
+["Galatians 2:20", "I am crucified with Christ: nevertheless I live; yet not I, but Christ liveth in me: and the life which I now live in the flesh I live by the faith of the Son of God, who loved me, and gave himself for me."],
+["Galatians 5:22–23", "But the fruit of the Spirit is love, joy, peace, longsuffering, gentleness, goodness, faith, Meekness, temperance: against such there is no law."],
+["Ephesians 4:32", "And be ye kind one to another, tenderhearted, forgiving one another, even as God for Christ's sake hath forgiven you."],
+["Ephesians 6:10", "Finally, my brethren, be strong in the Lord, and in the power of his might."],
+["Philippians 2:3", "Let nothing be done through strife or vainglory; but in lowliness of mind let each esteem other better than themselves."],
+["Philippians 3:13–14", "Brethren, I count not myself to have apprehended: but this one thing I do, forgetting those things which are behind, and reaching forth unto those things which are before, I press toward the mark for the prize of the high calling of God in Christ Jesus."],
+["Philippians 4:8", "Finally, brethren, whatsoever things are true, whatsoever things are honest, whatsoever things are just, whatsoever things are pure, whatsoever things are lovely, whatsoever things are of good report; if there be any virtue, and if there be any praise, think on these things."],
+["Philippians 4:19", "But my God shall supply all your need according to his riches in glory by Christ Jesus."],
+["Philippians 4:4", "Rejoice in the Lord alway: and again I say, Rejoice."],
+["Colossians 3:2", "Set your affection on things above, not on things on the earth."],
+["Colossians 3:17", "And whatsoever ye do in word or deed, do all in the name of the Lord Jesus, giving thanks to God and the Father by him."],
+["2 Thessalonians 3:3", "But the Lord is faithful, who shall stablish you, and keep you from evil."],
+["2 Timothy 2:15", "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth."],
+["2 Timothy 4:7", "I have fought a good fight, I have finished my course, I have kept the faith."],
+["Hebrews 4:16", "Let us therefore come boldly unto the throne of grace, that we may obtain mercy, and find grace to help in time of need."],
+["Hebrews 11:6", "But without faith it is impossible to please him: for he that cometh to God must believe that he is, and that he is a rewarder of them that diligently seek him."],
+["Hebrews 13:8", "Jesus Christ the same yesterday, and to day, and for ever."],
+["James 1:2–3", "My brethren, count it all joy when ye fall into divers temptations; Knowing this, that the trying of your faith worketh patience."],
+["James 1:19", "Wherefore, my beloved brethren, let every man be swift to hear, slow to speak, slow to wrath."],
+["James 1:22", "But be ye doers of the word, and not hearers only, deceiving your own selves."],
+["James 4:10", "Humble yourselves in the sight of the Lord, and he shall lift you up."],
+["1 Peter 5:6", "Humble yourselves therefore under the mighty hand of God, that he may exalt you in due time."],
+["1 John 1:9", "If we confess our sins, he is faithful and just to forgive us our sins, and to cleanse us from all unrighteousness."],
+["1 John 4:4", "Ye are of God, little children, and have overcome them: because greater is he that is in you, than he that is in the world."],
+["1 John 4:19", "We love him, because he first loved us."],
+["Revelation 21:4", "And God shall wipe away all tears from their eyes; and there shall be no more death, neither sorrow, nor crying, neither shall there be any more pain: for the former things are passed away."],
+["Revelation 3:20", "Behold, I stand at the door, and knock: if any man hear my voice, and open the door, I will come in to him, and will sup with him, and he with me."],
+["Psalm 5:3", "My voice shalt thou hear in the morning, O LORD; in the morning will I direct my prayer unto thee, and will look up."],
+["Psalm 20:4", "Grant thee according to thine own heart, and fulfil all thy counsel."],
+["Psalm 25:4", "Shew me thy ways, O LORD; teach me thy paths."],
+["Psalm 29:11", "The LORD will give strength unto his people; the LORD will bless his people with peace."],
+["Psalm 86:5", "For thou, Lord, art good, and ready to forgive; and plenteous in mercy unto all them that call upon thee."],
+["Psalm 94:19", "In the multitude of my thoughts within me thy comforts delight my soul."],
+["Psalm 95:1", "O come, let us sing unto the LORD: let us make a joyful noise to the rock of our salvation."],
+["Psalm 150:6", "Let every thing that hath breath praise the LORD. Praise ye the LORD."],
+["Psalm 118:6", "The LORD is on my side; I will not fear: what can man do unto me?"],
+["Psalm 119:71", "It is good for me that I have been afflicted; that I might learn thy statutes."],
+["Psalm 145:9", "The LORD is good to all: and his tender mercies are over all his works."]
+];
+function verseOfDay(d = today()) { const n = Math.round(parseYMD(d).getTime() / 864e5); return VERSES[((n * 37) % VERSES.length + VERSES.length) % VERSES.length]; }
+function verseCard() { const [ref, txt] = verseOfDay(); const gnt = "https://www.biblegateway.com/passage/?search=" + encodeURIComponent(ref.replace("–", "-")) + "&version=GNT";
+  return `<section class="verse"><p class="verse-k">Verse of the day</p><blockquote>${txt}</blockquote><div class="verse-foot"><p class="verse-ref">${ref} <span>· KJV</span></p></div></section>`; }
+function scheduleCard() {
+  const t = today(), now = nowHM();
+  const itemsFor = d => {
+    const c = classesOn(d), b = S.schedule.filter(x => x.day === dow(d)).sort((a, z) => a.start.localeCompare(z.start));
+    const timed = eventsOn(d).filter(e => e.time);
+    const ends = [...(c ? c.list.map(e => PERIODS[e[2]][1]) : []), ...b.map(x => x.end), ...timed.map(e => e.time)];
+    return { c, b, timed, lastEnd: ends.sort().pop() || null };
+  };
+  const td = itemsFor(t), showTmr = !td.lastEnd || now >= td.lastEnd;
+  const d = showTmr ? addDays(t, 1) : t, it = showTmr ? itemsFor(d) : td, isT = d === t;
+  const evHTML = it.timed.map(e => `<div class="block" style="--c:${(ETYPES[e.type] || ETYPES.event)[1]};cursor:default"><span class="t">${esc(e.title)}</span><span class="tm num">${fmtTime(e.time)} · ${(ETYPES[e.type] || ETYPES.event)[0]}</span></div>`).join("");
+  return `<section class="card"><div class="card-h"><h2>${isT ? "Today's schedule" : `Tomorrow · ${DAYS[dow(d)]}`}</h2><button class="btn ghost sm" data-act="go" data-v="week">Full week</button></div>
+      ${!isT && td.lastEnd ? `<p class="small muted" style="margin:0">Today's done. Here's what's next.</p>` : ""}
+      ${it.c ? `<p class="small muted" style="margin:0;font-weight:600">SCHOOL · DAY ${it.c.day}</p><div class="list" style="gap:6px">${it.c.list.map(e => { const live = isT && PERIODS[e[1]][0] <= now && now < PERIODS[e[2]][1]; return `<div class="block ${live ? "now" : ""}" style="--c:${SUBJ[e[0]].color};cursor:default"><span class="t">${SUBJ[e[0]].name}</span><span class="tm num">${ttTime(e)}${live ? " · now" : ""}</span></div>`; }).join("")}</div>` : (dow(d) < 5 && !(S.meta && S.meta.cycle) ? `<button class="btn sm" data-act="openTimetable" style="align-self:flex-start">Set the school cycle day</button>` : "")}
+      ${it.b.length || evHTML ? `${it.c ? `<p class="small muted" style="margin:0;font-weight:600">YOUR PLANS</p>` : ""}<div class="list" style="gap:8px">${it.b.map(b => blockHTML(b, isT)).join("")}${evHTML}</div>` : (it.c ? "" : `<p class="empty">Nothing scheduled for ${DAYS[dow(d)]}.</p>`)}
+    </section>`;
+}
+function vToday() {
+  const t = today(), d = new Date(), h = d.getHours();
+  const greet = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  const list = visibleTodos(t), done = list.filter(x => x.done).length;
+  const wk = gymCount(weekStart(t), t), gymToday = wentOn(t), cls = classesOn(t);
+  const L = lockInfo();
+  const blocks = S.schedule.filter(b => b.day === dow(t)).sort((a, b) => a.start.localeCompare(b.start));
+  const ev = upcomingEvents(30).slice(0, 4);
+  return `<div class="head"><div><h1>${greet}</h1><p class="sub">${DAYS[dow(t)]}, ${MON[d.getMonth()]} ${d.getDate()}</p></div></div>
+  ${verseCard()}
+  <div class="stats">
+    <div class="stat"><b>${done}/${list.length}</b><span>tasks done today</span></div>
+    <button class="stat" data-act="go" data-v="workouts" style="text-align:left;cursor:pointer;color:inherit"><b>${wk}</b><span>${gymToday ? "gym days this week · today ✓" : "gym days this week · log today"}</span></button>
+    <button class="stat flame" data-act="go" data-v="streaks" style="text-align:left;cursor:pointer;color:inherit"><b>${L ? L.days : 0}</b><span>days locked in</span></button>
+    <div class="stat"><b>${ev.length ? whenLabel(ev[0].date).replace("in ", "") : "—"}</b><span>${ev.length ? "until " + esc(ev[0].title) : "no events soon"}</span></div>
+  </div>
+  <div class="grid g2">
+    <section class="card ${list.length && done === list.length ? "tasks-done" : ""}"><div class="card-h"><h2>${list.length && done === list.length ? "Today's tasks · all done ✓" : "Today's tasks"}</h2><button class="btn ghost sm" data-act="go" data-v="tasks">All tasks</button></div>${todoList(t, { key: "home" })}</section>
+    ${scheduleCard()}
+    <section class="card"><div class="card-h"><h2>Coming up</h2><button class="btn ghost sm" data-act="addEvent">Add event</button></div><div>${ev.map(evRow).join("") || `<p class="empty">No events in the next 30 days.</p>`}</div></section>
+    <section class="card"><div class="card-h"><h2>Locked in</h2><button class="btn ghost sm" data-act="go" data-v="streaks">Open</button></div>
+      ${L ? `<div class="row" style="align-items:flex-end;gap:10px"><b class="num" style="font-size:48px;line-height:1;color:var(--flame)">${L.days}</b><span class="muted" style="padding-bottom:6px">days · next milestone ${L.next} (${L.next - L.days} to go)</span></div><div class="lock-bar"><i style="width:${Math.round(L.pct * 100)}%"></i></div>` : `<p class="empty">No streak running.</p>`}</section>
+  </div>`;
+}
+
+function vTasks() {
+  const t = today(), y = addDays(taskDate, -1);
+  const carry = visibleTodos(y).filter(x => !x.done && !x.daily).length;
+  const lbl = taskDate === t ? "Today" : taskDate === addDays(t, 1) ? "Tomorrow" : taskDate === addDays(t, -1) ? "Yesterday" : fmtDate(taskDate);
+  return `<div class="head"><div><h1>Daily tasks</h1><p class="sub">${fmtDate(taskDate)}</p></div>
+    <div class="row"><button class="btn" data-act="taskDay" data-n="-1" aria-label="Previous day">←</button><button class="btn" data-act="taskDay" data-n="0">${lbl}</button><button class="btn" data-act="taskDay" data-n="1" aria-label="Next day">→</button></div></div>
+  <section class="card">${todoList(taskDate, { key: "tasks" })}
+</section>
+  <section class="card"><div class="card-h"><h2>Manage daily tasks</h2><span class="small muted">These show up on your list every day</span></div>
+    <div class="list">${dailyList().map(x => `<div class="item"><span class="pill accent">Daily</span><span class="grow">${esc(x.text)}</span><button class="btn ghost sm x" data-act="delDaily" data-id="${x.id}" aria-label="Stop repeating ${esc(x.text)}">✕</button></div>`).join("") || `<p class="empty">No daily tasks yet.</p>`}</div>
+    <form class="addrow" data-form="daily"><input class="input" id="dailyIn" placeholder="Add a task that repeats every day…" autocomplete="off"><button class="btn primary">Add</button></form>
+  </section>`;
+}
+
+/* ---------- school timetable (HVC Form 5 East, 2026–2027, 6-day cycle) ---------- */
+const PERIODS = [null, ["08:30","09:10"], ["09:10","09:45"], ["09:45","10:20"], ["10:35","11:10"], ["11:10","11:45"], ["12:45","13:20"], ["13:20","13:55"], ["13:55","14:30"]];
+const PCOL = [null, 2, 3, 4, 6, 7, 9, 10, 11]; // grid columns; 5 = break, 8 = lunch
+// [subject, fromPeriod, toPeriod, teacher, room]
+const TT = {
+  1: [["english",1,2,"FAH"], ["math",3,3,"KRH"], ["chem",4,5,"ABS"], ["phys",6,7,"BD"], ["it",8,8,"SSI"]],
+  2: [["pob",1,2,"SK"], ["math",3,3,"KRH"], ["bio",4,5,"NS"], ["english",6,6,"FAH"], ["it",7,8,"SSI"]],
+  3: [["phys",1,2,"BD","Phys Lab E"], ["math",3,3,"KRH"], ["pob",4,5,"SK"], ["english",6,6,"FAH"], ["addmath",7,8,"KRH"]],
+  4: [["english",1,1,"FAH"], ["addmath",2,3,"KRH"], ["phys",4,5,"BD","Phys Lab E"], ["chem",6,7,"ABS","Chem Lab W"], ["it",8,8,"SSI"]],
+  5: [["math",1,1,"KRH"], ["addmath",2,3,"KRH"], ["pob",4,5,"SK"], ["it",6,6,"SSI"], ["bio",7,8,"NS","Phys Lab W"]],
+  6: [["it",1,1,"SSI"], ["chem",2,3,"ABS","Chem Lab W"], ["math",4,5,"KRH"], ["bio",6,7,"NS","Chem Lab E"], ["english",8,8,"FAH"]]
+};
+const TTNAME = { addmath: "ADD MATH", english: "ENG A", math: "MATH", pob: "POB", it: "IT", chem: "CHEMISTRY", bio: "BIOLOGY", phys: "PHYSICS", free: "Free" };
+let studyTab = "subjects", ttDay = null;
+function cycleDayFor(d) {
+  const c = S.meta && S.meta.cycle; if (!c || dow(d) > 4) return null;
+  let n = 0, x = c.date; const step = d >= x ? 1 : -1;
+  while (x !== d) { x = addDays(x, step); if (dow(x) < 5) n += step; }
+  return ((c.day - 1 + n) % 6 + 6) % 6 + 1;
+}
+const nextSchoolDay = d => dow(d) > 4 ? addDays(d, 7 - dow(d)) : d;
+function classesOn(d) { const c = cycleDayFor(d); return c ? { day: c, list: TT[c].filter(e => e[0] !== "free") } : null; }
+function ttTime(e) { return `${fmtTime(PERIODS[e[1]][0])}–${fmtTime(PERIODS[e[2]][1])}`; }
+function ttCellInfo(e) { return [e[3], e[4]].filter(Boolean).map(esc).join(" · "); }
+
+function packTarget() {
+  const t = today();
+  if (dow(t) < 5 && nowHM() < "14:30") return t;
+  let d = addDays(t, 1); while (dow(d) > 4) d = addDays(d, 1); return d;
+}
+function packList(d) {
+  const c = cycleDayFor(d); if (!c) return null;
+  const seen = {}; TT[c].forEach(e => { if (e[0] === "free") return; (seen[e[0]] = seen[e[0]] || { k: e[0], periods: 0, first: e[1], rooms: new Set() }); seen[e[0]].periods += e[2] - e[1] + 1; if (e[4]) seen[e[0]].rooms.add(e[4]); });
+  return { day: c, items: Object.values(seen).sort((a, b) => a.first - b.first) };
+}
+function packLabel(d) { const t = today(); return d === t ? "today" : d === addDays(t, 1) ? "tomorrow" : DAYS[dow(d)]; }
+function packCard() {
+  const d = packTarget(), p = packList(d);
+  if (!p) return `<section class="pack"><div><p class="pack-k">Pack your bag</p><h2>Pick today's cycle day below to see what to pack.</h2></div></section>`;
+  return `<section class="pack"><div class="pack-h"><div><p class="pack-k">Pack for ${packLabel(d)}</p><h2>${DAYS[dow(d)]}, ${MON[parseYMD(d).getMonth()]} ${parseYMD(d).getDate()} · <span class="pack-day">Day ${p.day}</span></h2></div><span class="pack-n num">${p.items.length}<small>subjects</small></span></div>
+    <div class="pack-grid">${p.items.map(x => `<div class="pack-i" style="--s:${SUBJ[x.k].color}"><b>${TTNAME[x.k]}</b><span>${x.periods} period${x.periods > 1 ? "s" : ""}${x.rooms.size ? " · " + [...x.rooms].join(", ") : ""}</span></div>`).join("")}</div></section>`;
+}
+function vSchool() {
+  const t = today(), ref = nextSchoolDay(t), cur = cycleDayFor(ref);
+  const sel = ttDay || cur || 1, now = nowHM(), isSchoolToday = dow(t) < 5;
+  const used = ["addmath", "english", "math", "pob", "it", "chem", "bio", "phys"];
+  const hdr = [["",""], ...[1,2,3].map(p => [p, PERIODS[p]]), ["Break", ["10:20","10:35"]], ...[4,5].map(p => [p, PERIODS[p]]), ["Lunch", ["11:45","12:45"]], ...[6,7,8].map(p => [p, PERIODS[p]])];
+  const head = hdr.map(([l, tm], i) => i === 0 ? `<div class="tt-corner"></div>` : `<div class="tt-h ${typeof l === "string" ? "tt-brk" : ""}"><b>${typeof l === "string" ? l : "P" + l}</b><span class="num">${tm[0]}–${tm[1]}</span></div>`).join("");
+  let cells = "";
+  for (let d = 1; d <= 6; d++) {
+    cells += `<div class="tt-day ${d === cur ? "cur" : ""}" style="grid-row:${d + 1}">Day ${d}${d === cur ? `<small>${isSchoolToday && ref === t ? "Today" : "Next"}</small>` : ""}</div>`;
+    TT[d].forEach(e => {
+      const s = SUBJ[e[0]], live = d === cur && ref === t && PERIODS[e[1]][0] <= now && now < PERIODS[e[2]][1];
+      cells += e[0] === "free"
+        ? `<div class="tt-c tt-free" style="grid-row:${d + 1};grid-column:${PCOL[e[1]]}/${PCOL[e[2]] + 1}">Free</div>`
+        : `<div class="tt-c ${live ? "live" : ""}" style="--s:${s.color};grid-row:${d + 1};grid-column:${PCOL[e[1]]}/${PCOL[e[2]] + 1}"><b>${TTNAME[e[0]]}</b><span>${ttCellInfo(e)}</span></div>`;
+    });
+  }
+  cells += `<div class="tt-gap" style="grid-row:2/8;grid-column:5"></div><div class="tt-gap" style="grid-row:2/8;grid-column:8"></div>`;
+  const list = TT[sel].map(e => { const s = SUBJ[e[0]], live = sel === cur && ref === t && PERIODS[e[1]][0] <= now && now < PERIODS[e[2]][1];
+    return e[0] === "free" ? `<div class="tt-li free"><span class="tm num">${ttTime(e)}</span><span class="grow muted">Free period</span></div>`
+      : `<div class="tt-li ${live ? "live" : ""}" style="--s:${s.color}"><span class="tm num">${ttTime(e)}</span><span class="grow"><b>${s.name}</b><span class="small muted" style="display:block">${ttCellInfo(e)}</span></span>${live ? `<span class="pill good">Now</span>` : ""}</div>`; }).join("");
+  return `<section class="tt-title">
+      <div><p class="tt-eyebrow">Hillview College, Tunapuna · 2026–2027</p><h1>HVC Timetable · Form 5 East</h1><p class="sub">6-day cycle · your subjects only</p></div>
+      <div class="field" style="min-width:170px"><label for="cycleSel">${dow(t) > 4 ? "Monday is" : "Today is"}</label>
+        <select class="input" id="cycleSel" data-change="cycle"><option value="">Pick cycle day…</option>${[1,2,3,4,5,6].map(n => `<option value="${n}" ${cur === n ? "selected" : ""}>Day ${n}</option>`).join("")}</select></div>
+    </section>
+    <div class="chips">${used.map(k => `<span class="chip" style="cursor:default;border-color:${SUBJ[k].color};color:${SUBJ[k].color};font-weight:600">${TTNAME[k]}</span>`).join("")}</div>
+    <div class="tt-wrap"><div class="ttgrid">${head}${cells}</div></div>
+    <section class="card tt-mobile"><div class="chips">${[1,2,3,4,5,6].map(n => `<button class="chip" data-act="ttDay" data-v="${n}" aria-pressed="${n === sel}">Day ${n}${n === cur ? " •" : ""}</button>`).join("")}</div><div class="list">${list}</div></section>
+    <p class="small muted" style="margin:0">${cur ? "Days count forward on school days (Mon–Fri). After a holiday, just pick the right day again." : "Pick which cycle day it is and Aurum will keep count, and show your classes on the Today page."}</p>`;
+}
+
+function vWeek() {
+  const t = today(), td = dow(t);
+  return `<div class="head"><div><h1>My week</h1><p class="sub">Your own repeating plans: gym, study sessions, lessons. Tap a block to edit it.</p></div><button class="btn primary" data-act="addBlock">Add block</button></div>
+  <div class="week">${DAYS.map((name, i) => {
+    const bl = S.schedule.filter(b => b.day === i).sort((a, b) => a.start.localeCompare(b.start));
+    return `<div class="day ${i === td ? "today" : ""}"><h3>${name.slice(0, 3)}<button class="btn ghost sm" data-act="addBlock" data-day="${i}" aria-label="Add block on ${name}">+</button></h3>${bl.map(b => blockHTML(b, i === td)).join("") || `<p class="empty small">Free</p>`}</div>`;
+  }).join("")}</div>`;
+}
+
+const ETYPES = { event: ["Event", "var(--accent)"], birthday: ["Birthday", "var(--flame)"], exam: ["Exam / test", "var(--violet)"], appt: ["Appointment", "var(--good)"], other: ["Other", "var(--amber)"] };
+let evCursor = today(), evSel = today();
+function occursOn(e, d) { return e.repeat === "yearly" ? e.date.slice(5) === d.slice(5) && d >= e.date.slice(0, 4) + "-01-01" : e.date === d; }
+function eventsOn(d) { return S.events.filter(e => occursOn(e, d)).sort((a, b) => (a.time || "").localeCompare(b.time || "")); }
+function nextOcc(e, from) {
+  if (e.repeat !== "yearly") return e.date;
+  let y = +from.slice(0, 4), d = `${y}-${e.date.slice(5)}`;
+  if (d < from) d = `${y + 1}-${e.date.slice(5)}`;
+  return d < e.date ? e.date : d;
+}
+function vEvents() {
+  const t = today(), c = parseYMD(evCursor), cy = c.getFullYear(), cm = c.getMonth();
+  const first = new Date(cy, cm, 1), off = (first.getDay() + 6) % 7, n = new Date(cy, cm + 1, 0).getDate();
+  let cells = Array.from({ length: off }, () => `<span class="ec blank"></span>`).join("");
+  for (let i = 1; i <= n; i++) {
+    const d = ymd(new Date(cy, cm, i)), evs = eventsOn(d);
+    cells += `<button class="ec ${d === t ? "today" : ""} ${d === evSel ? "sel" : ""} ${d < t ? "past" : ""}" data-act="evSel" data-d="${d}" aria-label="${fmtDate(d)}${evs.length ? ", " + evs.length + " event" + (evs.length > 1 ? "s" : "") : ""}">
+      <span class="ec-n num">${i}</span>
+      <span class="ec-list">${evs.slice(0, 2).map(e => `<span class="ec-chip" style="--c:${(ETYPES[e.type] || ETYPES.event)[1]}">${esc(e.title)}</span>`).join("")}${evs.length > 2 ? `<span class="ec-more">+${evs.length - 2} more</span>` : ""}</span>
+      <span class="ec-dots">${evs.slice(0, 4).map(e => `<i style="--c:${(ETYPES[e.type] || ETYPES.event)[1]}"></i>`).join("")}</span>
+    </button>`;
+  }
+  const selEvs = eventsOn(evSel), sd = parseYMD(evSel);
+  const up = upcomingEvents(365).slice(0, 8);
+  const bdays = S.events.filter(e => e.type === "birthday").map(e => ({ e, nd: nextOcc(e, t) })).sort((a, b) => a.nd.localeCompare(b.nd));
+  return `<div class="head"><div><h1>Events</h1><p class="sub">Tap a day to add something to it.</p></div><button class="btn primary" data-act="addEvent" data-d="${evSel}">Add event</button></div>
+  <div class="grid ev-layout">
+    <section class="card">
+      <div class="row" style="justify-content:space-between"><button class="btn" data-act="evNav" data-n="-1" aria-label="Previous month">←</button>
+        <div class="row"><h2>${["January","February","March","April","May","June","July","August","September","October","November","December"][cm]} ${cy}</h2>${evCursor.slice(0, 7) !== t.slice(0, 7) ? `<button class="btn ghost sm" data-act="evNav" data-n="0">Today</button>` : ""}</div>
+        <button class="btn" data-act="evNav" data-n="1" aria-label="Next month">→</button></div>
+      <div class="calhead">${DAYS.map(x => `<span>${x.slice(0, 3)}</span>`).join("")}</div>
+      <div class="ecal">${cells}</div>
+      <div class="chips">${Object.entries(ETYPES).map(([k, [l, col]]) => `<span class="small muted row" style="gap:5px"><i style="width:9px;height:9px;border-radius:50%;background:${col};display:inline-block"></i>${l}</span>`).join("")}</div>
+    </section>
+    <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+      <section class="card"><div class="card-h"><h2>${evSel === t ? "Today · " : ""}${DAYS[dow(evSel)]}, ${MON[sd.getMonth()]} ${sd.getDate()}</h2></div>
+        <div class="list">${selEvs.map(e => { const [l, col] = ETYPES[e.type] || ETYPES.event; return `<div class="item" data-act="editEvent" data-id="${e.id}" role="button" tabindex="0" style="cursor:pointer"><i style="width:4px;align-self:stretch;border-radius:4px;background:${col};flex:none"></i><span class="grow"><b>${esc(e.title)}</b><span class="small muted" style="display:block">${l}${e.time ? " · " + fmtTime(e.time) : ""}${e.repeat === "yearly" ? " · every year" : ""}${e.notes ? " · " + esc(e.notes) : ""}</span></span></div>`; }).join("") || `<p class="empty">Nothing on this day.</p>`}</div>
+        <form class="addrow" data-form="quickEvent"><input class="input" id="qeIn" placeholder="Type an event for this day…" autocomplete="off"><button class="btn primary">Add</button></form>
+        <button class="btn sm" style="align-self:flex-start" data-act="addEvent" data-d="${evSel}">More options (time, birthday, repeat)</button>
+      </section>
+      <section class="card"><h2>Coming up</h2><div>${up.map(evRow).join("") || `<p class="empty">Nothing in the next year.</p>`}</div></section>
+      <section class="card"><div class="card-h"><h2>Saved birthdays</h2><button class="btn ghost sm" data-act="addBirthday">Add birthday</button></div>
+        <div class="list">${bdays.map(({ e, nd }) => `<div class="item" data-act="editEvent" data-id="${e.id}" role="button" tabindex="0" style="cursor:pointer"><span class="grow"><b>${esc(e.title)}</b><span class="small muted" style="display:block">${MON[parseYMD(e.date).getMonth()]} ${parseYMD(e.date).getDate()} · every year</span></span><span class="pill ${daysBetween(t, nd) <= 7 ? "flame" : ""}">${whenLabel(nd)}</span></div>`).join("") || `<p class="empty">Save birthdays here and they'll show up on the calendar every year.</p>`}</div></section>
+    </div>
+  </div>`;
+}
+
+/* ---------- gym ---------- */
+const GROUPS = [["back","Back"],["bi","Biceps"],["chest","Chest"],["tri","Triceps"],["shoulders","Shoulders"],["legs","Legs"],["abs","Abs"],["forearms","Forearms"]];
+const GNAME = Object.fromEntries(GROUPS);
+const GCOL = { back:"#3B82F6", bi:"#A78BFA", chest:"#EF4444", tri:"#F59E0B", shoulders:"#22C55E", legs:"#14B8A6", abs:"#EC4899", forearms:"#84CC16" };
+let gymFreq = "week", gymTab = "today", gymCursor = today(), gymSel = null, gymPick = new Set();
+const gymDays = () => Object.keys(S.gym || {}).sort();
+const wentOn = d => !!(S.gym && S.gym[d]);
+function gymCount(from, to) { return gymDays().filter(d => d >= from && d <= to).length; }
+function groupCounts(from, to) { const c = {}; GROUPS.forEach(([k]) => c[k] = 0); gymDays().filter(d => d >= from && d <= to).forEach(d => (S.gym[d].groups || []).forEach(g => c[g] = (c[g] || 0) + 1)); return c; }
+function lastTrained(g) { const ds = gymDays().filter(d => (S.gym[d].groups || []).includes(g)); return ds.length ? ds[ds.length - 1] : null; }
+function logGymToday() {
+  const t = today();
+  if (wentOn(t)) return false;
+  if (!gymPick.size) return false;
+  S.gym[t] = { groups: GROUPS.map(g => g[0]).filter(k => gymPick.has(k)), at: Date.now() };
+  gymPick = new Set(); save("gym"); return true;
+}
+function gdots(d) { return wentOn(d) ? `<span class="gd">${(S.gym[d].groups || []).map(g => `<i style="--g:${GCOL[g]}"></i>`).join("")}</span>` : ""; }
+function gpills(d) { return (S.gym[d]?.groups || []).map(g => `<span class="pill" style="background:color-mix(in srgb, ${GCOL[g]} 18%, transparent);color:var(--ink)">${GNAME[g]}</span>`).join(" "); }
+function breakdown(from, to) {
+  const c = groupCounts(from, to), max = Math.max(1, ...Object.values(c));
+  return `<div class="hb">${GROUPS.map(([k, n]) => `<span>${n}</span><div class="hbt"><div style="width:${c[k] / max * 100}%;background:${GCOL[k]}"></div></div><span class="num">${c[k]}</span>`).join("")}</div>`;
+}
+function monthCal(y, m, { mini = false } = {}) {
+  const first = new Date(y, m, 1), off = (first.getDay() + 6) % 7, n = new Date(y, m + 1, 0).getDate(), t = today();
+  let cells = Array.from({ length: off }, () => `<span class="cd blank"></span>`).join("");
+  for (let i = 1; i <= n; i++) {
+    const d = ymd(new Date(y, m, i)), cls = ["cd", wentOn(d) && "went", d === t && "today", d > t && "future", !mini && d === gymSel && "sel"].filter(Boolean).join(" ");
+    cells += mini ? `<span class="${cls}" title="${fmtDate(d)}${wentOn(d) ? " · gym" : ""}"></span>`
+      : `<button class="${cls}" ${d > t ? "disabled" : ""} data-act="gymSel" data-d="${d}" aria-label="${fmtDate(d)}${wentOn(d) ? ", went to the gym" : ""}">${i}${gdots(d)}</button>`;
+  }
+  return `${mini ? "" : `<div class="calhead">${DAYS.map(x => `<span>${x.slice(0, 3)}</span>`).join("")}</div>`}<div class="calgrid">${cells}</div>`;
+}
+function dayDetail(d) {
+  if (!d) return `<p class="small muted">Tap a day to see what you trained.</p>`;
+  return `<div class="row"><b>${fmtDate(d)}</b>${wentOn(d) ? gpills(d) : `<span class="muted small">Rest day</span>`}</div>`;
+}
+
+function vGym() {
+  const t = today(), d = parseYMD(t), y = d.getFullYear();
+  const tabs = [["today","Today"],["week","Week"],["month","Month"],["year","Year"],["freq","Frequency"]];
+  const head = `<div class="head"><div><h1>Workouts</h1><p class="sub">${gymDays().length} gym day${gymDays().length === 1 ? "" : "s"} logged${gymDays().length ? " since " + fmtDate(gymDays()[0]) : ""}</p></div></div>
+  <div class="tabs" role="tablist">${tabs.map(([k, l]) => `<button class="tab" role="tab" aria-selected="${gymTab === k}" data-act="gymTab" data-v="${k}">${l}</button>`).join("")}</div>`;
+  const nav = (label) => `<div class="row" style="justify-content:space-between"><button class="btn" data-act="gymNav" data-n="-1" aria-label="Previous">←</button><h2>${label}</h2><button class="btn" data-act="gymNav" data-n="1" aria-label="Next">→</button></div>`;
+
+  if (gymTab === "today") {
+    const done = wentOn(t), ws = weekStart(t);
+    const monthStart = `${y}-${pad(d.getMonth() + 1)}-01`;
+    const logCard = done
+      ? `<div class="locked"><div class="seal">✓</div><div><b style="font-size:17px">Workout logged for today</b><div class="small muted">Locked at ${new Date(S.gym[t].at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}. Come back tomorrow.</div><div class="row" style="margin-top:6px">${gpills(t)}</div></div></div>`
+      : `<p class="muted" style="margin:0">What did you hit today? Pick everything you trained, then log it. You can log once per day and it locks after that.</p>
+        <div class="mg">${GROUPS.map(([k, n]) => `<button class="mgbtn" style="--g:${GCOL[k]}" aria-pressed="${gymPick.has(k)}" data-act="gymPick" data-v="${k}"><i></i>${n}</button>`).join("")}</div>
+        <button class="btn primary logbtn" data-act="gymLog" ${gymPick.size ? "" : "disabled"}>${gymPick.size ? `Log today's workout (${[...gymPick].map(k => GNAME[k]).join(", ")})` : "Pick at least one muscle group"}</button>`;
+    return `${head}
+    <section class="card"><div class="card-h"><h2>${DAYS[dow(t)]}, ${MON[d.getMonth()]} ${d.getDate()}</h2>${done ? `<span class="pill good">Done</span>` : `<span class="pill">Not logged yet</span>`}</div>${logCard}</section>
+    <div class="stats">
+      <div class="stat"><b>${gymCount(ws, t)}</b><span>this week</span></div>
+      <div class="stat"><b>${gymCount(monthStart, t)}</b><span>this month</span></div>
+      <div class="stat"><b>${gymCount(y + "-01-01", t)}</b><span>this year</span></div>
+      <div class="stat"><b>${gymDays().length}</b><span>all time</span></div>
+    </div>
+    <section class="card"><h2>Last trained</h2><div class="list">${GROUPS.map(([k, n]) => { const l = lastTrained(k), ago = l ? daysBetween(l, t) : null;
+      return `<div class="item"><i style="width:10px;height:10px;border-radius:50%;background:${GCOL[k]};flex:none"></i><span class="grow">${n}</span><span class="pill ${ago === null ? "" : ago >= 7 ? "flame" : ago <= 2 ? "good" : "accent"}">${ago === null ? "Not yet" : ago === 0 ? "Today" : ago === 1 ? "Yesterday" : ago + " days ago"}</span></div>`; }).join("")}</div></section>`;
+  }
+
+  if (gymTab === "week") {
+    const ws = weekStart(gymCursor), we = addDays(ws, 6);
+    const label = `${MON[parseYMD(ws).getMonth()]} ${parseYMD(ws).getDate()} – ${MON[parseYMD(we).getMonth()]} ${parseYMD(we).getDate()}`;
+    return `${head}<section class="card">${nav(label)}
+      <div class="wk">${Array.from({ length: 7 }, (_, i) => { const dd = addDays(ws, i); return `<div class="wkd ${wentOn(dd) ? "went" : ""} ${dd === t ? "today" : ""}"><div class="row" style="justify-content:space-between"><b>${DAYS[i].slice(0, 3)} <span class="num muted">${parseYMD(dd).getDate()}</span></b>${wentOn(dd) ? `<span class="pill good">✓ Gym</span>` : dd > t ? "" : `<span class="small muted">Rest</span>`}</div><div class="row">${gpills(dd)}</div></div>`; }).join("")}</div>
+      <p class="sub"><b class="num">${gymCount(ws, we)}</b> of 7 days at the gym</p></section>`;
+  }
+
+  if (gymTab === "month") {
+    const c = parseYMD(gymCursor), cy = c.getFullYear(), cm = c.getMonth();
+    const from = `${cy}-${pad(cm + 1)}-01`, to = ymd(new Date(cy, cm + 1, 0));
+    return `${head}<section class="card">${nav(`${["January","February","March","April","May","June","July","August","September","October","November","December"][cm]} ${cy}`)}
+      ${monthCal(cy, cm)}<p class="sub"><b class="num">${gymCount(from, to)}</b> gym day${gymCount(from, to) === 1 ? "" : "s"} this month</p>${dayDetail(gymSel && gymSel >= from && gymSel <= to ? gymSel : null)}</section>`;
+  }
+
+  if (gymTab === "freq") {
+    const c = parseYMD(gymCursor), cy = c.getFullYear(), cm = c.getMonth();
+    let from, to, label;
+    if (gymFreq === "week") { from = weekStart(gymCursor); to = addDays(from, 6); label = `${MON[parseYMD(from).getMonth()]} ${parseYMD(from).getDate()} – ${MON[parseYMD(to).getMonth()]} ${parseYMD(to).getDate()}`; }
+    else if (gymFreq === "month") { from = `${cy}-${pad(cm + 1)}-01`; to = ymd(new Date(cy, cm + 1, 0)); label = `${["January","February","March","April","May","June","July","August","September","October","November","December"][cm]} ${cy}`; }
+    else { from = cy + "-01-01"; to = cy + "-12-31"; label = String(cy); }
+    const counts = groupCounts(from, to), vals = GROUPS.map(([k]) => counts[k] || 0), mx = Math.max(...vals);
+    const top = Math.max(4, Math.ceil(mx / 4) * 4), ticks = [0, 1, 2, 3, 4].map(i => top * i / 4);
+    const sessions = gymCount(from, to), ranked = GROUPS.map(([k, n]) => [n, counts[k] || 0]).sort((a, b) => b[1] - a[1]);
+    const missed = ranked.filter(x => x[1] === 0).map(x => x[0]);
+    return `${head}<section class="card">
+      <div class="row" style="justify-content:space-between"><div class="chips">${[["week","Per week"],["month","Per month"],["year","Per year"]].map(([k, l]) => `<button class="chip" data-act="gymFreq" data-v="${k}" aria-pressed="${gymFreq === k}">${l}</button>`).join("")}</div></div>
+      ${nav(label)}
+      <div class="fq">
+        <div class="fq-y">${ticks.slice().reverse().map(t => `<span class="num">${t}</span>`).join("")}</div>
+        <div class="fq-plot">
+          ${ticks.map(t => `<i class="fq-grid" style="bottom:${t / top * 100}%"></i>`).join("")}
+          <div class="fq-bars">${GROUPS.map(([k, n], i) => `<div class="fq-col"><div class="fq-bar ${vals[i] === mx && mx > 0 ? "top" : ""}" style="height:${vals[i] / top * 100}%;--g:${GCOL[k]}"><span class="num">${vals[i]}</span></div></div>`).join("")}</div>
+        </div>
+        <div></div>
+        <div class="fq-x">${GROUPS.map(([k, n]) => `<span><i style="background:${GCOL[k]}"></i>${n}</span>`).join("")}</div>
+      </div>
+      <p class="sub" style="margin:0">Times each muscle group was trained · <b class="num">${sessions}</b> gym day${sessions === 1 ? "" : "s"} in this ${gymFreq}</p>
+    </section>
+    <div class="grid g2">
+      <section class="card"><h2>Most trained</h2><p style="margin:0">${mx ? ranked.filter(x => x[1] === mx).map(x => `<b>${x[0]}</b>`).join(", ") + ` · <span class="num">${mx}</span> time${mx === 1 ? "" : "s"}` : `<span class="muted">Nothing logged in this ${gymFreq} yet.</span>`}</p></section>
+      <section class="card"><h2>Not hit this ${gymFreq}</h2><p style="margin:0">${sessions && missed.length ? missed.join(", ") : sessions ? `<span class="muted">You hit every muscle group.</span>` : `<span class="muted">—</span>`}</p></section>
+    </div>`;
+  }
+
+  // year
+  const cy = parseYMD(gymCursor).getFullYear();
+  return `${head}<section class="card">${nav(String(cy))}
+    <p class="sub" style="margin:0"><b class="num">${gymCount(cy + "-01-01", cy + "-12-31")}</b> gym days in ${cy}</p>
+    <div class="yr">${Array.from({ length: 12 }, (_, m) => { const f = `${cy}-${pad(m + 1)}-01`, l = ymd(new Date(cy, m + 1, 0)); return `<button class="mini" data-act="gymOpenMonth" data-d="${f}" aria-label="Open ${MON[m]} ${cy}"><div class="row" style="justify-content:space-between"><b>${MON[m]}</b><span class="small muted num">${gymCount(f, l)}</span></div>${monthCal(cy, m, { mini: true })}</button>`; }).join("")}</div></section>`;
+}
+
+/* ---------- study: CSEC subjects ---------- */
+const CXC = "https://www.cxc.org/wp-content/uploads/2018/11/", ARC = "https://web.archive.org/web/20260206023456/" + CXC;
+const SUBJECTS = [
+  { k: "addmath", name: "Additional Mathematics", short: "Add Maths", sym: "ADD MATH", color: "#4F46E5", area: "Mathematics",
+    syl: [{ label: "CSEC Additional Mathematics syllabus", note: "Amended 2020 · current", url: CXC + "CSEC-ADDITIONAL-MATHEMATICS-SYLLABUS-Amended-2020.pdf" }] },
+  { k: "math", name: "Mathematics", short: "Maths", sym: "MATH", color: "#0284C7", area: "Mathematics",
+    syl: [{ label: "CSEC Mathematics syllabus", note: "Amended 2026 · for May/June 2027 exams onward", url: CXC + "CSEC-Mathematics-Amended-2026-for-Exams-2027V2.pdf" }] },
+  { k: "english", name: "English A", short: "English A", sym: "ENG A", color: "#E11D48", area: "Languages",
+    syl: [{ label: "CSEC English syllabus", note: "Amended 2026 · for May/June 2027 exams onward", url: CXC + "CSEC-English-Syllabus-Amended-2026-for-Exams-2027V3.pdf" }] },
+  { k: "pob", name: "Principles of Business", short: "POB", sym: "POB", color: "#B45309", area: "Business",
+    syl: [{ label: "CSEC Principles of Business syllabus", note: "Revised 2017 · current", url: ARC + "CSEC-Principles-of-Business-Syllabus-.pdf" }] },
+  { k: "it", name: "Information Technology", short: "IT", sym: "IT", color: "#0D9488", area: "Technology",
+    syl: [{ label: "CSEC Information Technology syllabus", note: "Revised 2017 · current", url: CXC + "CSEC-INFORMATION-TECHNOLOGY-SYLLABUS-Revised-2017.pdf" }] },
+  { k: "chem", name: "Chemistry", short: "Chem", sym: "CHEMISTRY", color: "#A21CAF", area: "Sciences",
+    syl: [{ label: "CSEC Chemistry syllabus", note: "Current", url: ARC + "CSEC-Chemistry-Syllabus.pdf" }] },
+  { k: "bio", name: "Biology", short: "Bio", sym: "BIOLOGY", color: "#15803D", area: "Sciences",
+    syl: [{ label: "CSEC Biology syllabus", note: "Amended 2017 · current", url: CXC + "CSEC-BIOLOGY-SYLLABUS-Amended-2017.pdf" }] },
+  { k: "phys", name: "Physics", short: "Phys", sym: "PHYSICS", color: "#EA580C", area: "Sciences",
+    syl: [{ label: "CSEC Physics syllabus", note: "Current", url: ARC + "CSEC-Physics-Syllabus.pdf" }] }
+];
+const SUBJ = Object.fromEntries(SUBJECTS.map(s => [s.k, s]));
+
+const matsFor = k => S.study.filter(m => m.subject === k);
+
+function vStudy() {
+  const s = studySubject && SUBJ[studySubject];
+  if (!s) {
+    const tabs = `<div class="tabs" role="tablist">${[["subjects","Subjects"],["timetable","Timetable"]].map(([k, l]) => `<button class="tab" role="tab" aria-selected="${studyTab === k}" data-act="studyTab" data-v="${k}">${l}</button>`).join("")}</div>`;
+    if (studyTab === "timetable") return tabs + packCard() + vSchool();
+    return `${tabs}<div class="head"><div><h1>CSEC subjects</h1><p class="sub">${SUBJECTS.length} subjects · tap one to open its syllabus and your notes</p></div></div>
+    <div class="subjgrid">${SUBJECTS.map((x, i) => { const n = matsFor(x.k).length; return `<button class="subj" style="--s:${x.color}" data-act="openSubject" data-v="${x.k}" aria-label="Open ${x.name}">
+      <span class="subj-top"><span class="subj-no num">${String(i + 1).padStart(2, "0")}</span><span class="subj-area">${x.area}</span></span>
+      <span class="subj-sym" style="--len:${x.sym.length}">${x.sym}</span>
+      <span class="subj-name">${x.sym === x.name.toUpperCase() ? "CSEC " + x.area.replace(/s$/, "") : x.name}</span>
+      <span class="subj-foot"><span>Syllabus ↗</span><span class="num">${n} note${n === 1 ? "" : "s"}</span></span>
+    </button>`; }).join("")}</div>`;
+  }
+  const mats = matsFor(s.k).sort((a, b) => (b.created || "").localeCompare(a.created || ""));
+  return `<div class="row"><button class="btn ghost" data-act="openSubject" data-v="">← All subjects</button></div>
+  <section class="subj-hero" style="--s:${s.color}">
+    <span class="subj-sym big" style="--len:${s.sym.length}">${s.sym}</span>
+    <div><p class="subj-area" style="margin:0">${s.area} · CSEC</p><h1>${s.name}</h1></div>
+  </section>
+  <section class="card" style="--s:${s.color}"><h2>Syllabus</h2>
+    <div class="list">${s.syl.map((y, i) => `<a class="syl" href="${y.url}" target="_blank" rel="noopener" data-stop="1">
+      <span class="syl-ic" aria-hidden="true">PDF</span>
+      <span class="grow"><b>${y.label}</b><span class="small muted" style="display:block">${y.note}</span></span>
+      <span aria-hidden="true">↗</span></a>`).join("")}</div>
+  </section>
+  <section class="card"><div class="card-h"><h2>Your notes and links</h2><button class="btn primary sm" style="background:${s.color};border-color:${s.color};color:#fff" data-act="addStudy">Add</button></div>
+    <div class="list">${mats.map(m => `<div class="item" data-act="editStudy" data-id="${m.id}" role="button" tabindex="0" style="cursor:pointer;align-items:flex-start"><i style="width:4px;align-self:stretch;border-radius:4px;background:${s.color};flex:none"></i><span class="grow"><b>${esc(m.title)}</b>${m.notes ? `<span class="small muted" style="display:block;white-space:pre-wrap">${esc(m.notes)}</span>` : ""}${m.link ? `<a class="small" href="${esc(m.link)}" target="_blank" rel="noopener" data-stop="1">Open link ↗</a>` : ""}</span></div>`).join("") || `<p class="empty">Nothing saved for ${s.short} yet. Add notes, topics to revise, past paper links or videos.</p>`}</div>
+  </section>`;
+}
+
+/* ---------- locked in counter ---------- */
+const MILESTONES = [7, 14, 21, 30, 45, 60, 90, 120, 180, 270, 365, 500, 730, 1000];
+function lockInfo() {
+  const L = S.meta && S.meta.lockedIn; if (!L) return null;
+  const t = today(), days = Math.max(0, daysBetween(L.start, t) + 1);
+  const next = MILESTONES.find(m => m > days) || Math.ceil((days + 1) / 365) * 365;
+  const prev = [...MILESTONES].reverse().find(m => m <= days) || 0;
+  return { start: L.start, days, next, prev, best: Math.max(L.best || 0, days), nextDate: addDays(L.start, next - 1), pct: (days - prev) / (next - prev) };
+}
+function lockSpan(d) { const w = Math.floor(d / 7), r = d % 7; return [w && `${w} week${w > 1 ? "s" : ""}`, r && `${r} day${r > 1 ? "s" : ""}`].filter(Boolean).join(", ") || "0 days"; }
+function vStreaks() {
+  const L = lockInfo();
+  if (!L) return `<div class="head"><div><h1>Streaks</h1></div></div><section class="card"><button class="btn primary" data-act="lockStart">Start a Locked in streak</button></section>`;
+  const R = 92, C = 2 * Math.PI * R, sd = parseYMD(L.start);
+  return `<div class="head"><div><h1>Streaks</h1><p class="sub">One streak. Every day counts.</p></div></div>
+  <section class="lock">
+    <div class="lock-ring">
+      <svg viewBox="0 0 220 220" aria-hidden="true"><circle cx="110" cy="110" r="${R}" class="lr-bg"/><circle cx="110" cy="110" r="${R}" class="lr-fg" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - L.pct)}"/></svg>
+      <div class="lock-num"><b class="num">${L.days}</b><span>day${L.days === 1 ? "" : "s"}</span></div>
+    </div>
+    <div class="lock-body">
+      <p class="lock-k">Locked in</p>
+      <h2 class="lock-h">${lockSpan(L.days)} strong.</h2>
+      <p class="lock-sub">Since ${DAYS[dow(L.start)]}, ${MON[sd.getMonth()]} ${sd.getDate()}, ${sd.getFullYear()}. Adds one every day on its own.</p>
+      <div class="lock-next"><div class="row" style="justify-content:space-between"><span>Next: <b>${L.next} days</b></span><span class="num">${L.next - L.days} to go · ${fmtDate(L.nextDate)}</span></div><div class="lock-bar"><i style="width:${Math.round(L.pct * 100)}%"></i></div></div>
+    </div>
+  </section>
+  <div class="stats">
+    <div class="stat"><b>${L.days}</b><span>days locked in</span></div>
+    <div class="stat"><b>${Math.floor(L.days / 7)}</b><span>full weeks</span></div>
+    <div class="stat"><b>${MILESTONES.filter(m => m <= L.days).length}</b><span>milestones hit</span></div>
+    <div class="stat"><b>${L.best}</b><span>best ever</span></div>
+  </div>
+  <section class="card"><h2>Milestones</h2>
+    <div class="badges">${MILESTONES.map(m => `<div class="badge ${m <= L.days ? "on" : m === L.next ? "nextb" : ""}"><b class="num">${m}</b><span>${m <= L.days ? "Unlocked" : m === L.next ? `${m - L.days} to go` : "days"}</span></div>`).join("")}</div>
+  </section>
+  <div class="row" style="justify-content:flex-end"><button class="btn ghost sm" data-act="lockEdit">Change start date</button><button class="btn ghost sm" style="color:var(--flame)" data-act="lockReset">Reset to day 1</button></div>`;
+}
+
+let aiAvailable = null, aiBusy = false;
+function vAI() {
+  const msgs = chat.map(m => `<div class="msg ${m.role}">${esc(m.content)}</div>`).join("");
+  return `<div class="head"><div><h1>Assistant</h1><p class="sub">Knows your tasks, schedule, events, workouts, subjects, timetable and your Locked in streak. It can add things for you too.</p></div>${chat.length ? `<button class="btn ghost" data-act="clearChat">Clear chat</button>` : ""}</div>
+  <section class="card">
+    <div class="chat" id="chatLog">${msgs || `<div class="msg ai">Hi! Ask me anything about your week, or tell me what to add. Try “add gym tomorrow at 6am to my tasks” or “how consistent have my workouts been?”</div>`}</div>
+    ${aiAvailable === false ? `<p class="small muted">The assistant isn't available in this view. Open Aurum from your claude.ai link while signed in to use it.</p>` : ""}
+    <div class="chips">${["Plan my day", "How are my workouts going?", "What should I study next?", "What's coming up this week?"].map(q => `<button class="chip" data-act="quickAsk" data-q="${esc(q)}">${q}</button>`).join("")}</div>
+    <form class="ask" data-form="ask"><textarea class="input" id="askIn" rows="1" placeholder="Message your assistant…"></textarea><button class="btn primary" ${aiBusy ? "disabled" : ""}>${aiBusy ? "…" : "Send"}</button></form>
+  </section>`;
+}
+
+const VIEWS = { today: vToday, tasks: vTasks, week: vWeek, events: vEvents, workouts: vGym, study: vStudy, streaks: vStreaks, ai: vAI };
+function render() {
+  const active = document.activeElement, focusId = active && active.id, val = active && active.id === "askIn" ? active.value : null;
+  renderNav();
+  $("#main").innerHTML = `<div class="wrap">${VIEWS[view]()}</div>`;
+  if (focusId) { const el = document.getElementById(focusId); if (el) { if (val !== null) el.value = val; el.focus(); } }
+  if (view === "ai") { const log = $("#chatLog"); if (log) log.lastElementChild?.scrollIntoView({ block: "nearest" }); }
+}
+/* ---------- daily tasks complete celebration ---------- */
+function celebrate() {
+  const old = document.getElementById("celebrate"); if (old) old.remove();
+  const n = visibleTodos(today()).length, L = lockInfo();
+  const wrap = document.createElement("div");
+  wrap.id = "celebrate"; wrap.className = "cele"; wrap.setAttribute("role", "status");
+  wrap.innerHTML = `<canvas></canvas><div class="cele-card">
+    <svg viewBox="0 0 120 120" class="cele-check" aria-hidden="true"><circle cx="60" cy="60" r="52"/><path d="M38 62 L54 78 L84 44"/></svg>
+    <p class="cele-k">Daily tasks complete</p><h2>All ${n} done.</h2>
+    <p class="cele-sub">${L ? `Day ${L.days} locked in. ` : ""}See you tomorrow.</p></div>`;
+  document.body.appendChild(wrap);
+  const close = () => { wrap.classList.add("out"); setTimeout(() => wrap.remove(), 400); };
+  wrap.addEventListener("click", close);
+  setTimeout(close, 3600);
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = wrap.querySelector("canvas"), ctx = cv.getContext("2d"), dpr = window.devicePixelRatio || 1;
+  const W = cv.width = innerWidth * dpr, H = cv.height = innerHeight * dpr;
+  const cols = ["#F5D97A", "#D9B440", "#B8901F", "#FFF4D0", "#E9A23B"];
+  const parts = [];
+  for (let b = 0; b < 2; b++) for (let i = 0; i < 90; i++) {
+    const a = (b ? -Math.PI / 3 : -2 * Math.PI / 3) + (Math.random() - .5) * .9, s = (9 + Math.random() * 11) * dpr;
+    parts.push({ x: b ? W * .1 : W * .9, y: H * .95, vx: Math.cos(a) * s * (b ? 1 : 1), vy: Math.sin(a) * s, r: (3 + Math.random() * 5) * dpr, c: cols[i % cols.length], rot: Math.random() * 6, vr: (Math.random() - .5) * .3, sq: Math.random() < .5 });
+  }
+  for (let i = 0; i < 60; i++) { const a = Math.random() * Math.PI * 2, s = (3 + Math.random() * 8) * dpr; parts.push({ x: W / 2, y: H * .42, vx: Math.cos(a) * s, vy: Math.sin(a) * s - 4 * dpr, r: (2 + Math.random() * 4) * dpr, c: cols[i % cols.length], rot: 0, vr: .2, sq: false }); }
+  const t0 = performance.now();
+  (function frame(t) {
+    if (!wrap.isConnected) return;
+    const k = (t - t0) / 3200; ctx.clearRect(0, 0, W, H);
+    parts.forEach(p => { p.vy += .32 * dpr; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      ctx.save(); ctx.globalAlpha = Math.max(0, 1 - k * k); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillStyle = p.c;
+      if (p.sq) ctx.fillRect(-p.r, -p.r / 2, p.r * 2, p.r); else { ctx.beginPath(); ctx.arc(0, 0, p.r / 1.4, 0, 6.3); ctx.fill(); }
+      ctx.restore(); });
+    if (k < 1) requestAnimationFrame(frame);
+  })(t0);
+}
+function backOut() {
+  if (view === "study" && studySubject) { studySubject = null; render(); return; }
+  if (view === "study" && studyTab !== "subjects") { studyTab = "subjects"; render(); return; }
+  if (view === "workouts" && gymTab !== "today") { gymTab = "today"; gymCursor = today(); gymSel = null; render(); return; }
+  if (view === "tasks" && taskDate !== today()) { taskDate = today(); render(); return; }
+  if (view === "events" && (evCursor.slice(0, 7) !== today().slice(0, 7) || evSel !== today())) { evCursor = today(); evSel = today(); render(); return; }
+  if (view !== "today") go("today");
+}
+function go(v) { view = v; try { history.replaceState(null, "", "#" + v); } catch (e) { location.hash = v; } render(); $("#main").scrollTop = 0; }
+
+/* ---------- forms (sheet) ---------- */
+function openForm(title, fields, values, onSave, onDelete) {
+  const f = (fl) => {
+    const v = values[fl.k] ?? fl.def ?? "", id = "f-" + fl.k;
+    let input;
+    if (fl.type === "select") input = `<select class="input" id="${id}">${fl.opts.map(([ov, ol]) => `<option value="${esc(ov)}" ${String(ov) === String(v) ? "selected" : ""}>${esc(ol)}</option>`).join("")}</select>`;
+    else if (fl.type === "textarea") input = `<textarea class="input" id="${id}" rows="4">${esc(v)}</textarea>`;
+    else input = `<input class="input" id="${id}" type="${fl.type || "text"}" value="${esc(v)}" ${fl.req ? "required" : ""} ${fl.list ? `list="${id}-l"` : ""}>${fl.list ? `<datalist id="${id}-l">${fl.list.map(o => `<option value="${esc(o)}">`).join("")}</datalist>` : ""}`;
+    return `<div class="field"><label for="${id}">${fl.label}</label>${input}</div>`;
+  };
+  const body = fields.map(fl => Array.isArray(fl) ? `<div class="frow">${fl.map(f).join("")}</div>` : f(fl)).join("");
+  $("#sheetRoot").innerHTML = `<div class="overlay" data-act="closeSheet"><form class="sheet" data-form="sheet" role="dialog" aria-modal="true" aria-label="${esc(title)}"><h2>${esc(title)}</h2>${body}
+    <div class="row" style="justify-content:space-between">${onDelete ? `<button type="button" class="btn ghost" style="color:var(--flame)" data-act="sheetDelete">Delete</button>` : "<span></span>"}<div class="row"><button type="button" class="btn" data-act="closeSheet">Cancel</button><button class="btn primary">Save</button></div></div></form></div>`;
+  sheetHandlers = { fields: fields.flat(), onSave, onDelete };
+  const first = $("#sheetRoot input, #sheetRoot select, #sheetRoot textarea"); first && first.focus();
+}
+let sheetHandlers = null;
+function closeSheet() { $("#sheetRoot").innerHTML = ""; sheetHandlers = null; }
+
+const F = {
+  event: [{ k: "title", label: "What", req: true }, [{ k: "type", label: "Type", type: "select", opts: Object.entries(ETYPES).map(([k, v]) => [k, v[0]]) }, { k: "repeat", label: "Repeats", type: "select", opts: [["", "Doesn't repeat"], ["yearly", "Every year"]] }], [{ k: "date", label: "Date", type: "date", req: true }, { k: "time", label: "Time (optional)", type: "time" }], { k: "notes", label: "Notes", type: "textarea" }],
+  block: () => [{ k: "title", label: "What", req: true }, { k: "day", label: "Day", type: "select", opts: DAYS.map((d, i) => [i, d]) }, [{ k: "start", label: "Starts", type: "time", req: true, def: "09:00" }, { k: "end", label: "Ends", type: "time", req: true, def: "10:00" }], { k: "color", label: "Color", type: "select", opts: [["addmath", "Add Maths (indigo)"], ["math", "Maths (sky)"], ["english", "English A (rose)"], ["pob", "POB (amber)"], ["it", "IT (teal)"], ["chem", "Chemistry (purple)"], ["bio", "Biology (green)"], ["phys", "Physics (orange)"], ["blue", "Blue"], ["coral", "Coral"], ["green", "Green"], ["amber", "Amber"], ["violet", "Violet"]] }],
+  study: () => [{ k: "title", label: "Title", req: true }, { k: "link", label: "Link (optional)", type: "url" }, { k: "notes", label: "Notes", type: "textarea" }],
+  streak: [{ k: "name", label: "Habit", req: true }]
+};
+function crud(listName, form, title, item, defaults = {}) {
+  const isNew = !item;
+  openForm(isNew ? title : "Edit", typeof form === "function" ? form() : form, item || defaults, vals => {
+    if (listName === "events" && vals.type === "birthday") vals.repeat = "yearly";
+    if (isNew) S[listName].push({ id: uid(), ...vals, ...(listName === "study" ? { created: today() } : {}) });
+    else Object.assign(item, vals);
+    save(listName); render();
+  }, isNew ? null : () => { S[listName] = S[listName].filter(x => x !== item); save(listName); render(); });
+}
+
+/* ---------- actions ---------- */
+function toggleStreak(s, d = today()) { const i = s.dates.indexOf(d); if (i >= 0) s.dates.splice(i, 1); else s.dates.push(d); save("streaks"); }
+
+document.addEventListener("click", e => {
+  if (e.target.closest("[data-stop]")) return;
+  const el = e.target.closest("[data-act]"); if (!el) return;
+  const a = el.dataset.act, id = el.dataset.id;
+  if (a === "closeSheet") { if (el.classList.contains("overlay") && e.target !== el) return; closeSheet(); return; }
+  if (a === "sheetDelete") { const h = sheetHandlers; closeSheet(); h && h.onDelete && h.onDelete(); return; }
+  switch (a) {
+    case "go": go(el.dataset.v); break;
+    case "signOut": if (unsub) unsub(); firebase.auth().signOut(); try { localStorage.removeItem("aurum-cache"); } catch (e) {} location.reload(); break;
+    case "toggleTodo": { const d = el.dataset.d, allDone = () => { const l = visibleTodos(d); return l.length > 0 && l.every(x => x.done); };
+      const before = allDone(), t = todosFor(d).find(x => x.id === id); if (t) { t.done = !t.done; save("todos"); render(); if (!before && allDone() && d === today()) celebrate(); } break; }
+    case "delTodo": { const l = todosFor(el.dataset.d), it = l.find(x => x.id === id); if (it && it.daily) it.hidden = true; else S.todos[el.dataset.d] = l.filter(x => x.id !== id); save("todos"); render(); break; }
+    case "delDaily": S.meta.dailyTasks = dailyList().filter(x => x.id !== id); for (const k in S.todos) S.todos[k] = S.todos[k].filter(t => !(t.daily && t.id.startsWith(`daily-${id}-`) && k >= today() && !t.done)); save("meta", "todos"); render(); break;
+    case "taskDay": taskDate = el.dataset.n === "0" ? today() : addDays(taskDate, +el.dataset.n); render(); break;
+    case "carry": { const y = addDays(taskDate, -1), left = todosFor(y).filter(x => !x.done && !x.daily && !x.hidden); S.todos[y] = todosFor(y).filter(x => x.done || x.daily || x.hidden); todosFor(taskDate).push(...left); save("todos"); render(); break; }
+    case "addEvent": crud("events", F.event, "New event", null, { date: el.dataset.d || today(), type: "event" }); break;
+    case "addBirthday": crud("events", F.event, "Save a birthday", null, { date: evSel, type: "birthday", repeat: "yearly", title: "'s birthday" }); break;
+    case "evSel": evSel = el.dataset.d; render(); setTimeout(() => { const q = document.getElementById("qeIn"); if (q && window.matchMedia("(min-width: 861px)").matches) q.focus(); }); break;
+    case "evNav": { const n = +el.dataset.n, c = parseYMD(evCursor); evCursor = n === 0 ? today() : ymd(new Date(c.getFullYear(), c.getMonth() + n, 1)); if (n === 0) evSel = today(); render(); break; }
+    case "editEvent": crud("events", F.event, "", S.events.find(x => x.id === id)); break;
+    case "addBlock": crud("schedule", () => F.block(), "New schedule block", null, { day: el.dataset.day ?? dow(today()) }); break;
+    case "editBlock": crud("schedule", () => F.block(), "", S.schedule.find(x => x.id === id)); break;
+    case "gymTab": gymTab = el.dataset.v; gymCursor = today(); gymSel = null; render(); break;
+    case "gymPick": { if (wentOn(today())) break; const k = el.dataset.v; gymPick.has(k) ? gymPick.delete(k) : gymPick.add(k); render(); break; }
+    case "gymLog": if (logGymToday()) render(); break;
+    case "gymSel": gymSel = el.dataset.d; render(); break;
+    case "gymOpenMonth": gymCursor = el.dataset.d; gymTab = "month"; gymSel = null; render(); break;
+    case "gymFreq": gymFreq = el.dataset.v; gymCursor = today(); render(); break;
+    case "gymNav": { const n = +el.dataset.n, c = parseYMD(gymCursor);
+      const mode = gymTab === "freq" ? gymFreq : gymTab;
+      if (mode === "week") gymCursor = addDays(gymCursor, 7 * n);
+      else if (mode === "month") gymCursor = ymd(new Date(c.getFullYear(), c.getMonth() + n, 1));
+      else gymCursor = ymd(new Date(c.getFullYear() + n, 0, 1));
+      gymSel = null; render(); break; }
+    case "addStudy": openForm(`Add to ${SUBJ[studySubject].name}`, F.study(), {}, v => { S.study.push({ id: uid(), subject: studySubject, ...v, created: today() }); save("study"); render(); }); break;
+    case "editStudy": crud("study", () => F.study(), "", S.study.find(x => x.id === id)); break;
+    case "studyTab": studyTab = el.dataset.v; render(); break;
+    case "openTimetable": studyTab = "timetable"; studySubject = null; go("study"); break;
+    case "ttDay": ttDay = +el.dataset.v; render(); break;
+    case "openSubject": studySubject = el.dataset.v || null; render(); $("#main").scrollTop = 0; break;
+    case "lockEdit": openForm("Change start date", [{ k: "start", label: "Locked in since", type: "date", req: true }], { start: S.meta.lockedIn ? S.meta.lockedIn.start : today() }, v => { if (v.start > today()) return; S.meta.lockedIn = { ...(S.meta.lockedIn || {}), start: v.start }; save("meta"); render(); }); break;
+    case "lockStart": S.meta.lockedIn = { start: today() }; save("meta"); render(); break;
+    case "lockReset": { openForm("Reset to day 1?", [], {}, () => {}, () => { const L = lockInfo(); S.meta.lockedIn = { start: today(), best: L ? L.best : 0 }; save("meta"); render(); });
+      setTimeout(() => { const b = document.querySelector('[data-act="sheetDelete"]'); if (b) b.textContent = "Reset streak"; const s = document.querySelector('.sheet .btn.primary'); if (s) s.remove(); }); break; }
+    case "clearSample": openForm("Clear all sample data?", [], {}, () => {}, () => { S = { todos: {}, schedule: [], events: [], gym: {}, study: [], streaks: [], meta: { sample: false, created: today(), studyV2: true, lockV1: true, schedV1: true, debateV1: true, dailyV1: true, dailyV2: true, dailyV3: true, dailyTasks: S.meta.dailyTasks, dailySince: S.meta.dailySince, lockedIn: S.meta.lockedIn } }; save(...SECTIONS); render(); });
+      setTimeout(() => { const b = document.querySelector('[data-act="sheetDelete"]'); if (b) b.textContent = "Clear everything"; const s = document.querySelector('.sheet .btn.primary'); if (s) s.remove(); }); break;
+    case "quickAsk": ask(el.dataset.q); break;
+    case "clearChat": chat = []; render(); break;
+  }
+});
+document.addEventListener("change", e => {
+  if (e.target.dataset.change === "cycle") { const n = +e.target.value; if (!n) return; S.meta.cycle = { date: nextSchoolDay(today()), day: n }; ttDay = null; save("meta"); render(); }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") {
+    if (sheetHandlers) { closeSheet(); return; }
+    const el = document.activeElement;
+    if (el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName)) { el.blur(); return; }
+    e.preventDefault(); backOut(); return;
+  }
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches('[role="button"][data-act]')) { e.preventDefault(); e.target.click(); }
+  if (e.key === "Enter" && !e.shiftKey && e.target.id === "askIn") { e.preventDefault(); e.target.form.requestSubmit(); }
+});
+document.addEventListener("submit", e => {
+  e.preventDefault();
+  const form = e.target, kind = form.dataset.form;
+  if (kind === "todo") { const inp = form.querySelector("input"), v = inp.value.trim(); if (!v) return; todosFor(form.dataset.d).push({ id: uid(), text: v, done: false }); save("todos"); render(); const again = document.getElementById(inp.id); again && again.focus(); }
+  if (kind === "sheet" && sheetHandlers) {
+    const vals = {}; sheetHandlers.fields.forEach(fl => { let v = document.getElementById("f-" + fl.k).value; if (fl.k === "day") v = +v; if (fl.type === "number") v = +v; vals[fl.k] = typeof v === "string" ? v.trim() : v; });
+    if (vals.start && vals.end && vals.end <= vals.start) { alertField("f-end", "End time must be after the start time."); return; }
+    const h = sheetHandlers; closeSheet(); h.onSave(vals);
+  }
+  if (kind === "daily") { const inp = form.querySelector("input"), v = inp.value.trim(); if (!v) return; S.meta.dailyTasks = [...dailyList(), { id: uid(), text: v }]; if (!S.meta.dailySince) S.meta.dailySince = today(); save("meta"); render(); const q = document.getElementById("dailyIn"); q && q.focus(); }
+  if (kind === "quickEvent") { const inp = form.querySelector("input"), v = inp.value.trim(); if (!v) return; const isB = /birthday|b-day|bday/i.test(v); S.events.push({ id: uid(), title: v, date: evSel, time: "", notes: "", type: isB ? "birthday" : "event", repeat: isB ? "yearly" : "" }); save("events"); render(); const q = document.getElementById("qeIn"); q && q.focus(); }
+  if (kind === "ask") { const inp = $("#askIn"); const q = inp.value.trim(); if (q) { inp.value = ""; ask(q); } }
+});
+function alertField(id, msg) { const el = document.getElementById(id); el.setCustomValidity(msg); el.reportValidity(); el.addEventListener("input", () => el.setCustomValidity(""), { once: true }); }
+
+/* ---------- assistant ---------- */
+function aiContext() {
+  const t = today();
+  const todos = {}; for (let i = -1; i <= 7; i++) { const d = addDays(t, i); const vt = visibleTodos(d); if (vt.length) todos[d] = vt.map(x => (x.done ? "[x] " : "[ ] ") + x.text); }
+  return {
+    today: `${DAYS[dow(t)]} ${t}`, current_time: nowHM(),
+    tasks_by_date: todos,
+    weekly_schedule: S.schedule.slice().sort((a, b) => a.day - b.day || a.start.localeCompare(b.start)).map(b => `${DAYS[b.day]} ${b.start}-${b.end} ${b.title}`),
+    upcoming_events: upcomingEvents(90).map(e => `${e.date}${e.time ? " " + e.time : ""} ${e.title}${e.notes ? " (" + e.notes + ")" : ""}`),
+    gym_log_last_90_days: gymDays().filter(d => d >= addDays(t, -89)).map(d => `${d} ${DAYS[dow(d)]}: ${(S.gym[d].groups || []).map(g => GNAME[g]).join(", ")}`),
+    gym_logged_today: wentOn(t),
+    gym_totals: { this_week: gymCount(weekStart(t), t), this_month: gymCount(t.slice(0, 8) + "01", t), this_year: gymCount(t.slice(0, 4) + "-01-01", t), all_time: gymDays().length },
+    muscle_group_last_trained: Object.fromEntries(GROUPS.map(([k, n]) => [n, lastTrained(k) || "never"])),
+    school_timetable_today: (() => { const c = classesOn(t); return c ? { cycle_day: c.day, classes: c.list.map(e => `${ttTime(e)} ${SUBJ[e[0]].name}`) } : "no school today or cycle day not set"; })(),
+    school_timetable_all_days: Object.fromEntries(Object.entries(TT).map(([d, l]) => ["Day " + d, l.map(e => `${PERIODS[e[1]][0]}-${PERIODS[e[2]][1]} ${e[0] === "free" ? "Free" : SUBJ[e[0]].name}`)])),
+    csec_subjects: SUBJECTS.map(s => s.name),
+    study_materials: S.study.map(s => `[${SUBJ[s.subject] ? SUBJ[s.subject].name : s.subject}] ${s.title}${s.notes ? " - " + s.notes.slice(0, 200) : ""} (saved ${s.created || "?"})`),
+    locked_in_streak: (() => { const L = lockInfo(); return L ? `${L.days} days locked in since ${L.start}; next milestone ${L.next} days on ${L.nextDate}; best ever ${L.best}` : "none"; })()
+  };
+}
+const dateProp = { type: "string", description: "Date as YYYY-MM-DD. Defaults to today." };
+const AI_TOOLS = [
+  { name: "add_task", description: "Add a new daily task that repeats on the user's checklist every day.", inputSchema: { type: "object", properties: { text: { type: "string" } }, required: ["text"] },
+    execute: i => { S.meta.dailyTasks = [...dailyList(), { id: uid(), text: i.text }]; if (!S.meta.dailySince) S.meta.dailySince = today(); save("meta"); return { ok: true }; } },
+  { name: "complete_task", description: "Mark a task as done by matching its text.", inputSchema: { type: "object", properties: { text: { type: "string" }, date: dateProp }, required: ["text"] },
+    execute: i => { const t = todosFor(i.date || today()).find(x => x.text.toLowerCase().includes(i.text.toLowerCase())); if (!t) throw new Error("No matching task"); t.done = true; save("todos"); return { ok: true, task: t.text }; } },
+  { name: "add_event", description: "Add an upcoming event (birthday, exam, appointment, trip, deadline).", inputSchema: { type: "object", properties: { title: { type: "string" }, date: { type: "string", description: "YYYY-MM-DD" }, time: { type: "string", description: "HH:MM 24h, optional" }, notes: { type: "string" }, type: { type: "string", enum: Object.keys(ETYPES) }, repeat_yearly: { type: "boolean", description: "true for birthdays/anniversaries" } }, required: ["title", "date"] },
+    execute: i => { S.events.push({ id: uid(), title: i.title, date: i.date, time: i.time || "", notes: i.notes || "", type: i.type || "event", repeat: i.repeat_yearly || i.type === "birthday" ? "yearly" : "" }); save("events"); return { ok: true }; } },
+  { name: "log_gym_today", description: "Log today's gym session with the muscle groups trained. Only works for today and only once per day; it locks after logging.", inputSchema: { type: "object", properties: { groups: { type: "array", items: { type: "string", enum: GROUPS.map(g => g[0]) }, description: "back, bi (biceps), chest, tri (triceps), shoulders, legs" } }, required: ["groups"] },
+    execute: i => { if (wentOn(today())) throw new Error("Today's workout is already logged and locked."); gymPick = new Set((i.groups || []).filter(g => GNAME[g])); if (!logGymToday()) throw new Error("Pick at least one valid muscle group."); return { ok: true }; } },
+  { name: "add_schedule_block", description: "Add a repeating weekly block to the schedule.", inputSchema: { type: "object", properties: { title: { type: "string" }, day: { type: "string", enum: DAYS }, start: { type: "string", description: "HH:MM 24h" }, end: { type: "string", description: "HH:MM 24h" } }, required: ["title", "day", "start", "end"] },
+    execute: i => { S.schedule.push({ id: uid(), title: i.title, day: Math.max(0, DAYS.indexOf(i.day)), start: i.start, end: i.end, color: "blue" }); save("schedule"); return { ok: true }; } },
+  { name: "save_study_material", description: "Save a study note, topic or link under one of the user's CSEC subjects.", inputSchema: { type: "object", properties: { subject: { type: "string", enum: SUBJECTS.map(s => s.k), description: SUBJECTS.map(s => s.k + "=" + s.name).join(", ") }, title: { type: "string" }, link: { type: "string" }, notes: { type: "string" } }, required: ["subject", "title"] },
+    execute: i => { if (!SUBJ[i.subject]) throw new Error("Unknown subject"); S.study.push({ id: uid(), subject: i.subject, title: i.title, link: i.link || "", notes: i.notes || "", created: today() }); save("study"); return { ok: true }; } },
+];
+
+async function ask(q) {
+  if (aiBusy) return;
+  if (view !== "ai") view = "ai";
+  chat.push({ role: "user", content: q });
+  const reply = { role: "ai", content: "Thinking…" }; chat.push(reply);
+  aiBusy = true; render();
+  let sample = null;
+  try { sample = await window.claude.use("sample"); } catch (e) {}
+  if (!sample) { aiAvailable = false; reply.content = "I can't connect right now. Open Aurum from its claude.ai link while signed in, then try again."; aiBusy = false; render(); return; }
+  aiAvailable = true;
+  const history = chat.slice(-12, -2).map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`).join("\n");
+  const prompt = `You are the personal assistant inside Aurum, the user's own life-tracking app. You can see their data below. Be warm, direct and practical, like a sharp friend who keeps them on track. Keep answers short: plain text, short paragraphs or simple "-" lists, no markdown headings or bold. Use specifics from their data (times, counts, names). When they ask you to add, log, complete or check in something, call the matching tool, then confirm in one line. If a date or time is ambiguous, pick the most sensible one and say which you chose.
+
+THEIR DATA (JSON):
+${JSON.stringify(aiContext(), null, 1)}
+${history ? `\nRECENT CONVERSATION:\n${history}\n` : ""}
+User: ${q}`;
+  try {
+    const res = await sample(prompt, { cache: false, tools: AI_TOOLS, onText: ({ text }) => { reply.content = text || "Thinking…"; const log = $("#chatLog"); if (log && view === "ai") { log.lastElementChild.textContent = reply.content; } } });
+    reply.content = (res && res.text) || reply.content;
+  } catch (err) {
+    if (err && err.code === "not_granted") { aiAvailable = false; reply.content = "The assistant needs your permission to run. Allow it when asked, then try again."; }
+    else if (err && err.code === "rate_limited") reply.content = "I'm getting a lot of requests. Give it a minute and try again.";
+    else reply.content = (err && err.text) || "Something went wrong reaching the assistant. Try again in a moment.";
+  }
+  aiBusy = false; render();
+}
+
+/* ---------- boot ---------- */
+(function boot() {
+  const hv = location.hash.slice(1); if (VIEWS[hv]) view = hv;
+  if (!window.AURUM_FIREBASE || !window.AURUM_FIREBASE.apiKey) { $("#main").innerHTML = `<div class="wrap"><h1>Almost there</h1><p class="muted">Add your Firebase settings to firebase-config.js to finish setup.</p></div>`; return; }
+  firebase.initializeApp(window.AURUM_FIREBASE);
+  try { firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch(() => {}); } catch (e) {}
+  if (!loadLocal()) seed();
+  migrate(); render();
+  // login
+  let mode = "in";
+  const auth = firebase.auth(), box = $("#auth"), err = $("#authErr");
+  const setMode = m => { mode = m; $("#authBtn").textContent = m === "in" ? "Sign in" : "Create account"; $("#authSwitch").textContent = m === "in" ? "New here? Create an account" : "Have an account? Sign in"; $("#authPass").autocomplete = m === "in" ? "current-password" : "new-password"; err.textContent = ""; };
+  const msg = e => ({ "auth/invalid-credential": "Wrong email or password.", "auth/wrong-password": "Wrong email or password.", "auth/user-not-found": "No account with that email. Create one instead.", "auth/email-already-in-use": "That email already has an account. Sign in instead.", "auth/weak-password": "Use at least 6 characters.", "auth/invalid-email": "That email doesn't look right.", "auth/network-request-failed": "No internet connection. Try again when you're online.", "auth/too-many-requests": "Too many tries. Wait a minute and try again." }[e.code] || "Something went wrong. Try again.");
+  $("#authSwitch").addEventListener("click", () => setMode(mode === "in" ? "up" : "in"));
+  $("#authReset").addEventListener("click", async () => { const em = $("#authEmail").value.trim(); if (!em) { err.textContent = "Type your email first, then tap Forgot password."; return; } try { await auth.sendPasswordResetEmail(em); err.textContent = "Reset link sent. Check your email."; } catch (e) { err.textContent = msg(e); } });
+  $("#authForm").addEventListener("submit", async e => {
+    e.preventDefault(); e.stopPropagation(); err.textContent = "";
+    const em = $("#authEmail").value.trim(), pw = $("#authPass").value;
+    $("#authBtn").disabled = true;
+    try { await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); if (mode === "in") await auth.signInWithEmailAndPassword(em, pw); else await auth.createUserWithEmailAndPassword(em, pw); }
+    catch (e2) { err.textContent = msg(e2); }
+    $("#authBtn").disabled = false;
+  }, true);
+  auth.onAuthStateChanged(u => {
+    fbUser = u; box.hidden = !!u;
+    if (u) connect(); else setSync("local");
+  });
+  window.addEventListener("hashchange", () => { const v = location.hash.slice(1); if (VIEWS[v] && v !== view) { view = v; render(); } });
+  setInterval(() => { if (!sheetHandlers && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") render(); }, 60000);
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+})();
+</script>
+</body>
+</html>
