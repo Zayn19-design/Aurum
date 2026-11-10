@@ -419,6 +419,24 @@ main{overscroll-behavior-x:none;overflow-x:hidden}
 .lift-ph{border:2px dashed color-mix(in srgb,var(--accent) 60%,transparent);border-radius:var(--radius);background:color-mix(in srgb,var(--accent) 8%,transparent)}
 /* iPhone zooms into any text box under 16px: keep every field at 16px so the screen stays fitted */
 input,select,textarea,.input{font-size:16px!important}
+
+/* lift sections */
+.liftsec{--lc:var(--accent);border-radius:20px;padding:16px;background:linear-gradient(160deg,color-mix(in srgb,var(--lc) 10%,var(--surface)),var(--surface) 55%);border:1px solid color-mix(in srgb,var(--lc) 30%,var(--line));display:flex;flex-direction:column;gap:14px}
+.liftsec-lower{--lc:#38BDF8}
+.liftsec-h{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.liftsec-t{display:flex;align-items:center;gap:12px;min-width:0}
+.liftsec-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--lc) 20%,transparent);color:var(--lc);font-size:14px}
+.liftsec h2{color:var(--lc);font-size:19px}
+.liftsec-add{border-color:color-mix(in srgb,var(--lc) 50%,var(--line));color:var(--lc);background:transparent;font-weight:600}
+.liftsec .liftcard{border-left-color:var(--lc)}
+.liftsec .liftcard b{color:var(--lc)}
+.liftsec .liftcard:hover{border-color:var(--lc)}
+.liftsec .lift-ph{border-color:color-mix(in srgb,var(--lc) 60%,transparent);background:color-mix(in srgb,var(--lc) 8%,transparent)}
+.pill.gain{background:color-mix(in srgb,var(--lc,var(--accent)) 18%,transparent);color:var(--lc,var(--accent))}
+.liftsec .empty{grid-column:1/-1;margin:0}
+.lift-hero-lower{border-left-color:#38BDF8;background:linear-gradient(120deg,color-mix(in srgb,#38BDF8 16%,var(--surface)),var(--surface) 70%)}
+.lift-hero-lower .exk{color:#38BDF8}.lift-hero-upper .exk{color:var(--accent)}
+@media (max-width:860px){.liftsec{padding:14px 12px}.liftsec h2{font-size:17px}}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 /* standalone app */
 .app{padding-top:env(safe-area-inset-top)}
@@ -1232,6 +1250,9 @@ function subjExamCard(s) {
 /* ---------- lifts (weight training log) ---------- */
 let liftSel = null;
 const LIFT_SUGGEST = ["Bench press", "Incline dumbbell press", "Squat", "Deadlift", "Overhead press", "Barbell row", "Lat pulldown", "Pull-ups", "Bicep curl", "Hammer curl", "Tricep pushdown", "Skull crushers", "Leg press", "Leg curl", "Lateral raise", "Wrist curl", "Cable crunch"];
+const guessCat = n => /squat|deadlift|\bleg|lunge|calf|calves|hip thrust|glute|rdl|romanian|step.?up|hamstring|quad|split squat|leg press|leg curl|leg extension/i.test(n || "") ? "lower" : "upper";
+const liftCat = l => l.cat === "lower" || l.cat === "upper" ? l.cat : guessCat(l.name);
+const CAT_OPTS = [["upper", "Upper body"], ["lower", "Lower body"]];
 const liftById = id => (S.lifts || []).find(l => l.id === id);
 const e1rm = (w, r) => r > 1 ? w * (1 + r / 30) : w; // Epley estimate
 function liftStats(l) {
@@ -1262,7 +1283,7 @@ function vLifts(head) {
     const chart = st ? (() => { const vals = st.mk.map(k => st.months[k].weight), mx = Math.max(...vals) * 1.15 || 1;
       return `<div class="lchart" style="--n:${st.mk.length}"><div class="lc-plot">${st.mk.map(k => { const e = st.months[k]; return `<div class="lc-col"><span class="lc-bar" style="height:${e.weight / mx * 100}%"><em>${(+e.weight).toLocaleString(undefined, { maximumFractionDigits: 1 })}<small>×${e.reps}</small></em></span></div>`; }).join("")}</div><div class="lc-x">${st.mk.map(k => `<span>${monLabel(k)}</span>`).join("")}</div></div>`; })() : "";
     return `${head}<div class="row"><button class="btn ghost" data-act="liftBack">← All exercises</button></div>
-      <section class="lift-hero"><div><p class="exk" style="margin:0">Exercise</p><h1>${esc(l.name)}</h1></div><div class="row"><button class="btn ghost sm" data-act="liftRename" data-id="${l.id}">Rename</button><button class="btn primary" data-act="liftLog" data-id="${l.id}">Log a set</button></div></section>
+      <section class="lift-hero lift-hero-${liftCat(l)}"><div><p class="exk" style="margin:0">${liftCat(l) === "lower" ? "Lower body" : "Upper body"}</p><h1>${esc(l.name)}</h1></div><div class="row"><button class="btn ghost sm" data-act="liftRename" data-id="${l.id}">Edit</button><button class="btn primary" data-act="liftLog" data-id="${l.id}">Log a set</button></div></section>
       ${st ? `<div class="stats">
         <div class="stat"><b>${lb(st.best.weight)}</b><span>best · ${st.best.reps} reps</span></div>
         <div class="stat"><b>${lb(st.last.weight)}</b><span>last · ${st.last.reps} reps · ${fmtDate(st.last.date)}</span></div>
@@ -1274,10 +1295,18 @@ function vLifts(head) {
       <div class="row" style="justify-content:flex-end"><button class="btn ghost sm" style="color:var(--flame)" data-act="liftDelete" data-id="${l.id}">Delete exercise</button></div>`;
   }
   const lifts = S.lifts || [];
+  const card = x => { const st = liftStats(x); return `<button class="liftcard" data-act="liftOpen" data-id="${x.id}"><span class="liftcard-n">${esc(x.name)}<i class="grip" aria-hidden="true"></i></span>
+      ${st ? `<b class="num">${lb(st.best.weight)}<small> × ${st.best.reps}</small></b><span class="small muted">Best · last ${MON[parseYMD(st.last.date).getMonth()]} ${parseYMD(st.last.date).getDate()}</span>${st.gain > 0 ? `<span class="pill gain">+${lb(st.gain)} since ${monLabel(st.since)}</span>` : ""}` : `<span class="small muted">No sets yet · tap to log</span>`}</button>`; };
+  const sec = (cat, title, sub) => { const list = lifts.filter(x => liftCat(x) === cat), sets = list.reduce((n, x) => n + (x.entries || []).length, 0);
+    return `<section class="liftsec liftsec-${cat}">
+      <div class="liftsec-h"><div class="liftsec-t"><span class="liftsec-ic" aria-hidden="true">${cat === "upper" ? "▲" : "▼"}</span><div><h2>${title}</h2><p class="small muted" style="margin:0">${sub} · ${list.length} exercise${list.length === 1 ? "" : "s"} · ${sets} set${sets === 1 ? "" : "s"} logged</p></div></div>
+        <button class="btn sm liftsec-add" data-act="liftAdd" data-cat="${cat}">+ Add</button></div>
+      <div class="liftgrid" data-cat="${cat}">${list.map(card).join("") || `<p class="empty">No ${title.toLowerCase()} exercises yet.</p>`}</div>
+    </section>`; };
   return `${head}${bodyCard()}
-    <div class="head" style="margin-top:4px"><div><h2>Exercises</h2><p class="sub small">Log weight and reps to see your progression. Hold a card, then drag to reorder.</p></div><button class="btn primary" data-act="liftAdd">Add exercise</button></div>
-    <div class="liftgrid">${lifts.map(x => { const st = liftStats(x); return `<button class="liftcard" data-act="liftOpen" data-id="${x.id}"><span class="liftcard-n">${esc(x.name)}<i class="grip" aria-hidden="true"></i></span>
-      ${st ? `<b class="num">${lb(st.best.weight)}<small> × ${st.best.reps}</small></b><span class="small muted">Best · last ${fmtDate(st.last.date)}</span>${st.gain > 0 ? `<span class="pill flame">+${lb(st.gain)} since ${monLabel(st.since)}</span>` : ""}` : `<span class="small muted">No sets yet</span>`}</button>`; }).join("") || `<p class="empty">Add your first exercise, like Bench press or Squat.</p>`}</div>`;
+    <p class="small muted" style="margin:2px 0 0">Tap an exercise to log sets. Hold a card, then drag to reorder.</p>
+    ${sec("upper", "Upper body", "Chest, back, shoulders, arms")}
+    ${sec("lower", "Lower body", "Legs, glutes, calves")}`;
 }
 function liftSetForm(l, e) {
   openForm(e ? `Edit set · ${l.name}` : `Log a set · ${l.name}`, [{ k: "date", label: "Date", type: "date", req: true, def: today() }, [{ k: "weight", label: "Weight (lb)", type: "number", req: true }, { k: "reps", label: "Reps", type: "number", req: true }]],
@@ -1588,8 +1617,8 @@ document.addEventListener("click", e => {
     case "go": go(el.dataset.v); break;
     case "liftOpen": liftSel = el.dataset.id; render(); $("#main").scrollTop = 0; break;
     case "liftBack": liftSel = null; render(); break;
-    case "liftAdd": openForm("Add exercise", [{ k: "name", label: "Exercise name", req: true, list: LIFT_SUGGEST }], {}, v => { if (!v.name) return; const l = { id: uid(), name: v.name, entries: [] }; S.lifts.push(l); save("lifts"); liftSel = l.id; render(); setTimeout(() => liftSetForm(l), 50); }); break;
-    case "liftRename": { const l = liftById(id); if (l) openForm("Rename exercise", [{ k: "name", label: "Exercise name", req: true }], { name: l.name }, v => { if (v.name) { l.name = v.name; save("lifts"); render(); } }); break; }
+    case "liftAdd": { const cat = el.dataset.cat || "upper"; openForm(`Add ${cat === "lower" ? "lower" : "upper"} body exercise`, [{ k: "name", label: "Exercise name", req: true, list: LIFT_SUGGEST.filter(n => guessCat(n) === cat) }, { k: "cat", label: "Section", type: "select", opts: CAT_OPTS }], { cat }, v => { if (!v.name) return; const l = { id: uid(), name: v.name, cat: v.cat || cat, entries: [] }; S.lifts.push(l); save("lifts"); liftSel = l.id; render(); setTimeout(() => liftSetForm(l), 50); }); break; }
+    case "liftRename": { const l = liftById(id); if (l) openForm("Edit exercise", [{ k: "name", label: "Exercise name", req: true }, { k: "cat", label: "Section", type: "select", opts: CAT_OPTS }], { name: l.name, cat: liftCat(l) }, v => { if (v.name) l.name = v.name; l.cat = v.cat; save("lifts"); render(); }); break; }
     case "liftLog": { const l = liftById(id); if (l) liftSetForm(l); break; }
     case "liftEditSet": { const l = liftById(id), e = l && l.entries.find(x => x.id === el.dataset.e); if (e) liftSetForm(l, e); break; }
     case "liftDelete": { const l = liftById(id); if (l) { openForm(`Delete ${l.name}?`, [], {}, () => {}, () => { S.lifts = S.lifts.filter(x => x !== l); liftSel = null; save("lifts"); render(); }); setTimeout(() => { const b = document.querySelector('[data-act="sheetDelete"]'); if (b) b.textContent = "Delete exercise and all sets"; const s = document.querySelector('.sheet .btn.primary'); if (s) s.remove(); }); } break; }
