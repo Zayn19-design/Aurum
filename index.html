@@ -559,7 +559,7 @@ function todoList(d, opts = {}) {
 }
 function blockHTML(b, isToday) {
   const now = nowHM(), live = isToday && b.start <= now && now < b.end;
-  return `<button class="block ${live ? "now" : ""}" style="--c:${COLORS[b.color] || COLORS.blue}" data-act="editBlock" data-id="${b.id}"><span class="t">${esc(b.title)}</span><span class="tm num">${fmtTime(b.start)}–${fmtTime(b.end)}${live ? " · now" : ""}</span></button>`;
+  return `<button class="block ${live ? "now" : ""}" style="--c:${COLORS[b.color] || COLORS.blue}" data-act="editBlock" data-id="${b.id}"><span class="t">${esc(b.title)}</span><span class="tm num">${fmtTime(b.start)}–${fmtTime(b.end)}${live ? " · now" : ""}${remindOn(b) ? " · reminder" : ""}</span></button>`;
 }
 function evRow(e) {
   const d = parseYMD(e.date); if (e.type === "birthday" && !/birthday/i.test(e.notes || "")) e = { ...e, notes: ["Birthday", e.notes].filter(Boolean).join(" · ") };
@@ -916,9 +916,31 @@ function vSchool() {
     <p class="small muted" style="margin:0">${cur ? "Days count forward on school days (Mon–Fri). After a holiday, just pick the right day again." : "Pick which cycle day it is and Aurum will keep count, and show your classes on the Today page."}</p>`;
 }
 
+/* ---------- lesson reminders via iPhone Calendar (.ics) ---------- */
+const remindOn = b => b.remind === true || b.remind === "yes" ? true : b.remind === false || b.remind === "no" ? false : !/debate/i.test(b.title);
+function lessonsICS() {
+  const t = today(), pad2 = n => String(n).padStart(2, "0");
+  const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+  const esc2 = s => String(s).replace(/[\\,;]/g, m => "\\" + m).replace(/\n/g, "\\n");
+  const ev = S.schedule.filter(remindOn).map(b => {
+    let d = t; while (dow(d) !== b.day) d = addDays(d, 1);
+    const ds = d.replace(/-/g, ""), st = b.start.replace(":", "") + "00", en = b.end.replace(":", "") + "00";
+    return ["BEGIN:VEVENT", `UID:aurum-${b.id}@zayn19-design.github.io`, `DTSTAMP:${stamp}`, `SUMMARY:${esc2(b.title)}`,
+      `DTSTART;TZID=America/Port_of_Spain:${ds}T${st}`, `DTEND;TZID=America/Port_of_Spain:${ds}T${en}`, "RRULE:FREQ=WEEKLY",
+      "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${esc2(b.title)} in 30 minutes`, "TRIGGER:-PT30M", "END:VALARM", "END:VEVENT"].join("\r\n");
+  });
+  return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Aurum//Lessons//EN", "CALSCALE:GREGORIAN", "X-WR-CALNAME:Aurum lessons",
+    "BEGIN:VTIMEZONE", "TZID:America/Port_of_Spain", "BEGIN:STANDARD", "DTSTART:19700101T000000", "TZOFFSETFROM:-0400", "TZOFFSETTO:-0400", "TZNAME:AST", "END:STANDARD", "END:VTIMEZONE",
+    ...ev, "END:VCALENDAR"].join("\r\n");
+}
+function exportLessons() {
+  const txt = lessonsICS(), blob = new Blob([txt], { type: "text/calendar" }), url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = "aurum-lessons.ics"; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
 function vWeek() {
   const t = today(), td = dow(t);
-  return `<div class="head"><div><h1>My week</h1><p class="sub">Your own repeating plans: gym, study sessions, lessons. Tap a block to edit it.</p></div><button class="btn primary" data-act="addBlock">Add block</button></div>
+  return `<div class="head"><div><h1>My week</h1><p class="sub">Your own repeating plans: gym, study sessions, lessons. Tap a block to edit it.</p></div><div class="row"><button class="btn" data-act="exportLessons">Add lessons to iPhone Calendar</button><button class="btn primary" data-act="addBlock">Add block</button></div></div>
   <div class="week">${DAYS.map((name, i) => {
     const bl = S.schedule.filter(b => b.day === i).sort((a, b) => a.start.localeCompare(b.start));
     return `<div class="day ${i === td ? "today" : ""}"><h3>${name.slice(0, 3)}<button class="btn ghost sm" data-act="addBlock" data-day="${i}" aria-label="Add block on ${name}">+</button></h3>${bl.map(b => blockHTML(b, i === td)).join("") || `<p class="empty small">Free</p>`}</div>`;
@@ -1269,7 +1291,7 @@ function closeSheet() { $("#sheetRoot").innerHTML = ""; sheetHandlers = null; }
 
 const F = {
   event: [{ k: "title", label: "What", req: true }, [{ k: "type", label: "Type", type: "select", opts: Object.entries(ETYPES).map(([k, v]) => [k, v[0]]) }, { k: "repeat", label: "Repeats", type: "select", opts: [["", "Doesn't repeat"], ["yearly", "Every year"]] }], [{ k: "date", label: "Date", type: "date", req: true }, { k: "time", label: "Time (optional)", type: "time" }], { k: "notes", label: "Notes", type: "textarea" }],
-  block: () => [{ k: "title", label: "What", req: true }, { k: "day", label: "Day", type: "select", opts: DAYS.map((d, i) => [i, d]) }, [{ k: "start", label: "Starts", type: "time", req: true, def: "09:00" }, { k: "end", label: "Ends", type: "time", req: true, def: "10:00" }], { k: "color", label: "Color", type: "select", opts: [["addmath", "Add Maths (indigo)"], ["math", "Maths (sky)"], ["english", "English A (rose)"], ["pob", "POB (amber)"], ["it", "IT (teal)"], ["chem", "Chemistry (purple)"], ["bio", "Biology (green)"], ["phys", "Physics (orange)"], ["blue", "Blue"], ["coral", "Coral"], ["green", "Green"], ["amber", "Amber"], ["violet", "Violet"]] }],
+  block: () => [{ k: "title", label: "What", req: true }, { k: "day", label: "Day", type: "select", opts: DAYS.map((d, i) => [i, d]) }, [{ k: "start", label: "Starts", type: "time", req: true, def: "09:00" }, { k: "end", label: "Ends", type: "time", req: true, def: "10:00" }], { k: "color", label: "Color", type: "select", opts: [["addmath", "Add Maths (indigo)"], ["math", "Maths (sky)"], ["english", "English A (rose)"], ["pob", "POB (amber)"], ["it", "IT (teal)"], ["chem", "Chemistry (purple)"], ["bio", "Biology (green)"], ["phys", "Physics (orange)"], ["blue", "Blue"], ["coral", "Coral"], ["green", "Green"], ["amber", "Amber"], ["violet", "Violet"]] }, { k: "remind", label: "Reminder 30 min before", type: "select", opts: [["yes", "Yes"], ["no", "No"]] }],
   study: () => [{ k: "title", label: "Title", req: true }, { k: "link", label: "Link (optional)", type: "url" }, { k: "notes", label: "Notes", type: "textarea" }],
   streak: [{ k: "name", label: "Habit", req: true }]
 };
@@ -1277,6 +1299,7 @@ function crud(listName, form, title, item, defaults = {}) {
   const isNew = !item;
   openForm(isNew ? title : "Edit", typeof form === "function" ? form() : form, item || defaults, vals => {
     if (listName === "events" && vals.type === "birthday") vals.repeat = "yearly";
+    if (listName === "schedule" && "remind" in vals) vals.remind = vals.remind === "yes";
     if (isNew) S[listName].push({ id: uid(), ...vals, ...(listName === "study" ? { created: today() } : {}) });
     else Object.assign(item, vals);
     save(listName); render();
@@ -1306,8 +1329,9 @@ document.addEventListener("click", e => {
     case "evSel": evSel = el.dataset.d; render(); setTimeout(() => { const q = document.getElementById("qeIn"); if (q && window.matchMedia("(min-width: 861px)").matches) q.focus(); }); break;
     case "evNav": { const n = +el.dataset.n, c = parseYMD(evCursor); evCursor = n === 0 ? today() : ymd(new Date(c.getFullYear(), c.getMonth() + n, 1)); if (n === 0) evSel = today(); render(); break; }
     case "editEvent": crud("events", F.event, "", S.events.find(x => x.id === id)); break;
-    case "addBlock": crud("schedule", () => F.block(), "New schedule block", null, { day: el.dataset.day ?? dow(today()) }); break;
-    case "editBlock": crud("schedule", () => F.block(), "", S.schedule.find(x => x.id === id)); break;
+    case "addBlock": crud("schedule", () => F.block(), "New schedule block", null, { day: el.dataset.day ?? dow(today()), remind: "yes" }); break;
+    case "editBlock": { const bl = S.schedule.find(x => x.id === id); if (bl) crud("schedule", () => F.block(), "", Object.assign(bl, { remind: remindOn(bl) ? "yes" : "no" })); break; }
+    case "exportLessons": exportLessons(); break;
     case "gymTab": gymTab = el.dataset.v; gymCursor = today(); gymSel = null; render(); break;
     case "gymPick": { if (wentOn(today())) break; const k = el.dataset.v; gymPick.has(k) ? gymPick.delete(k) : gymPick.add(k); render(); break; }
     case "gymLog": if (logGymToday()) render(); break;
