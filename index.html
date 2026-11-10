@@ -410,6 +410,13 @@ main{overscroll-behavior-x:none;overflow-x:hidden}
 .lc-x{display:grid;grid-template-columns:repeat(var(--n),minmax(44px,1fr));gap:8px;font-size:11px;color:var(--muted);text-align:center}
 .hrow{width:100%;background:none;border-left:0;border-right:0;border-bottom:0;cursor:pointer;color:var(--ink);text-align:left}
 @media (max-width:860px){.liftgrid{grid-template-columns:1fr 1fr}.excard b{font-size:32px}.examcd-sub{min-width:70px}.examcd-row .grow{font-size:11px}}
+
+/* drag to reorder */
+.liftcard{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;transition:transform .15s,box-shadow .15s}
+.liftcard-n{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.grip{width:14px;height:10px;flex:none;opacity:.35;background:linear-gradient(var(--muted),var(--muted)) 0 0/100% 2px no-repeat,linear-gradient(var(--muted),var(--muted)) 0 4px/100% 2px no-repeat,linear-gradient(var(--muted),var(--muted)) 0 8px/100% 2px no-repeat}
+.liftcard.dragging{transform:scale(1.05) rotate(-1deg);box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 0 2px var(--accent);transition:transform .15s,box-shadow .15s}
+.lift-ph{border:2px dashed color-mix(in srgb,var(--accent) 60%,transparent);border-radius:var(--radius);background:color-mix(in srgb,var(--accent) 8%,transparent)}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 /* standalone app */
 .app{padding-top:env(safe-area-inset-top)}
@@ -1266,8 +1273,8 @@ function vLifts(head) {
   }
   const lifts = S.lifts || [];
   return `${head}${bodyCard()}
-    <div class="head" style="margin-top:4px"><div><h2>Exercises</h2><p class="sub small">Log weight and reps each time (or once a month) to see your progression.</p></div><button class="btn primary" data-act="liftAdd">Add exercise</button></div>
-    <div class="liftgrid">${lifts.map(x => { const st = liftStats(x); return `<button class="liftcard" data-act="liftOpen" data-id="${x.id}"><span class="liftcard-n">${esc(x.name)}</span>
+    <div class="head" style="margin-top:4px"><div><h2>Exercises</h2><p class="sub small">Log weight and reps to see your progression. Hold a card, then drag to reorder.</p></div><button class="btn primary" data-act="liftAdd">Add exercise</button></div>
+    <div class="liftgrid">${lifts.map(x => { const st = liftStats(x); return `<button class="liftcard" data-act="liftOpen" data-id="${x.id}"><span class="liftcard-n">${esc(x.name)}<i class="grip" aria-hidden="true"></i></span>
       ${st ? `<b class="num">${lb(st.best.weight)}<small> × ${st.best.reps}</small></b><span class="small muted">Best · last ${fmtDate(st.last.date)}</span>${st.gain > 0 ? `<span class="pill flame">+${lb(st.gain)} since ${monLabel(st.since)}</span>` : ""}` : `<span class="small muted">No sets yet</span>`}</button>`; }).join("") || `<p class="empty">Add your first exercise, like Bench press or Squat.</p>`}</div>`;
 }
 function liftSetForm(l, e) {
@@ -1362,6 +1369,58 @@ function vAI() {
 }
 
 const VIEWS = { today: vToday, tasks: vTasks, week: vWeek, events: vEvents, workouts: vGym, study: vStudy, streaks: vStreaks, ai: vAI };
+/* ---------- hold-and-drag to reorder lift cards ---------- */
+let liftDragging = false, suppressClick = false;
+(function setupLiftDrag() {
+  let timer = null, sx = 0, sy = 0, card = null, ph = null, offX = 0, offY = 0, grid = null;
+  const begin = (x, y) => {
+    liftDragging = true; grid = card.parentElement;
+    const r = card.getBoundingClientRect(); offX = x - r.left; offY = y - r.top;
+    ph = document.createElement("div"); ph.className = "lift-ph"; ph.style.height = r.height + "px";
+    grid.insertBefore(ph, card);
+    Object.assign(card.style, { position: "fixed", left: r.left + "px", top: r.top + "px", width: r.width + "px", height: r.height + "px", zIndex: 120, pointerEvents: "none" });
+    card.classList.add("dragging");
+    try { navigator.vibrate && navigator.vibrate(12); } catch (e) {}
+  };
+  const move = (x, y) => {
+    card.style.left = (x - offX) + "px"; card.style.top = (y - offY) + "px";
+    const over = document.elementFromPoint(x, y), tgt = over && over.closest(".liftcard, .lift-ph");
+    if (tgt && tgt !== ph && grid.contains(tgt)) {
+      const kids = [...grid.children], a = kids.indexOf(ph), b = kids.indexOf(tgt);
+      grid.insertBefore(ph, a < b ? tgt.nextSibling : tgt);
+    }
+    // auto-scroll near the top/bottom edge
+    const m = document.getElementById("main"), mr = m.getBoundingClientRect();
+    if (y < mr.top + 60) m.scrollTop -= 12; else if (y > mr.bottom - 60) m.scrollTop += 12;
+  };
+  const end = () => {
+    clearTimeout(timer); timer = null;
+    if (!liftDragging) { card = null; return; }
+    grid.insertBefore(card, ph); ph.remove();
+    const order = [...grid.querySelectorAll(".liftcard")].map(c => c.dataset.id);
+    S.lifts.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+    save("lifts"); liftDragging = false; suppressClick = true; setTimeout(() => suppressClick = false, 350);
+    card = null; render();
+  };
+  const start = (target, x, y) => {
+    const c = target.closest(".liftcard"); if (!c || sheetHandlers) return;
+    card = c; sx = x; sy = y; clearTimeout(timer);
+    timer = setTimeout(() => begin(sx, sy), 320);
+  };
+  const early = (x, y) => { if (timer && !liftDragging && (Math.abs(x - sx) > 8 || Math.abs(y - sy) > 8)) { clearTimeout(timer); timer = null; card = null; } };
+  // touch
+  document.addEventListener("touchstart", e => { if (e.touches.length === 1) start(e.target, e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+  document.addEventListener("touchmove", e => { const t = e.touches[0]; if (liftDragging) { e.preventDefault(); move(t.clientX, t.clientY); } else early(t.clientX, t.clientY); }, { passive: false });
+  document.addEventListener("touchend", end); document.addEventListener("touchcancel", end);
+  // mouse
+  document.addEventListener("mousedown", e => { if (e.button === 0) start(e.target, e.clientX, e.clientY); });
+  document.addEventListener("mousemove", e => { if (liftDragging) { e.preventDefault(); move(e.clientX, e.clientY); } else early(e.clientX, e.clientY); });
+  document.addEventListener("mouseup", end);
+  // stop the long-press from also opening the card or the iPhone callout
+  document.addEventListener("click", e => { if (suppressClick && e.target.closest(".liftcard")) { e.stopPropagation(); e.preventDefault(); } }, true);
+  document.addEventListener("contextmenu", e => { if (e.target.closest(".liftcard")) e.preventDefault(); });
+})();
+
 /* ---------- swipe between sections and their sub-tabs ---------- */
 let slideDir = "";
 const SUBTABS = {
@@ -1398,6 +1457,7 @@ function canStep(dir, sub) {
     wrap = main.querySelector(".wrap");
   }, { passive: true });
   main.addEventListener("touchmove", e => {
+    if (liftDragging) { if (mode === "h" && wrap) { wrap.style.transform = ""; wrap.style.opacity = ""; } mode = "off"; return; }
     if (mode === "off" || !wrap) return;
     const x = e.touches[0].clientX, y = e.touches[0].clientY, dx = x - sx, dy = y - sy;
     if (!mode) { if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return; mode = Math.abs(dx) > Math.abs(dy) * 1.2 ? "h" : "off"; if (mode === "off") return; wrap.style.transition = "none"; }
@@ -1698,7 +1758,7 @@ User: ${q}`;
     if (u) connect(); else setSync("local");
   });
   window.addEventListener("hashchange", () => { const v = location.hash.slice(1); if (VIEWS[v] && v !== view) { view = v; render(); } });
-  setInterval(() => { if (!sheetHandlers && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") render(); }, 60000);
+  setInterval(() => { if (!sheetHandlers && !liftDragging && document.activeElement?.tagName !== "INPUT" && document.activeElement?.tagName !== "TEXTAREA") render(); }, 60000);
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 })();
 </script>
