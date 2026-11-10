@@ -417,6 +417,8 @@ main{overscroll-behavior-x:none;overflow-x:hidden}
 .grip{width:14px;height:10px;flex:none;opacity:.35;background:linear-gradient(var(--muted),var(--muted)) 0 0/100% 2px no-repeat,linear-gradient(var(--muted),var(--muted)) 0 4px/100% 2px no-repeat,linear-gradient(var(--muted),var(--muted)) 0 8px/100% 2px no-repeat}
 .liftcard.dragging{transform:scale(1.05) rotate(-1deg);box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 0 2px var(--accent);transition:transform .15s,box-shadow .15s}
 .lift-ph{border:2px dashed color-mix(in srgb,var(--accent) 60%,transparent);border-radius:var(--radius);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+/* iPhone zooms into any text box under 16px: keep every field at 16px so the screen stays fitted */
+input,select,textarea,.input{font-size:16px!important}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 /* standalone app */
 .app{padding-top:env(safe-area-inset-top)}
