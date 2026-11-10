@@ -175,7 +175,7 @@ main{overflow-y:auto;padding:28px 32px 40px}
 
 /* gym */
 :root{--teal:#3FC7C2}
-.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;width:fit-content;max-width:100%;overflow-x:auto}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;width:fit-content;max-width:100%;overflow-x:auto;position:sticky;top:8px;z-index:20;box-shadow:0 6px 18px rgba(0,0,0,.35);touch-action:pan-y}
 .tab{border:0;background:none;padding:7px 16px;border-radius:9px;cursor:pointer;font-weight:600;color:var(--muted)}
 .tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
 .mg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
@@ -209,6 +209,7 @@ main{overflow-y:auto;padding:28px 32px 40px}
 .hbt{height:10px;background:var(--bg);border-radius:6px;overflow:hidden}
 .hbt div{height:100%;border-radius:6px;min-width:2px}
 @media (max-width:860px){
+  .tabs{width:100%;justify-content:space-between}.tabs .tab{flex:1;padding:8px 6px}
   .mg{grid-template-columns:repeat(4,minmax(0,1fr))}
   .mgbtn{padding:12px 4px;font-size:13px}
   .yr{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -1234,32 +1235,32 @@ const SUBTABS = {
   workouts: { get: () => gymTab, set: v => { gymTab = v; gymCursor = today(); gymSel = null; }, list: ["today", "week", "month", "year", "freq"] },
   study: { get: () => studySubject ? null : studyTab, set: v => { studySubject = null; studyTab = v; }, list: ["subjects", "timetable"] }
 };
-function swipeStep(dir) {
+function swipeStep(dir, sub) {
   const order = NAV.map(n => n[0]), st = SUBTABS[view];
-  if (st && st.get()) {
-    const i = st.list.indexOf(st.get()), j = i + dir;
-    if (j >= 0 && j < st.list.length) { st.set(st.list[j]); slideDir = dir > 0 ? "left" : "right"; render(); return; }
+  if (sub) {
+    if (!st || !st.get()) return;
+    const j = st.list.indexOf(st.get()) + dir; if (j < 0 || j >= st.list.length) return;
+    st.set(st.list[j]); slideDir = dir > 0 ? "left" : "right"; render(); return;
   }
   const k = order.indexOf(view) + dir; if (k < 0 || k >= order.length) return;
-  const next = order[k], nst = SUBTABS[next];
-  if (nst) nst.set(dir > 0 ? nst.list[0] : nst.list[nst.list.length - 1]);
-  slideDir = dir > 0 ? "left" : "right"; view = next;
-  try { history.replaceState(null, "", "#" + next); } catch (e) {}
+  slideDir = dir > 0 ? "left" : "right"; view = order[k];
+  try { history.replaceState(null, "", "#" + view); } catch (e) {}
   render(); $("#main").scrollTop = 0;
 }
-function canStep(dir) {
+function canStep(dir, sub) {
   const order = NAV.map(n => n[0]), st = SUBTABS[view];
-  if (st && st.get()) { const j = st.list.indexOf(st.get()) + dir; if (j >= 0 && j < st.list.length) return true; }
+  if (sub) { if (!st || !st.get()) return false; const j = st.list.indexOf(st.get()) + dir; return j >= 0 && j < st.list.length; }
   const k = order.indexOf(view) + dir; return k >= 0 && k < order.length;
 }
 (function setupSwipe() {
   const main = document.getElementById("main");
-  let sx = 0, sy = 0, st = 0, lastX = 0, lastT = 0, vx = 0, mode = "", wrap = null, busy = false;
+  let sx = 0, sy = 0, st = 0, lastX = 0, lastT = 0, vx = 0, mode = "", wrap = null, busy = false, sub = false;
   const ease = "cubic-bezier(.22,.9,.3,1)";
   main.addEventListener("touchstart", e => {
     mode = "";
     if (busy || e.touches.length !== 1 || sheetHandlers || document.getElementById("celebrate")) { mode = "off"; return; }
-    if (e.target.closest("input,textarea,select,.tt-wrap,.chips,.tabs,.ecal,.calgrid,.dots")) { mode = "off"; return; }
+    sub = !!e.target.closest(".tabs") && !!SUBTABS[view];
+    if (!sub && e.target.closest("input,textarea,select,.tt-wrap,.chips,.tabs,.ecal,.calgrid,.dots")) { mode = "off"; return; }
     sx = lastX = e.touches[0].clientX; sy = e.touches[0].clientY; st = lastT = Date.now(); vx = 0;
     wrap = main.querySelector(".wrap");
   }, { passive: true });
@@ -1269,7 +1270,7 @@ function canStep(dir) {
     if (!mode) { if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return; mode = Math.abs(dx) > Math.abs(dy) * 1.2 ? "h" : "off"; if (mode === "off") return; wrap.style.transition = "none"; }
     e.preventDefault();
     const now = Date.now(); vx = (x - lastX) / Math.max(1, now - lastT); lastX = x; lastT = now;
-    const dir = dx < 0 ? 1 : -1, resist = canStep(dir) ? 1 : 0.25;  // rubber-band at the ends
+    const dir = dx < 0 ? 1 : -1, resist = canStep(dir, sub) ? 1 : 0.25;  // rubber-band at the ends
     const move = dx * resist;
     wrap.style.transform = `translateX(${move}px)`;
     wrap.style.opacity = String(1 - Math.min(Math.abs(move) / main.clientWidth, 1) * 0.35);
@@ -1277,13 +1278,13 @@ function canStep(dir) {
   const finish = () => {
     if (mode !== "h" || !wrap) { mode = ""; return; }
     const dx = lastX - sx, dir = dx < 0 ? 1 : -1, w = main.clientWidth;
-    const go = canStep(dir) && (Math.abs(dx) > w * 0.22 || (Math.abs(vx) > 0.45 && Math.abs(dx) > 30));
+    const go = canStep(dir, sub) && (Math.abs(dx) > w * (sub ? 0.12 : 0.22) || (Math.abs(vx) > 0.4 && Math.abs(dx) > 25));
     mode = ""; const el = wrap; wrap = null;
     if (!go) { el.style.transition = `transform .32s ${ease}, opacity .32s ${ease}`; el.style.transform = ""; el.style.opacity = ""; return; }
     busy = true;
     el.style.transition = `transform .18s ease-in, opacity .18s ease-in`;
     el.style.transform = `translateX(${-dir * w * 0.6}px)`; el.style.opacity = "0";
-    setTimeout(() => { swipeStep(dir); busy = false; }, 170);
+    const s = sub; setTimeout(() => { swipeStep(dir, s); busy = false; }, 170);
   };
   main.addEventListener("touchend", finish, { passive: true });
   main.addEventListener("touchcancel", finish, { passive: true });
