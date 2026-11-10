@@ -362,44 +362,14 @@ main{overflow-y:auto;padding:28px 32px 40px}
 .tasks-done h2{color:var(--accent)}
 @media (prefers-reduced-motion: reduce){.cele-check circle,.cele-check path{stroke-dashoffset:0}}
 
-/* health */
-.hday{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:center}
-.hrings{width:200px;height:200px}
-.hring-legend{display:flex;flex-direction:column;gap:10px}
-.hring-legend p{margin:0;display:grid;grid-template-columns:12px 90px 1fr;align-items:center;gap:10px}
-.hring-legend i{width:12px;height:12px;border-radius:50%}
-.hring-legend b{font-size:22px}
-.hring-legend small{font-size:13px;color:var(--muted);font-weight:400}
-.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
-.hcard{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--c);border-radius:var(--radius);padding:14px;display:flex;flex-direction:column;gap:6px;text-align:left;cursor:pointer;color:var(--ink)}
-.hcard:hover{border-color:var(--c)}
-.hcard-k{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c)}
-.hcard b{font-size:24px;font-weight:500}
-.hcard-bar{height:6px;border-radius:4px;background:color-mix(in srgb,var(--c) 18%,transparent);overflow:hidden}
-.hcard-bar i{display:block;height:100%;background:var(--c);border-radius:4px}
-.hc{display:flex;flex-direction:column;gap:6px}
-.hc-plot{position:relative;height:220px;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:4px;align-items:end;border-bottom:1px solid var(--muted);padding-top:22px;background:repeating-linear-gradient(to top,transparent 0 54px,var(--line) 54px 55px)}
-.hc-col{height:100%;display:flex;align-items:flex-end;justify-content:center;background:none;border:0;padding:0;cursor:pointer;min-width:0}
-.hc-col:hover .hc-bar{filter:brightness(1.15)}
-.hc-bar{position:relative;width:100%;max-width:46px;background:linear-gradient(180deg,var(--c),color-mix(in srgb,var(--c) 50%,var(--surface)));border-radius:6px 6px 0 0}
-.hc-bar.met{box-shadow:0 0 0 2px var(--accent)}
-.hc-bar em{position:absolute;top:-18px;left:50%;transform:translateX(-50%);font:500 11px var(--font-mono);font-style:normal;color:var(--ink);white-space:nowrap}
-.hc-empty{width:60%;height:3px;border-radius:2px;background:var(--line)}
-.hc-goal{position:absolute;left:0;right:0;border-top:1.5px dashed var(--accent);pointer-events:none;z-index:1}
-.hc-goal span{position:absolute;right:0;top:-18px;font-size:11px;color:var(--accent);background:var(--surface);padding:0 4px;border-radius:4px}
-.hc-x{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:4px;font-size:11px;color:var(--muted);text-align:center}
-.hrow{width:100%;background:none;border-left:0;border-right:0;border-bottom:0;cursor:pointer;color:var(--ink);text-align:left}
-.guide{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px;font-size:14px}
-.guide code{display:block;margin-top:6px;padding:8px;border-radius:8px;background:var(--bg);font:12px var(--font-mono);overflow-wrap:anywhere;user-select:all}
-.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);font-weight:600;padding:10px 16px;border-radius:12px;z-index:150;box-shadow:0 8px 24px rgba(0,0,0,.4)}
-@media (max-width:860px){.hday{grid-template-columns:1fr;justify-items:center}.hrings{width:180px;height:180px}.hring-legend{width:100%}.hgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.hc-plot{height:180px}.hc-bar em{font-size:10px}}
 
 /* swipe slide-in */
-.wrap.slide-left{animation:slideL .22s ease-out}
-.wrap.slide-right{animation:slideR .22s ease-out}
-@keyframes slideL{from{opacity:.3;transform:translateX(40px)}to{opacity:1;transform:none}}
-@keyframes slideR{from{opacity:.3;transform:translateX(-40px)}to{opacity:1;transform:none}}
-main{overscroll-behavior-x:none}
+.wrap.slide-left{animation:slideL .34s cubic-bezier(.22,.9,.3,1)}
+.wrap.slide-right{animation:slideR .34s cubic-bezier(.22,.9,.3,1)}
+@keyframes slideL{from{opacity:0;transform:translateX(18%)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:0;transform:translateX(-18%)}to{opacity:1;transform:none}}
+main{overscroll-behavior-x:none;overflow-x:hidden}
+.wrap{will-change:transform}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 /* standalone app */
 .app{padding-top:env(safe-area-inset-top)}
@@ -504,7 +474,7 @@ async function connect() {
       if (first) {
         if (!docs.length && snap.metadata && snap.metadata.fromCache) return; // wait for the server before deciding this is a new account
         first = false;
-        if (!docs.length) { seed(); migrate(); save(...SECTIONS); render(); setSync("ok"); applyPendingHealth(); return; }
+        if (!docs.length) { seed(); migrate(); save(...SECTIONS); render(); setSync("ok"); return; }
       }
       let changed = false;
       docs.forEach(d => {
@@ -516,7 +486,6 @@ async function connect() {
         try { S[key] = JSON.parse(data.json); changed = true; } catch (e) {}
       });
       if (changed) { migrate(); cacheLocal(); render(); }
-      if (pendingHealth) applyPendingHealth();
       setSync(snap.metadata && snap.metadata.fromCache ? "wait" : "ok");
     };
     unsub = db.collection(colPath).onSnapshot({ includeMetadataChanges: false }, handle, () => setSync("err"));
@@ -579,7 +548,7 @@ const ICON = {
   streaks: '<path d="M12 22c4 0 7-2.7 7-7 0-4-3-6-4-9-1 2-2 3-3 3 0-2-1-4-3-6-1 4-4 6-4 11 0 4.3 3 8 7 8z"/>',
   ai: '<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>'
 };
-const NAV = [["today","Today"],["tasks","Tasks"],["week","Week"],["events","Events"],["workouts","Workouts"],["health","Health"],["study","Study"],["streaks","Streaks"]];
+const NAV = [["today","Today"],["tasks","Tasks"],["week","Week"],["events","Events"],["workouts","Workouts"],["study","Study"],["streaks","Streaks"]];
 function navHTML() {
   return NAV.map(([k, label]) => `<button class="nav" data-act="go" data-v="${k}" ${view === k ? 'aria-current="page"' : ""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>${label}</button>`).join("");
 }
@@ -1258,166 +1227,11 @@ function vAI() {
   </section>`;
 }
 
-/* ---------- health (Apple Watch data) ---------- */
-// stored per day in canonical units: distance km, weight kg, height cm
-const HM = [
-  { k: "steps", name: "Steps", color: "#34D399", kind: "total", dec: 0 },
-  { k: "distance", name: "Distance", color: "#38BDF8", kind: "total", dec: 2 },
-  { k: "active", name: "Active calories", color: "#F43F5E", kind: "total", dec: 0, unit: "kcal" },
-  { k: "exercise", name: "Exercise", color: "#A3E635", kind: "total", dec: 0, unit: "min" },
-  { k: "rhr", name: "Resting heart rate", color: "#F472B6", kind: "avg", dec: 0, unit: "bpm" },
-  { k: "weight", name: "Weight", color: "#FBBF24", kind: "last", dec: 1 },
-  { k: "height", name: "Height", color: "#A78BFA", kind: "last", dec: 0 }
-];
-const HMK = Object.fromEntries(HM.map(m => [m.k, m]));
-let hTab = "day", hDate = today(), hMetric = "steps";
-const hUnits = () => Object.assign({ weight: "lb", height: "ftin", distance: "km" }, (S.meta && S.meta.units) || {});
-const hGoals = () => Object.assign({ steps: 10000, active: 500, exercise: 30 }, (S.meta && S.meta.healthGoals) || {});
-const hDay = d => (S.health && S.health[d]) || {};
-function hToDisp(k, v) {
-  if (v == null || v === "" || isNaN(v)) return null; const u = hUnits();
-  if (k === "distance" && u.distance === "mi") return v * 0.621371;
-  if (k === "weight" && u.weight === "lb") return v * 2.20462;
-  return +v;
-}
-function hFromDisp(k, v) {
-  const u = hUnits();
-  if (k === "distance" && u.distance === "mi") return v / 0.621371;
-  if (k === "weight" && u.weight === "lb") return v / 2.20462;
-  return v;
-}
-function hUnit(k) { const u = hUnits(); return k === "distance" ? u.distance : k === "weight" ? u.weight : k === "height" ? (u.height === "cm" ? "cm" : "") : k === "steps" ? "" : HMK[k].unit; }
-function hFmt(k, v) {
-  if (v == null || isNaN(v)) return "–";
-  if (k === "height") { if (hUnits().height === "cm") return Math.round(v) + " cm"; const inch = Math.round(v / 2.54); return `${Math.floor(inch / 12)}′${inch % 12}″`; }
-  const d = hToDisp(k, v), dec = HMK[k].dec;
-  return d.toLocaleString(undefined, { maximumFractionDigits: dec, minimumFractionDigits: k === "distance" ? 1 : 0 }) + (hUnit(k) ? " " + hUnit(k) : "");
-}
-function hRange(from, to) { const out = []; for (let d = from; d <= to; d = addDays(d, 1)) out.push(d); return out; }
-function hStat(k, days) {
-  const vals = days.map(d => hDay(d)[k]).filter(v => v != null && !isNaN(v)).map(Number);
-  if (!vals.length) return null;
-  const m = HMK[k], sum = vals.reduce((a, b) => a + b, 0);
-  if (m.kind === "last") { const logged = days.filter(d => hDay(d)[k] != null); return { main: +hDay(logged[logged.length - 1])[k], first: +hDay(logged[0])[k], n: vals.length }; }
-  return { main: sum / vals.length, total: sum, best: Math.max(...vals), low: Math.min(...vals), n: vals.length };
-}
-function ring(pct, r, color) { const C = 2 * Math.PI * r, p = Math.max(0, Math.min(1, pct || 0)); return `<circle cx="80" cy="80" r="${r}" fill="none" stroke="${color}" stroke-opacity=".18" stroke-width="13"/><circle cx="80" cy="80" r="${r}" fill="none" stroke="${color}" stroke-width="13" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - p)}" transform="rotate(-90 80 80)"/>`; }
-
-function hChart(k, labels, values, opts = {}) {
-  const disp = values.map(v => v == null ? null : hToDisp(k, v));
-  const mx = Math.max(0, ...disp.filter(v => v != null)), goal = opts.goal ? hToDisp(k, opts.goal) : 0;
-  const top = Math.max(mx, goal) * 1.12 || 1, col = HMK[k].color, n = values.length;
-  return `<div class="hc" style="--n:${n}">
-    <div class="hc-plot">${goal ? `<i class="hc-goal" style="bottom:${goal / top * 100}%"><span>Goal ${hFmt(k, opts.goal)}</span></i>` : ""}
-      ${disp.map((v, i) => `<button class="hc-col" data-act="${opts.act || "hEditDay"}" data-d="${opts.keys[i]}" aria-label="${labels[i]}: ${v == null ? "no data" : hFmt(k, values[i])}">
-        ${v == null ? `<span class="hc-empty"></span>` : `<span class="hc-bar ${goal && v >= goal ? "met" : ""}" style="height:${Math.max(2, v / top * 100)}%;--c:${col}">${n <= 12 ? `<em>${k === "height" ? hFmt(k, values[i]) : (+v).toLocaleString(undefined, { maximumFractionDigits: k === "distance" || k === "weight" ? 1 : 0 })}</em>` : ""}</span>`}</button>`).join("")}
-    </div>
-    <div class="hc-x">${labels.map((l, i) => `<span>${n > 12 && i % Math.ceil(n / 8) && i !== n - 1 ? "" : l}</span>`).join("")}</div></div>`;
-}
-
-function vHealth() {
-  const t = today(), g = hGoals();
-  const tabs = `<div class="tabs" role="tablist">${[["day","Day"],["week","Week"],["month","Month"],["year","Year"]].map(([k, l]) => `<button class="tab" role="tab" aria-selected="${hTab === k}" data-act="hTab" data-v="${k}">${l}</button>`).join("")}</div>`;
-  const head = `<div class="head"><div><h1>Health</h1><p class="sub">Your Apple Watch data. Tap any number or bar to edit it.</p></div><div class="row"><button class="btn" data-act="hGuide">Connect Apple Health</button><button class="btn primary" data-act="hEditDay" data-d="${hTab === "day" ? hDate : t}">Edit ${hTab === "day" && hDate !== t ? fmtDate(hDate) : "today"}</button></div></div>`;
-  const nav = label => `<div class="row" style="justify-content:space-between"><button class="btn" data-act="hNav" data-n="-1" aria-label="Previous">←</button><div class="row"><h2>${label}</h2>${hDate !== t ? `<button class="btn ghost sm" data-act="hNav" data-n="0">Today</button>` : ""}</div><button class="btn" data-act="hNav" data-n="1" aria-label="Next" ${hTab === "day" && hDate >= t ? "disabled" : ""}>→</button></div>`;
-  const chips = `<div class="chips">${HM.map(m => `<button class="chip" data-act="hMetric" data-v="${m.k}" aria-pressed="${hMetric === m.k}" style="${hMetric === m.k ? `background:${m.color};border-color:${m.color};color:#1E1F22` : ""}">${m.name}</button>`).join("")}</div>`;
-
-  if (hTab === "day") {
-    const d = hDay(hDate), last = k => { const ds = Object.keys(S.health || {}).filter(x => x <= hDate && S.health[x][k] != null).sort(); return ds.length ? { v: S.health[ds[ds.length - 1]][k], d: ds[ds.length - 1] } : null; };
-    const card = m => { let v = d[m.k], note = ""; if (m.kind === "last" && v == null) { const l = last(m.k); if (l) { v = l.v; note = `as of ${fmtDate(l.d)}`; } }
-      const goal = g[m.k]; const pct = goal && v != null ? Math.min(1, v / goal) : null;
-      return `<button class="hcard" style="--c:${m.color}" data-act="hEditDay" data-d="${hDate}"><span class="hcard-k">${m.name}</span><b class="num">${v == null ? "–" : hFmt(m.k, v)}</b>
-        ${pct != null ? `<span class="hcard-bar"><i style="width:${pct * 100}%"></i></span><span class="small muted">${Math.round(pct * 100)}% of ${hFmt(m.k, goal)}</span>` : `<span class="small muted">${note || (v == null ? "Tap to add" : "&nbsp;")}</span>`}</button>`; };
-    return `${head}${tabs}<section class="card">${nav(`${hDate === t ? "Today · " : ""}${fmtDate(hDate)}`)}
-      <div class="hday">
-        <svg viewBox="0 0 160 160" class="hrings" aria-label="Activity rings">${ring(d.active / g.active, 66, "#F43F5E")}${ring(d.exercise / g.exercise, 49, "#A3E635")}${ring(d.steps / g.steps, 32, "#34D399")}</svg>
-        <div class="hring-legend">
-          <p><i style="background:#F43F5E"></i><span>Move</span><b class="num">${d.active != null ? Math.round(d.active) : 0}<small>/${g.active} kcal</small></b></p>
-          <p><i style="background:#A3E635"></i><span>Exercise</span><b class="num">${d.exercise != null ? Math.round(d.exercise) : 0}<small>/${g.exercise} min</small></b></p>
-          <p><i style="background:#34D399"></i><span>Steps</span><b class="num">${d.steps != null ? Math.round(d.steps).toLocaleString() : 0}<small>/${g.steps.toLocaleString()}</small></b></p>
-          <button class="btn ghost sm" data-act="hGoals" style="align-self:flex-start">Change goals</button>
-        </div>
-      </div></section>
-      <div class="hgrid">${HM.map(card).join("")}</div>
-      ${hSettings()}`;
-  }
-
-  let days, labels, keys, title, values;
-  if (hTab === "week") { const ws = weekStart(hDate); days = hRange(ws, addDays(ws, 6)); labels = days.map(x => DAYS[dow(x)].slice(0, 3)); keys = days; title = `${fmtDate(ws)} – ${fmtDate(addDays(ws, 6))}`; values = days.map(x => hDay(x)[hMetric] ?? null); }
-  else if (hTab === "month") { const c = parseYMD(hDate), y = c.getFullYear(), m = c.getMonth(); days = hRange(`${y}-${pad(m + 1)}-01`, ymd(new Date(y, m + 1, 0))); labels = days.map(x => String(parseYMD(x).getDate())); keys = days; title = `${["January","February","March","April","May","June","July","August","September","October","November","December"][m]} ${y}`; values = days.map(x => hDay(x)[hMetric] ?? null); }
-  else { const y = parseYMD(hDate).getFullYear(); days = hRange(`${y}-01-01`, `${y}-12-31`); labels = MON.map(x => x.slice(0, 1)); keys = MON.map((_, i) => `${y}-${pad(i + 1)}-01`); title = String(y);
-    values = MON.map((_, i) => { const s = hStat(hMetric, hRange(`${y}-${pad(i + 1)}-01`, ymd(new Date(y, i + 1, 0)))); return s ? s.main : null; }); }
-  const m = HMK[hMetric], st = hStat(hMetric, days.filter(x => x <= t));
-  const stats = !st ? `<p class="muted" style="margin:0">No ${m.name.toLowerCase()} logged in this ${hTab} yet.</p>` : m.kind === "last"
-    ? `<div class="stats"><div class="stat"><b>${hFmt(hMetric, st.main)}</b><span>latest</span></div><div class="stat"><b>${hMetric === "height" ? hFmt(hMetric, st.first) : (st.main - st.first >= 0 ? "+" : "") + hFmt(hMetric, st.main - st.first + (hMetric === "weight" ? 0 : 0))}</b><span>${hMetric === "height" ? "start of " + hTab : "change this " + hTab}</span></div><div class="stat"><b>${st.n}</b><span>days logged</span></div></div>`
-    : `<div class="stats"><div class="stat"><b>${hFmt(hMetric, st.main)}</b><span>${m.kind === "avg" ? "average" : "daily average"}</span></div>${m.kind === "total" ? `<div class="stat"><b>${hFmt(hMetric, st.total)}</b><span>total</span></div>` : `<div class="stat"><b>${hFmt(hMetric, st.low)}</b><span>lowest</span></div>`}<div class="stat"><b>${hFmt(hMetric, st.best)}</b><span>${m.kind === "avg" ? "highest" : "best day"}</span></div><div class="stat"><b>${st.n}</b><span>days logged</span></div></div>`;
-  const list = hTab === "year" ? "" : `<section class="card"><h2>Daily ${m.name.toLowerCase()}</h2><div class="list">${days.filter(x => x <= t).slice().reverse().map(x => { const v = hDay(x)[hMetric]; return `<button class="item hrow" data-act="hEditDay" data-d="${x}"><span class="grow">${fmtDate(x)}</span><b class="num" style="color:${v == null ? "var(--muted)" : m.color}">${v == null ? "Add" : hFmt(hMetric, v)}</b><span class="muted small">Edit</span></button>`; }).join("")}</div></section>`;
-  return `${head}${tabs}<section class="card">${nav(title)}${chips}${stats}
-    ${hChart(hMetric, labels, values, { goal: hTab === "year" ? (g[hMetric] || 0) : g[hMetric], keys, act: hTab === "year" ? "hOpenMonth" : "hEditDay" })}
-    <p class="small muted" style="margin:0">${hTab === "year" ? "Each bar is that month's " + (m.kind === "last" ? "latest value" : "daily average") + ". Tap a month to open it." : "Tap a bar to edit that day."}</p></section>${list}`;
-}
-function hSettings() {
-  const u = hUnits(), opt = (k, v, l) => `<button class="chip" data-act="hUnit" data-k="${k}" data-v="${v}" aria-pressed="${u[k] === v}">${l}</button>`;
-  return `<section class="card"><h2>Units</h2><div class="row" style="gap:16px"><div class="chips">${opt("weight", "lb", "lb")}${opt("weight", "kg", "kg")}</div><div class="chips">${opt("height", "ftin", "ft / in")}${opt("height", "cm", "cm")}</div><div class="chips">${opt("distance", "km", "km")}${opt("distance", "mi", "miles")}</div></div></section>`;
-}
-function hEditForm(d) {
-  const v = hDay(d), u = hUnits(), num = (k, label) => ({ k, label, type: "number" });
-  const disp = {}; ["steps", "distance", "active", "exercise", "rhr", "weight"].forEach(k => { const x = hToDisp(k, v[k]); disp[k] = x == null ? "" : +x.toFixed(HMK[k].dec === 0 ? 0 : 2); });
-  let hFields; if (u.height === "cm") { hFields = [num("height_cm", "Height (cm)")]; disp.height_cm = v.height != null ? Math.round(v.height) : ""; }
-  else { hFields = [[num("height_ft", "Height (ft)"), num("height_in", "Height (in)")]]; if (v.height != null) { const inch = Math.round(v.height / 2.54); disp.height_ft = Math.floor(inch / 12); disp.height_in = inch % 12; } }
-  const fields = [[num("steps", "Steps"), num("distance", `Distance (${u.distance})`)], [num("active", "Active calories (kcal)"), num("exercise", "Exercise (min)")], [num("rhr", "Resting heart rate (bpm)"), num("weight", `Weight (${u.weight})`)], ...hFields];
-  openForm(`Health · ${fmtDate(d)}`, fields, disp, vals => {
-    const out = {}, raw = {}; document.querySelectorAll(".sheet input").forEach(i => raw[i.id.slice(2)] = i.value.trim());
-    ["steps", "distance", "active", "exercise", "rhr", "weight"].forEach(k => { if (raw[k] !== "" && !isNaN(raw[k])) out[k] = hFromDisp(k, +raw[k]); });
-    if (u.height === "cm") { if (raw.height_cm) out.height = +raw.height_cm; } else if (raw.height_ft || raw.height_in) out.height = ((+raw.height_ft || 0) * 12 + (+raw.height_in || 0)) * 2.54;
-    S.health = S.health || {}; if (Object.keys(out).length) S.health[d] = out; else delete S.health[d];
-    save("health"); render();
-  }, Object.keys(v).length ? () => { delete S.health[d]; save("health"); render(); } : null);
-  setTimeout(() => { const b = document.querySelector('[data-act="sheetDelete"]'); if (b) b.textContent = "Clear this day"; document.querySelectorAll(".sheet input[type=number]").forEach(i => { i.step = "any"; i.min = "0"; i.inputMode = "decimal"; }); });
-}
-function hGuideSheet() {
-  const base = location.origin + location.pathname;
-  $("#sheetRoot").innerHTML = `<div class="overlay" data-act="closeSheet"><div class="sheet" role="dialog" aria-modal="true" aria-label="Connect Apple Health" style="max-width:560px">
-    <h2>Connect Apple Health</h2>
-    <p class="muted" style="margin:0">Make a Shortcut once on your iPhone. Each time it runs, it reads today's Apple Watch numbers and opens Aurum with them filled in.</p>
-    <ol class="guide">
-      <li>Open the <b>Shortcuts</b> app → <b>+</b> (new shortcut) → name it <b>Send to Aurum</b>.</li>
-      <li>For each item below, add <b>Find Health Samples</b> → set <b>Type</b> → <b>Start Date is today</b>. Then add <b>Calculate Statistics</b> → <b>Sum</b> (use <b>Average</b> for heart rate).<br><span class="muted small">Steps · Walking + Running Distance · Active Energy · Exercise Minutes · Resting Heart Rate</span></li>
-      <li>For <b>Weight</b>: Find Health Samples → Type <b>Weight</b> → Sort by <b>End Date, Latest First</b> → Limit <b>1</b> → then <b>Get Details of Health Sample → Value</b>. Enter your <b>height</b> once by hand in Aurum.</li>
-      <li>Add a <b>Text</b> action with this, putting each result in the matching spot:<code>${esc(base)}?steps=[Steps]&amp;distance=[Distance]&amp;active=[Active Energy]&amp;exercise=[Exercise]&amp;rhr=[Heart Rate]&amp;weight=[Weight]</code></li>
-      <li>Add <b>Open URLs</b> and choose the Text from the step before. Tap the play button to test it.</li>
-      <li>Optional: <b>Automation</b> tab → <b>Time of Day</b> → 9:00 PM daily → <b>Run Immediately</b> → Send to Aurum. Now it fills itself in every night.</li>
-    </ol>
-    <p class="small muted" style="margin:0">Numbers are read in the units set at the bottom of the Health page, so match them to your Health app (lb or kg, km or miles). Also sign in to Aurum once in Safari, because the Shortcut opens it there. You can always fix a number by tapping it.</p>
-    <div class="row" style="justify-content:flex-end"><button class="btn primary" data-act="closeSheet">Done</button></div></div></div>`;
-  sheetHandlers = { fields: [], onSave() {}, onDelete: null };
-}
-// read numbers coming from a Shortcut, with whatever unit text Health added
-function hParse(k, s) {
-  if (s == null) return null; const str = String(s).toLowerCase().replace(/,/g, ""); const n = parseFloat(str.replace(/[^0-9.\-]/g, " ").trim().split(/\s+/)[0]); if (isNaN(n)) return null;
-  if (k === "distance") return /mi/.test(str) ? n / 0.621371 : /km/.test(str) ? n : /\bm\b|meter|metre/.test(str) ? n / 1000 : (hUnits().distance === "mi" ? n / 0.621371 : n);
-  if (k === "weight") return /lb|pound/.test(str) ? n / 2.20462 : /kg/.test(str) ? n : (hUnits().weight === "lb" ? n / 2.20462 : n);
-  if (k === "height") { const ft = str.match(/(\d+)\s*(?:ft|'|′)\s*(\d+(?:\.\d+)?)?/); if (ft) return ((+ft[1]) * 12 + (+ft[2] || 0)) * 2.54; if (/cm/.test(str)) return n; if (/\bm\b/.test(str) || n < 3) return n * 100; if (/in/.test(str)) return n * 2.54; return n > 100 ? n : n * 2.54; }
-  if (k === "active" && /kj/.test(str)) return n / 4.184;
-  return n;
-}
-let pendingHealth = null;
-(function readHealthURL() {
-  try { const q = new URLSearchParams(location.search); const got = {}; ["steps", "distance", "active", "exercise", "rhr", "weight", "height"].forEach(k => { const v = hParse(k, q.get(k)); if (v != null) got[k] = v; });
-    if (Object.keys(got).length) { pendingHealth = { date: q.get("date") || today(), data: got }; history.replaceState(null, "", location.pathname + "#health"); view = "health"; } } catch (e) {}
-})();
-function applyPendingHealth() {
-  if (!pendingHealth) return; const { date, data } = pendingHealth; pendingHealth = null;
-  S.health = S.health || {}; S.health[date] = Object.assign({}, S.health[date], data); save("health"); hTab = "day"; hDate = date; view = "health"; render();
-  const n = document.createElement("div"); n.className = "toast"; n.textContent = `Apple Health synced for ${fmtDate(date)}`; document.body.appendChild(n); setTimeout(() => n.remove(), 3200);
-}
-
-const VIEWS = { health: vHealth, today: vToday, tasks: vTasks, week: vWeek, events: vEvents, workouts: vGym, study: vStudy, streaks: vStreaks, ai: vAI };
+const VIEWS = { today: vToday, tasks: vTasks, week: vWeek, events: vEvents, workouts: vGym, study: vStudy, streaks: vStreaks, ai: vAI };
 /* ---------- swipe between sections and their sub-tabs ---------- */
 let slideDir = "";
 const SUBTABS = {
   workouts: { get: () => gymTab, set: v => { gymTab = v; gymCursor = today(); gymSel = null; }, list: ["today", "week", "month", "year", "freq"] },
-  health: { get: () => hTab, set: v => { hTab = v; }, list: ["day", "week", "month", "year"] },
   study: { get: () => studySubject ? null : studyTab, set: v => { studySubject = null; studyTab = v; }, list: ["subjects", "timetable"] }
 };
 function swipeStep(dir) {
@@ -1433,22 +1247,46 @@ function swipeStep(dir) {
   try { history.replaceState(null, "", "#" + next); } catch (e) {}
   render(); $("#main").scrollTop = 0;
 }
+function canStep(dir) {
+  const order = NAV.map(n => n[0]), st = SUBTABS[view];
+  if (st && st.get()) { const j = st.list.indexOf(st.get()) + dir; if (j >= 0 && j < st.list.length) return true; }
+  const k = order.indexOf(view) + dir; return k >= 0 && k < order.length;
+}
 (function setupSwipe() {
-  let sx = 0, sy = 0, st = 0, ok = false;
   const main = document.getElementById("main");
+  let sx = 0, sy = 0, st = 0, lastX = 0, lastT = 0, vx = 0, mode = "", wrap = null, busy = false;
+  const ease = "cubic-bezier(.22,.9,.3,1)";
   main.addEventListener("touchstart", e => {
-    if (e.touches.length !== 1 || sheetHandlers || document.getElementById("celebrate")) { ok = false; return; }
-    const tgt = e.target;
-    // let things that scroll sideways or take typing keep their own gestures
-    ok = !tgt.closest("input,textarea,select,.tt-wrap,.chips,.tabs,.hc-plot,.ecal,.calgrid,.dots");
-    sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now();
+    mode = "";
+    if (busy || e.touches.length !== 1 || sheetHandlers || document.getElementById("celebrate")) { mode = "off"; return; }
+    if (e.target.closest("input,textarea,select,.tt-wrap,.chips,.tabs,.ecal,.calgrid,.dots")) { mode = "off"; return; }
+    sx = lastX = e.touches[0].clientX; sy = e.touches[0].clientY; st = lastT = Date.now(); vx = 0;
+    wrap = main.querySelector(".wrap");
   }, { passive: true });
-  main.addEventListener("touchend", e => {
-    if (!ok) return; ok = false;
-    const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
-    if (Date.now() - st > 700 || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
-    swipeStep(dx < 0 ? 1 : -1);
-  }, { passive: true });
+  main.addEventListener("touchmove", e => {
+    if (mode === "off" || !wrap) return;
+    const x = e.touches[0].clientX, y = e.touches[0].clientY, dx = x - sx, dy = y - sy;
+    if (!mode) { if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return; mode = Math.abs(dx) > Math.abs(dy) * 1.2 ? "h" : "off"; if (mode === "off") return; wrap.style.transition = "none"; }
+    e.preventDefault();
+    const now = Date.now(); vx = (x - lastX) / Math.max(1, now - lastT); lastX = x; lastT = now;
+    const dir = dx < 0 ? 1 : -1, resist = canStep(dir) ? 1 : 0.25;  // rubber-band at the ends
+    const move = dx * resist;
+    wrap.style.transform = `translateX(${move}px)`;
+    wrap.style.opacity = String(1 - Math.min(Math.abs(move) / main.clientWidth, 1) * 0.35);
+  }, { passive: false });
+  const finish = () => {
+    if (mode !== "h" || !wrap) { mode = ""; return; }
+    const dx = lastX - sx, dir = dx < 0 ? 1 : -1, w = main.clientWidth;
+    const go = canStep(dir) && (Math.abs(dx) > w * 0.22 || (Math.abs(vx) > 0.45 && Math.abs(dx) > 30));
+    mode = ""; const el = wrap; wrap = null;
+    if (!go) { el.style.transition = `transform .32s ${ease}, opacity .32s ${ease}`; el.style.transform = ""; el.style.opacity = ""; return; }
+    busy = true;
+    el.style.transition = `transform .18s ease-in, opacity .18s ease-in`;
+    el.style.transform = `translateX(${-dir * w * 0.6}px)`; el.style.opacity = "0";
+    setTimeout(() => { swipeStep(dir); busy = false; }, 170);
+  };
+  main.addEventListener("touchend", finish, { passive: true });
+  main.addEventListener("touchcancel", finish, { passive: true });
 })();
 function render() {
   const active = document.activeElement, focusId = active && active.id, val = active && active.id === "askIn" ? active.value : null;
@@ -1497,7 +1335,6 @@ function celebrate() {
 function backOut() {
   if (view === "study" && studySubject) { studySubject = null; render(); return; }
   if (view === "study" && studyTab !== "subjects") { studyTab = "subjects"; render(); return; }
-  if (view === "health" && (hTab !== "day" || hDate !== today())) { hTab = "day"; hDate = today(); render(); return; }
   if (view === "workouts" && gymTab !== "today") { gymTab = "today"; gymCursor = today(); gymSel = null; render(); return; }
   if (view === "tasks" && taskDate !== today()) { taskDate = today(); render(); return; }
   if (view === "events" && (evCursor.slice(0, 7) !== today().slice(0, 7) || evSel !== today())) { evCursor = today(); evSel = today(); render(); return; }
@@ -1552,20 +1389,6 @@ document.addEventListener("click", e => {
   if (a === "sheetDelete") { const h = sheetHandlers; closeSheet(); h && h.onDelete && h.onDelete(); return; }
   switch (a) {
     case "go": go(el.dataset.v); break;
-    case "hTab": hTab = el.dataset.v; render(); break;
-    case "hMetric": hMetric = el.dataset.v; render(); break;
-    case "hEditDay": if (el.dataset.d > today()) break; hEditForm(el.dataset.d); break;
-    case "hOpenMonth": hDate = el.dataset.d; hTab = "month"; render(); break;
-    case "hGuide": hGuideSheet(); break;
-    case "hUnit": S.meta.units = Object.assign(hUnits(), { [el.dataset.k]: el.dataset.v }); save("meta"); render(); break;
-    case "hGoals": { const g = hGoals(); openForm("Daily goals", [{ k: "steps", label: "Steps", type: "number" }, { k: "active", label: "Move (active kcal)", type: "number" }, { k: "exercise", label: "Exercise (min)", type: "number" }], g, v => { S.meta.healthGoals = { steps: v.steps || g.steps, active: v.active || g.active, exercise: v.exercise || g.exercise }; save("meta"); render(); }); break; }
-    case "hNav": { const n = +el.dataset.n, c = parseYMD(hDate);
-      if (n === 0) hDate = today();
-      else if (hTab === "day") hDate = addDays(hDate, n);
-      else if (hTab === "week") hDate = addDays(hDate, 7 * n);
-      else if (hTab === "month") hDate = ymd(new Date(c.getFullYear(), c.getMonth() + n, 1));
-      else hDate = ymd(new Date(c.getFullYear() + n, 0, 1));
-      if (hDate > today() && hTab === "day") hDate = today(); render(); break; }
     case "signOut": if (unsub) unsub(); firebase.auth().signOut(); try { localStorage.removeItem("aurum-cache"); } catch (e) {} location.reload(); break;
     case "toggleTodo": { const d = el.dataset.d, allDone = () => { const l = visibleTodos(d); return l.length > 0 && l.every(x => x.done); };
       const before = allDone(), t = todosFor(d).find(x => x.id === id); if (t) { t.done = !t.done; save("todos"); render(); if (!before && allDone() && d === today()) celebrate(); } break; }
