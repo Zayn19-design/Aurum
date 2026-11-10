@@ -393,6 +393,13 @@ main{overflow-y:auto;padding:28px 32px 40px}
 .guide code{display:block;margin-top:6px;padding:8px;border-radius:8px;background:var(--bg);font:12px var(--font-mono);overflow-wrap:anywhere;user-select:all}
 .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);font-weight:600;padding:10px 16px;border-radius:12px;z-index:150;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 @media (max-width:860px){.hday{grid-template-columns:1fr;justify-items:center}.hrings{width:180px;height:180px}.hring-legend{width:100%}.hgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.hc-plot{height:180px}.hc-bar em{font-size:10px}}
+
+/* swipe slide-in */
+.wrap.slide-left{animation:slideL .22s ease-out}
+.wrap.slide-right{animation:slideR .22s ease-out}
+@keyframes slideL{from{opacity:.3;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes slideR{from{opacity:.3;transform:translateX(-40px)}to{opacity:1;transform:none}}
+main{overscroll-behavior-x:none}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 /* standalone app */
 .app{padding-top:env(safe-area-inset-top)}
@@ -840,7 +847,7 @@ function scheduleCard() {
 }
 function vToday() {
   const t = today(), d = new Date(), h = d.getHours();
-  const greet = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  const greet = (h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening") + ", Zayn";
   const list = visibleTodos(t), done = list.filter(x => x.done).length;
   const wk = gymCount(weekStart(t), t), gymToday = wentOn(t), cls = classesOn(t);
   const L = lockInfo();
@@ -1406,10 +1413,49 @@ function applyPendingHealth() {
 }
 
 const VIEWS = { health: vHealth, today: vToday, tasks: vTasks, week: vWeek, events: vEvents, workouts: vGym, study: vStudy, streaks: vStreaks, ai: vAI };
+/* ---------- swipe between sections and their sub-tabs ---------- */
+let slideDir = "";
+const SUBTABS = {
+  workouts: { get: () => gymTab, set: v => { gymTab = v; gymCursor = today(); gymSel = null; }, list: ["today", "week", "month", "year", "freq"] },
+  health: { get: () => hTab, set: v => { hTab = v; }, list: ["day", "week", "month", "year"] },
+  study: { get: () => studySubject ? null : studyTab, set: v => { studySubject = null; studyTab = v; }, list: ["subjects", "timetable"] }
+};
+function swipeStep(dir) {
+  const order = NAV.map(n => n[0]), st = SUBTABS[view];
+  if (st && st.get()) {
+    const i = st.list.indexOf(st.get()), j = i + dir;
+    if (j >= 0 && j < st.list.length) { st.set(st.list[j]); slideDir = dir > 0 ? "left" : "right"; render(); return; }
+  }
+  const k = order.indexOf(view) + dir; if (k < 0 || k >= order.length) return;
+  const next = order[k], nst = SUBTABS[next];
+  if (nst) nst.set(dir > 0 ? nst.list[0] : nst.list[nst.list.length - 1]);
+  slideDir = dir > 0 ? "left" : "right"; view = next;
+  try { history.replaceState(null, "", "#" + next); } catch (e) {}
+  render(); $("#main").scrollTop = 0;
+}
+(function setupSwipe() {
+  let sx = 0, sy = 0, st = 0, ok = false;
+  const main = document.getElementById("main");
+  main.addEventListener("touchstart", e => {
+    if (e.touches.length !== 1 || sheetHandlers || document.getElementById("celebrate")) { ok = false; return; }
+    const tgt = e.target;
+    // let things that scroll sideways or take typing keep their own gestures
+    ok = !tgt.closest("input,textarea,select,.tt-wrap,.chips,.tabs,.hc-plot,.ecal,.calgrid,.dots");
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY; st = Date.now();
+  }, { passive: true });
+  main.addEventListener("touchend", e => {
+    if (!ok) return; ok = false;
+    const t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+    if (Date.now() - st > 700 || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.6) return;
+    swipeStep(dx < 0 ? 1 : -1);
+  }, { passive: true });
+})();
 function render() {
   const active = document.activeElement, focusId = active && active.id, val = active && active.id === "askIn" ? active.value : null;
   renderNav();
-  $("#main").innerHTML = `<div class="wrap">${VIEWS[view]()}</div>`;
+  $("#main").innerHTML = `<div class="wrap ${slideDir ? "slide-" + slideDir : ""}">${VIEWS[view]()}</div>`;
+  slideDir = "";
+  const cur = document.querySelector('#tabbar .nav[aria-current="page"]'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest", inline: "center" });
   if (focusId) { const el = document.getElementById(focusId); if (el) { if (val !== null) el.value = val; el.focus(); } }
   if (view === "ai") { const log = $("#chatLog"); if (log) log.lastElementChild?.scrollIntoView({ block: "nearest" }); }
 }
