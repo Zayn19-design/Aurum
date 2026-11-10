@@ -32,6 +32,12 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
+/* phones: no double-tap-zoom wait, no grey tap flash, instant press feedback */
+html{touch-action:manipulation;-webkit-text-size-adjust:100%}
+*{-webkit-tap-highlight-color:transparent}
+button,a,[role="button"],.chip,.tab,.nav{touch-action:manipulation}
+button:active,.nav:active,.chip:active,.tab:active,[role="button"]:active{transform:scale(.97)}
+@media (hover:none){.nav:hover{background:none;color:var(--muted)}.nav[aria-current="page"]:hover{background:var(--accent-soft);color:var(--accent)}.btn:hover{border-color:var(--line)}}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--font-body);-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
 h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0;line-height:1.15}
