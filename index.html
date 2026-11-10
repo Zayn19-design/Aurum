@@ -437,6 +437,22 @@ input,select,textarea,.input{font-size:16px!important}
 .lift-hero-lower{border-left-color:#38BDF8;background:linear-gradient(120deg,color-mix(in srgb,#38BDF8 16%,var(--surface)),var(--surface) 70%)}
 .lift-hero-lower .exk{color:#38BDF8}.lift-hero-upper .exk{color:var(--accent)}
 @media (max-width:860px){.liftsec{padding:14px 12px}.liftsec h2{font-size:17px}}
+
+/* jump to upper/lower */
+.liftjump{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.liftjump-b{--lc:var(--accent);display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;cursor:pointer;color:var(--ink);text-align:left;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--lc) 22%,var(--surface)),var(--surface) 75%);border:1px solid color-mix(in srgb,var(--lc) 45%,var(--line));transition:transform .15s,box-shadow .15s,border-color .15s}
+.liftjump-lower{--lc:#38BDF8}
+.liftjump-b:hover{border-color:var(--lc);box-shadow:0 0 0 1px var(--lc),0 6px 18px color-mix(in srgb,var(--lc) 18%,transparent)}
+.lj-ic{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;flex:none;background:var(--lc);color:#1E1F22;font-size:11px}
+.lj-t{font-weight:700;color:var(--lc);flex:1;white-space:nowrap}
+.lj-n{font-size:12px;color:var(--muted);background:var(--bg);border-radius:999px;padding:1px 8px}
+.lj-arrow{color:var(--lc);transition:transform .15s}
+.liftjump-b:hover .lj-arrow{transform:translateX(3px)}
+.liftsec{scroll-margin-top:72px}
+.liftsec.flash{animation:secFlash .9s ease-out}
+@keyframes secFlash{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--lc) 70%,transparent)}40%{box-shadow:0 0 0 4px color-mix(in srgb,var(--lc) 45%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+@media (max-width:420px){.lj-n{display:none}.liftjump-b{padding:10px}}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 /* standalone app */
 .app{padding-top:env(safe-area-inset-top)}
@@ -1298,12 +1314,13 @@ function vLifts(head) {
   const card = x => { const st = liftStats(x); return `<button class="liftcard" data-act="liftOpen" data-id="${x.id}"><span class="liftcard-n">${esc(x.name)}<i class="grip" aria-hidden="true"></i></span>
       ${st ? `<b class="num">${lb(st.best.weight)}<small> × ${st.best.reps}</small></b><span class="small muted">Best · last ${MON[parseYMD(st.last.date).getMonth()]} ${parseYMD(st.last.date).getDate()}</span>${st.gain > 0 ? `<span class="pill gain">+${lb(st.gain)} since ${monLabel(st.since)}</span>` : ""}` : `<span class="small muted">No sets yet · tap to log</span>`}</button>`; };
   const sec = (cat, title, sub) => { const list = lifts.filter(x => liftCat(x) === cat), sets = list.reduce((n, x) => n + (x.entries || []).length, 0);
-    return `<section class="liftsec liftsec-${cat}">
+    return `<section class="liftsec liftsec-${cat}" id="liftsec-${cat}">
       <div class="liftsec-h"><div class="liftsec-t"><span class="liftsec-ic" aria-hidden="true">${cat === "upper" ? "▲" : "▼"}</span><div><h2>${title}</h2><p class="small muted" style="margin:0">${sub} · ${list.length} exercise${list.length === 1 ? "" : "s"} · ${sets} set${sets === 1 ? "" : "s"} logged</p></div></div>
         <button class="btn sm liftsec-add" data-act="liftAdd" data-cat="${cat}">+ Add</button></div>
       <div class="liftgrid" data-cat="${cat}">${list.map(card).join("") || `<p class="empty">No ${title.toLowerCase()} exercises yet.</p>`}</div>
     </section>`; };
   return `${head}${bodyCard()}
+    <nav class="liftjump" aria-label="Jump to section">${[["upper", "▲", "Upper body"], ["lower", "▼", "Lower body"]].map(([c, ic, t]) => { const n = lifts.filter(x => liftCat(x) === c).length; return `<button class="liftjump-b liftjump-${c}" data-act="liftJump" data-cat="${c}"><span class="lj-ic" aria-hidden="true">${ic}</span><span class="lj-t">${t}</span><span class="lj-n num">${n}</span><span class="lj-arrow" aria-hidden="true">→</span></button>`; }).join("")}</nav>
     <p class="small muted" style="margin:2px 0 0">Tap an exercise to log sets. Hold a card, then drag to reorder.</p>
     ${sec("upper", "Upper body", "Chest, back, shoulders, arms")}
     ${sec("lower", "Lower body", "Legs, glutes, calves")}`;
@@ -1615,6 +1632,7 @@ document.addEventListener("click", e => {
   if (a === "sheetDelete") { const h = sheetHandlers; closeSheet(); h && h.onDelete && h.onDelete(); return; }
   switch (a) {
     case "go": go(el.dataset.v); break;
+    case "liftJump": { const sec = document.getElementById("liftsec-" + el.dataset.cat); if (sec) { sec.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); sec.classList.remove("flash"); void sec.offsetWidth; sec.classList.add("flash"); } break; }
     case "liftOpen": liftSel = el.dataset.id; render(); $("#main").scrollTop = 0; break;
     case "liftBack": liftSel = null; render(); break;
     case "liftAdd": { const cat = el.dataset.cat || "upper"; openForm(`Add ${cat === "lower" ? "lower" : "upper"} body exercise`, [{ k: "name", label: "Exercise name", req: true, list: LIFT_SUGGEST.filter(n => guessCat(n) === cat) }, { k: "cat", label: "Section", type: "select", opts: CAT_OPTS }], { cat }, v => { if (!v.name) return; const l = { id: uid(), name: v.name, cat: v.cat || cat, entries: [] }; S.lifts.push(l); save("lifts"); liftSel = l.id; render(); setTimeout(() => liftSetForm(l), 50); }); break; }
