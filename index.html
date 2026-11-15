@@ -220,6 +220,30 @@ main{overflow-y:auto;padding:28px 32px 40px}
   .gd i{width:5px;height:5px}
 }
 
+
+/* goals */
+.goalgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.goal{position:relative;overflow:hidden;border-color:color-mix(in srgb,var(--g) 35%,var(--line))}
+.goal::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--g)}
+.goal-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.goal-top h3{margin:6px 0 0;font-size:19px;line-height:1.25;overflow-wrap:anywhere;cursor:pointer}
+.goal-area{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--g)}
+.goal-area i{width:8px;height:8px;border-radius:50%;background:var(--g)}
+.goal-why{margin:0;color:var(--muted);font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.goal-when{text-align:right;flex:none}
+.goal-when b{display:block;font-family:var(--font-mono);font-size:22px;font-weight:500;color:var(--g);line-height:1.1}
+.goal-when span{font-size:12px;color:var(--muted)}
+.goal-prog{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.goal-bar{flex:1;height:8px;border-radius:999px;background:var(--bg);overflow:hidden}
+.goal-bar i{display:block;height:100%;border-radius:999px;background:var(--g);transition:width .3s}
+.goal .item{padding:7px 0}
+.goal .addrow .input{padding:7px 10px;font-size:14px}
+.goal-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.goal.achieved{opacity:.92}
+.goal.achieved h3{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--g) 60%,transparent)}
+.goal-ideas{display:flex;gap:8px;flex-wrap:wrap}
+@media (max-width:860px){.goalgrid{grid-template-columns:1fr}}
+.cele-card{max-width:min(92vw,560px)}.cele-card h2{overflow-wrap:anywhere}
 /* study subjects */
 .subjgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .subj{position:relative;border:1px solid var(--line);border-top:6px solid var(--s);border-radius:16px;background:linear-gradient(160deg,color-mix(in srgb,var(--s) 13%,var(--surface)) 0%,var(--surface) 60%);padding:14px 16px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left;min-height:190px;transition:transform .15s,box-shadow .15s}
@@ -512,14 +536,14 @@ const COLORS = { blue:"var(--accent)", coral:"var(--flame)", green:"var(--good)"
 const weekStart = s => addDays(s, -dow(s));
 
 /* ---------- state ---------- */
-const SECTIONS = ["todos","schedule","events","gym","study","streaks","meta","health","lifts"];
-let S = { todos:{}, schedule:[], events:[], gym:{}, study:[], streaks:[], meta:{}, health:{}, lifts:[] };
+const SECTIONS = ["todos","schedule","events","gym","study","goals","streaks","meta","health","lifts"];
+let S = { todos:{}, schedule:[], events:[], gym:{}, study:[], goals:[], streaks:[], meta:{}, health:{}, lifts:[] };
 let chat = [];
 let view = "today", taskDate = today(), studySubject = null;
 
 function seed() {
   const t = today();
-  S.health = {}; S.lifts = []; S.todos = {}; S.schedule = LESSONS(); S.events = []; S.gym = {}; S.study = []; S.streaks = [];
+  S.health = {}; S.lifts = []; S.todos = {}; S.schedule = LESSONS(); S.events = []; S.gym = {}; S.study = []; S.goals = []; S.streaks = [];
   S.meta = { sample: false, created: t, studyV2: true, lockV1: true, schedV1: true, debateV1: true, dailyV1: true, dailyV2: true, dailyV3: true,
     lockedIn: { start: "2026-10-25" }, dailyTasks: DEFAULT_DAILY.map(x => ({ ...x })), dailySince: t };
 }
@@ -586,6 +610,7 @@ const LESSONS = () => [
 function migrate() {
   if (!S.meta) S.meta = {};
   if (!Array.isArray(S.lifts)) S.lifts = [];
+  if (!Array.isArray(S.goals)) S.goals = [];
   if (!S.meta.bodyV1) { S.meta.body = { height: 180, weights: [{ date: "2026-11-09", lb: 146.2 }] }; S.meta.bodyV1 = true; save("meta"); }
   if (!S.meta.studyV2) { S.study = []; S.meta.studyV2 = true; save("study", "meta"); }
   if (!S.meta.schedV1) { S.schedule = LESSONS(); S.meta.schedV1 = true; save("schedule", "meta"); }
@@ -630,10 +655,11 @@ const ICON = {
   workouts: '<path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/>',
   health: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M5 12h3l1.5-2.5L12 15l1.5-3H19"/>',
   study: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/>',
+  goals: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/>',
   streaks: '<path d="M12 22c4 0 7-2.7 7-7 0-4-3-6-4-9-1 2-2 3-3 3 0-2-1-4-3-6-1 4-4 6-4 11 0 4.3 3 8 7 8z"/>',
   ai: '<path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/>'
 };
-const NAV = [["today","Today"],["tasks","Tasks"],["week","Week"],["events","Events"],["workouts","Workouts"],["study","Study"],["streaks","Streaks"]];
+const NAV = [["today","Today"],["tasks","Tasks"],["week","Week"],["events","Events"],["workouts","Workouts"],["study","Study"],["goals","Goals"],["streaks","Streaks"]];
 function navHTML() {
   return NAV.map(([k, label]) => `<button class="nav" data-act="go" data-v="${k}" ${view === k ? 'aria-current="page"' : ""}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>${label}</button>`).join("");
 }
@@ -1365,6 +1391,63 @@ function vStudy() {
   </section>`;
 }
 
+/* ---------- goals ---------- */
+const GAREAS = { school: ["School", "var(--violet)"], fitness: ["Fitness", "var(--good)"], career: ["Career", "#38BDF8"], money: ["Money", "var(--flame)"], personal: ["Personal", "var(--accent)"], other: ["Other", "#B0ABA0"] };
+const GOAL_IDEAS = [
+  { title: "Get grade 1s in all 8 CSEC subjects", area: "school", target: "2027-08-15" },
+  { title: "Bench press my bodyweight", area: "fitness" },
+  { title: "Reach 1500 rating in chess", area: "personal" },
+  { title: "Choose my CAPE subjects", area: "school", target: "2027-06-30" }
+];
+let goalTab = "active", goalArea = "";
+const goalById = id => S.goals.find(g => g.id === id);
+const garea = g => GAREAS[g.area] || GAREAS.other;
+function goalPct(g) { const st = g.steps || []; return st.length ? st.filter(x => x.done).length / st.length : (g.done ? 1 : 0); }
+function goalWhen(date) {
+  const n = daysBetween(today(), date);
+  if (n < 0) return [String(-n), -n === 1 ? "day overdue" : "days overdue"];
+  if (n === 0) return ["Today", "target date"];
+  if (n < 60) return [String(n), n === 1 ? "day to go" : "days to go"];
+  if (n < 730) { const m = Math.round(n / 30.44); return [String(m), "months to go"]; }
+  return [(n / 365.25).toFixed(1).replace(/\.0$/, ""), "years to go"];
+}
+function fmtLong(s) { const d = parseYMD(s); return `${MON[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`; }
+function goalCard(g) {
+  const [an, ac] = garea(g), steps = g.steps || [], pct = goalPct(g), doneN = steps.filter(x => x.done).length;
+  const when = g.target && !g.done ? goalWhen(g.target) : null;
+  return `<section class="card goal ${g.done ? "achieved" : ""}" style="--g:${ac}">
+    <div class="goal-top">
+      <div style="min-width:0"><span class="goal-area"><i></i>${an}</span><h3 data-act="editGoal" data-id="${g.id}" role="button" tabindex="0">${esc(g.title)}</h3></div>
+      ${g.done ? `<div class="goal-when"><b>✓</b><span>${g.doneOn ? fmtLong(g.doneOn) : "Achieved"}</span></div>` : when ? `<div class="goal-when"><b ${when[1].includes("overdue") ? 'style="color:var(--flame)"' : ""}>${when[0]}</b><span>${when[1]}</span></div>` : ""}
+    </div>
+    ${g.why ? `<p class="goal-why">${esc(g.why)}</p>` : ""}
+    ${g.target ? `<span class="small muted">Target: ${fmtLong(g.target)}</span>` : ""}
+    ${steps.length ? `<div class="goal-prog"><div class="goal-bar"><i style="width:${Math.round(pct * 100)}%"></i></div><span class="num">${doneN}/${steps.length} steps</span></div>` : ""}
+    <div class="list">${steps.map(x => `<div class="item ${x.done ? "done" : ""}"><button class="check ${x.done ? "on" : ""}" data-act="goalStep" data-id="${g.id}" data-s="${x.id}" aria-label="Mark ${esc(x.text)} ${x.done ? "not done" : "done"}"></button><span class="grow">${esc(x.text)}</span><button class="btn ghost sm x" data-act="delGoalStep" data-id="${g.id}" data-s="${x.id}" aria-label="Delete step">✕</button></div>`).join("")}</div>
+    ${g.done ? "" : `<form class="addrow" data-form="goalStep" data-id="${g.id}"><input class="input" id="gs-${g.id}" placeholder="Add a step towards this goal" aria-label="Add a step to ${esc(g.title)}"><button class="btn sm">Add</button></form>`}
+    <div class="goal-foot"><button class="btn ghost sm" data-act="editGoal" data-id="${g.id}">Edit</button>
+      ${g.done ? `<button class="btn sm" data-act="goalDone" data-id="${g.id}">Move back to active</button>` : `<button class="btn primary sm" data-act="goalDone" data-id="${g.id}">Mark achieved</button>`}</div>
+  </section>`;
+}
+function vGoals() {
+  const active = S.goals.filter(g => !g.done), achieved = S.goals.filter(g => g.done);
+  const tabs = `<div class="tabs" role="tablist">${[["active", `Active · ${active.length}`], ["achieved", `Achieved · ${achieved.length}`]].map(([k, l]) => `<button class="tab" role="tab" aria-selected="${goalTab === k}" data-act="goalTab" data-v="${k}">${l}</button>`).join("")}</div>`;
+  const head = `<div class="head"><div><h1>Goals</h1><p class="sub">Where you're headed. Break each goal into steps and tick them off.</p></div><button class="btn primary" data-act="addGoal">Add goal</button></div>`;
+  if (!S.goals.length) return `${tabs}${head}<section class="card"><h2>Set your first goal</h2><p class="muted" style="margin:0">Big or small, this term or five years out. Add your own, or start from one of these:</p>
+    <div class="goal-ideas">${GOAL_IDEAS.map((x, i) => `<button class="chip" data-act="goalIdea" data-v="${i}">${esc(x.title)}</button>`).join("")}</div></section>`;
+  const steps = S.goals.flatMap(g => g.steps || []);
+  const stats = `<div class="stats"><div class="stat"><b>${active.length}</b><span>active goals</span></div><div class="stat"><b>${achieved.length}</b><span>achieved</span></div><div class="stat"><b>${steps.filter(x => x.done).length}</b><span>steps done</span></div><div class="stat"><b>${steps.filter(x => !x.done).length}</b><span>steps to go</span></div></div>`;
+  let list = (goalTab === "achieved" ? achieved : active);
+  const areas = [...new Set(list.map(g => GAREAS[g.area] ? g.area : "other"))];
+  if (goalArea && !areas.includes(goalArea)) goalArea = "";
+  const chips = areas.length > 1 ? `<div class="chips"><button class="chip" data-act="goalArea" data-v="" aria-pressed="${!goalArea}">All</button>${Object.keys(GAREAS).filter(k => areas.includes(k)).map(k => `<button class="chip" data-act="goalArea" data-v="${k}" aria-pressed="${goalArea === k}">${GAREAS[k][0]}</button>`).join("")}</div>` : "";
+  if (goalArea) list = list.filter(g => (GAREAS[g.area] ? g.area : "other") === goalArea);
+  list = goalTab === "achieved" ? list.slice().sort((a, b) => (b.doneOn || "").localeCompare(a.doneOn || ""))
+    : list.slice().sort((a, b) => (a.target || "9999").localeCompare(b.target || "9999") || (a.created || "").localeCompare(b.created || ""));
+  const empty = goalTab === "achieved" ? `<p class="empty">Nothing achieved yet. Your first one is coming.</p>` : `<p class="empty">No active goals. Tap "Add goal" to set a new one.</p>`;
+  return `${tabs}${head}${stats}${chips}${list.length ? `<div class="goalgrid">${list.map(goalCard).join("")}</div>` : empty}`;
+}
+
 /* ---------- locked in counter ---------- */
 const MILESTONES = [7, 14, 21, 30, 45, 60, 90, 120, 180, 270, 365, 500, 730, 1000];
 function lockInfo() {
@@ -1416,7 +1499,7 @@ function vAI() {
   </section>`;
 }
 
-const VIEWS = { today: vToday, tasks: vTasks, week: vWeek, events: vEvents, workouts: vGym, study: vStudy, streaks: vStreaks, ai: vAI };
+const VIEWS = { today: vToday, tasks: vTasks, week: vWeek, events: vEvents, workouts: vGym, study: vStudy, goals: vGoals, streaks: vStreaks, ai: vAI };
 /* ---------- hold-and-drag to reorder lift cards ---------- */
 let liftDragging = false, suppressClick = false;
 (function setupLiftDrag() {
@@ -1473,7 +1556,8 @@ let liftDragging = false, suppressClick = false;
 let slideDir = "";
 const SUBTABS = {
   workouts: { get: () => gymTab, set: v => { liftSel = null; gymTab = v; gymCursor = today(); gymSel = null; }, list: ["today", "lifts", "week", "month", "year", "freq"] },
-  study: { get: () => studySubject ? null : studyTab, set: v => { studySubject = null; studyTab = v; }, list: ["subjects", "timetable"] }
+  study: { get: () => studySubject ? null : studyTab, set: v => { studySubject = null; studyTab = v; }, list: ["subjects", "timetable"] },
+  goals: { get: () => goalTab, set: v => { goalTab = v; }, list: ["active", "achieved"] }
 };
 function swipeStep(dir, sub) {
   const order = NAV.map(n => n[0]), st = SUBTABS[view];
@@ -1540,15 +1624,15 @@ function render() {
   if (view === "ai") { const log = $("#chatLog"); if (log) log.lastElementChild?.scrollIntoView({ block: "nearest" }); }
 }
 /* ---------- daily tasks complete celebration ---------- */
-function celebrate() {
+function celebrate(o) {
   const old = document.getElementById("celebrate"); if (old) old.remove();
   const n = visibleTodos(today()).length, L = lockInfo();
   const wrap = document.createElement("div");
   wrap.id = "celebrate"; wrap.className = "cele"; wrap.setAttribute("role", "status");
   wrap.innerHTML = `<canvas></canvas><div class="cele-card">
     <svg viewBox="0 0 120 120" class="cele-check" aria-hidden="true"><circle cx="60" cy="60" r="52"/><path d="M38 62 L54 78 L84 44"/></svg>
-    <p class="cele-k">Daily tasks complete</p><h2>All ${n} done.</h2>
-    <p class="cele-sub">${L ? `Day ${L.days} locked in. ` : ""}See you tomorrow.</p></div>`;
+    <p class="cele-k">${o ? esc(o.k) : "Daily tasks complete"}</p><h2>${o ? esc(o.h) : `All ${n} done.`}</h2>
+    <p class="cele-sub">${o ? esc(o.sub) : `${L ? `Day ${L.days} locked in. ` : ""}See you tomorrow.`}</p></div>`;
   document.body.appendChild(wrap);
   const close = () => { wrap.classList.add("out"); setTimeout(() => wrap.remove(), 400); };
   wrap.addEventListener("click", close);
@@ -1577,6 +1661,7 @@ function celebrate() {
 function backOut() {
   if (view === "study" && studySubject) { studySubject = null; render(); return; }
   if (view === "study" && studyTab !== "subjects") { studyTab = "subjects"; render(); return; }
+  if (view === "goals" && (goalTab !== "active" || goalArea)) { goalTab = "active"; goalArea = ""; render(); return; }
   if (view === "workouts" && gymTab === "lifts" && liftSel) { liftSel = null; render(); return; }
   if (view === "workouts" && gymTab !== "today") { gymTab = "today"; gymCursor = today(); gymSel = null; render(); return; }
   if (view === "tasks" && taskDate !== today()) { taskDate = today(); render(); return; }
@@ -1608,7 +1693,8 @@ const F = {
   event: [{ k: "title", label: "What", req: true }, [{ k: "type", label: "Type", type: "select", opts: Object.entries(ETYPES).map(([k, v]) => [k, v[0]]) }, { k: "repeat", label: "Repeats", type: "select", opts: [["", "Doesn't repeat"], ["yearly", "Every year"]] }], [{ k: "date", label: "Date", type: "date", req: true }, { k: "time", label: "Time (optional)", type: "time" }], { k: "notes", label: "Notes", type: "textarea" }],
   block: () => [{ k: "title", label: "What", req: true }, { k: "day", label: "Day", type: "select", opts: DAYS.map((d, i) => [i, d]) }, [{ k: "start", label: "Starts", type: "time", req: true, def: "09:00" }, { k: "end", label: "Ends", type: "time", req: true, def: "10:00" }], { k: "color", label: "Color", type: "select", opts: [["addmath", "Add Maths (indigo)"], ["math", "Maths (sky)"], ["english", "English A (rose)"], ["pob", "POB (amber)"], ["it", "IT (teal)"], ["chem", "Chemistry (purple)"], ["bio", "Biology (green)"], ["phys", "Physics (orange)"], ["blue", "Blue"], ["coral", "Coral"], ["green", "Green"], ["amber", "Amber"], ["violet", "Violet"]] }, { k: "remind", label: "Reminder 30 min before", type: "select", opts: [["yes", "Yes"], ["no", "No"]] }],
   study: () => [{ k: "title", label: "Title", req: true }, { k: "link", label: "Link (optional)", type: "url" }, { k: "notes", label: "Notes", type: "textarea" }],
-  streak: [{ k: "name", label: "Habit", req: true }]
+  streak: [{ k: "name", label: "Habit", req: true }],
+  goal: () => [{ k: "title", label: "Goal", req: true }, [{ k: "area", label: "Area", type: "select", opts: Object.entries(GAREAS).map(([k, v]) => [k, v[0]]) }, { k: "target", label: "Target date (optional)", type: "date" }], { k: "why", label: "Why it matters / notes", type: "textarea" }]
 };
 function crud(listName, form, title, item, defaults = {}) {
   const isNew = !item;
@@ -1674,6 +1760,14 @@ document.addEventListener("click", e => {
     case "addStudy": openForm(`Add to ${SUBJ[studySubject].name}`, F.study(), {}, v => { S.study.push({ id: uid(), subject: studySubject, ...v, created: today() }); save("study"); render(); }); break;
     case "editStudy": crud("study", () => F.study(), "", S.study.find(x => x.id === id)); break;
     case "studyTab": studyTab = el.dataset.v; render(); break;
+    case "goalTab": goalTab = el.dataset.v; render(); break;
+    case "goalArea": goalArea = el.dataset.v; render(); break;
+    case "addGoal": case "goalIdea": { const idea = a === "goalIdea" ? GOAL_IDEAS[+el.dataset.v] : {};
+      openForm("New goal", F.goal(), { area: "personal", ...idea }, v => { if (!v.title) return; S.goals.push({ id: uid(), ...v, steps: [], done: false, created: today() }); goalTab = "active"; goalArea = ""; save("goals"); render(); }); break; }
+    case "editGoal": { const g = goalById(id); if (g) openForm("Edit goal", F.goal(), g, v => { Object.assign(g, v); save("goals"); render(); }, () => { S.goals = S.goals.filter(x => x !== g); save("goals"); render(); }); break; }
+    case "goalStep": { const g = goalById(id), st = g && (g.steps || []).find(x => x.id === el.dataset.s); if (st) { st.done = !st.done; save("goals"); render(); } break; }
+    case "delGoalStep": { const g = goalById(id); if (g) { g.steps = (g.steps || []).filter(x => x.id !== el.dataset.s); save("goals"); render(); } break; }
+    case "goalDone": { const g = goalById(id); if (g) { g.done = !g.done; g.doneOn = g.done ? today() : ""; save("goals"); render(); if (g.done) celebrate({ k: "Goal achieved", h: g.title, sub: "Locked in and delivered. Set the next one." }); } break; }
     case "openTimetable": studyTab = "timetable"; studySubject = null; go("study"); break;
     case "ttDay": ttDay = +el.dataset.v; render(); break;
     case "openSubject": studySubject = el.dataset.v || null; render(); $("#main").scrollTop = 0; break;
@@ -1681,7 +1775,7 @@ document.addEventListener("click", e => {
     case "lockStart": S.meta.lockedIn = { start: today() }; save("meta"); render(); break;
     case "lockReset": { openForm("Reset to day 1?", [], {}, () => {}, () => { const L = lockInfo(); S.meta.lockedIn = { start: today(), best: L ? L.best : 0 }; save("meta"); render(); });
       setTimeout(() => { const b = document.querySelector('[data-act="sheetDelete"]'); if (b) b.textContent = "Reset streak"; const s = document.querySelector('.sheet .btn.primary'); if (s) s.remove(); }); break; }
-    case "clearSample": openForm("Clear all sample data?", [], {}, () => {}, () => { S = { todos: {}, schedule: [], events: [], gym: {}, study: [], streaks: [], meta: { sample: false, created: today(), studyV2: true, lockV1: true, schedV1: true, debateV1: true, dailyV1: true, dailyV2: true, dailyV3: true, dailyTasks: S.meta.dailyTasks, dailySince: S.meta.dailySince, lockedIn: S.meta.lockedIn } }; save(...SECTIONS); render(); });
+    case "clearSample": openForm("Clear all sample data?", [], {}, () => {}, () => { S = { todos: {}, schedule: [], events: [], gym: {}, study: [], goals: S.goals, streaks: [], meta: { sample: false, created: today(), studyV2: true, lockV1: true, schedV1: true, debateV1: true, dailyV1: true, dailyV2: true, dailyV3: true, dailyTasks: S.meta.dailyTasks, dailySince: S.meta.dailySince, lockedIn: S.meta.lockedIn } }; save(...SECTIONS); render(); });
       setTimeout(() => { const b = document.querySelector('[data-act="sheetDelete"]'); if (b) b.textContent = "Clear everything"; const s = document.querySelector('.sheet .btn.primary'); if (s) s.remove(); }); break;
     case "quickAsk": ask(el.dataset.q); break;
     case "clearChat": chat = []; render(); break;
@@ -1711,6 +1805,7 @@ document.addEventListener("submit", e => {
   }
   if (kind === "daily") { const inp = form.querySelector("input"), v = inp.value.trim(); if (!v) return; S.meta.dailyTasks = [...dailyList(), { id: uid(), text: v }]; if (!S.meta.dailySince) S.meta.dailySince = today(); save("meta"); render(); const q = document.getElementById("dailyIn"); q && q.focus(); }
   if (kind === "quickEvent") { const inp = form.querySelector("input"), v = inp.value.trim(); if (!v) return; const isB = /birthday|b-day|bday/i.test(v); S.events.push({ id: uid(), title: v, date: evSel, time: "", notes: "", type: isB ? "birthday" : "event", repeat: isB ? "yearly" : "" }); save("events"); render(); const q = document.getElementById("qeIn"); q && q.focus(); }
+  if (kind === "goalStep") { const inp = form.querySelector("input"), v = inp.value.trim(), g = goalById(form.dataset.id); if (!v || !g) return; (g.steps || (g.steps = [])).push({ id: uid(), text: v, done: false }); save("goals"); render(); const q = document.getElementById(inp.id); q && q.focus(); }
   if (kind === "ask") { const inp = $("#askIn"); const q = inp.value.trim(); if (q) { inp.value = ""; ask(q); } }
 });
 function alertField(id, msg) { const el = document.getElementById(id); el.setCustomValidity(msg); el.reportValidity(); el.addEventListener("input", () => el.setCustomValidity(""), { once: true }); }
@@ -1732,6 +1827,7 @@ function aiContext() {
     school_timetable_all_days: Object.fromEntries(Object.entries(TT).map(([d, l]) => ["Day " + d, l.map(e => `${PERIODS[e[1]][0]}-${PERIODS[e[2]][1]} ${e[0] === "free" ? "Free" : SUBJ[e[0]].name}`)])),
     csec_subjects: SUBJECTS.map(s => s.name),
     study_materials: S.study.map(s => `[${SUBJ[s.subject] ? SUBJ[s.subject].name : s.subject}] ${s.title}${s.notes ? " - " + s.notes.slice(0, 200) : ""} (saved ${s.created || "?"})`),
+    goals: S.goals.map(g => `${g.done ? "[achieved " + (g.doneOn || "") + "] " : "[active] "}${g.title} (${garea(g)[0]}${g.target ? ", target " + g.target : ""})${(g.steps || []).length ? " steps: " + g.steps.map(x => (x.done ? "[x] " : "[ ] ") + x.text).join("; ") : ""}${g.why ? " why: " + g.why.slice(0, 200) : ""}`),
     locked_in_streak: (() => { const L = lockInfo(); return L ? `${L.days} days locked in since ${L.start}; next milestone ${L.next} days on ${L.nextDate}; best ever ${L.best}` : "none"; })()
   };
 }
@@ -1749,6 +1845,8 @@ const AI_TOOLS = [
     execute: i => { S.schedule.push({ id: uid(), title: i.title, day: Math.max(0, DAYS.indexOf(i.day)), start: i.start, end: i.end, color: "blue" }); save("schedule"); return { ok: true }; } },
   { name: "save_study_material", description: "Save a study note, topic or link under one of the user's CSEC subjects.", inputSchema: { type: "object", properties: { subject: { type: "string", enum: SUBJECTS.map(s => s.k), description: SUBJECTS.map(s => s.k + "=" + s.name).join(", ") }, title: { type: "string" }, link: { type: "string" }, notes: { type: "string" } }, required: ["subject", "title"] },
     execute: i => { if (!SUBJ[i.subject]) throw new Error("Unknown subject"); S.study.push({ id: uid(), subject: i.subject, title: i.title, link: i.link || "", notes: i.notes || "", created: today() }); save("study"); return { ok: true }; } },
+  { name: "add_goal", description: "Add a long-term goal to the user's Goals page, optionally with steps.", inputSchema: { type: "object", properties: { title: { type: "string" }, area: { type: "string", enum: Object.keys(GAREAS) }, target: { type: "string", description: "Target date YYYY-MM-DD, optional" }, why: { type: "string" }, steps: { type: "array", items: { type: "string" } } }, required: ["title"] },
+    execute: i => { S.goals.push({ id: uid(), title: i.title, area: GAREAS[i.area] ? i.area : "personal", target: i.target || "", why: i.why || "", steps: (i.steps || []).map(t => ({ id: uid(), text: t, done: false })), done: false, created: today() }); save("goals"); return { ok: true }; } },
 ];
 
 async function ask(q) {
