@@ -1557,7 +1557,7 @@ function vGoals() {
   const active = S.goals.filter(g => !g.done), achieved = S.goals.filter(g => g.done);
   const verse = `<figure class="gv" role="note" aria-label="Philippians 4:13"><div class="gv-rule" aria-hidden="true"><i></i><svg viewBox="0 0 14 18"><path d="M5.5 0h3v5h5.5v3H8.5v10h-3V8H0V5h5.5z" fill="#D9B440"/></svg><i></i></div><p>I can do all things through Christ who gives me strength.</p><span>PHILIPPIANS 4:13</span></figure>`;
   const tabs = verse + `<div class="tabs" role="tablist">${[["active", `Active · ${active.length}`], ["achieved", `Achieved · ${achieved.length}`]].map(([k, l]) => `<button class="tab" role="tab" aria-selected="${goalTab === k}" data-act="goalTab" data-v="${k}">${l}</button>`).join("")}</div>`;
-  const head = `<div class="head"><div><h1>Goals</h1><p class="sub">Where you're headed. Break each goal into steps and tick them off.</p></div><button class="btn primary" data-act="addGoal">Add goal</button></div>`;
+  const head = `<div class="head"><div><h1>Goals</h1></div><button class="btn primary" data-act="addGoal">Add goal</button></div>`;
   if (!S.goals.length) return `${tabs}${head}<section class="card"><h2>Set your first goal</h2><p class="muted" style="margin:0">Big or small, this term or five years out. Add your own, or start from one of these:</p>
     <div class="goal-ideas">${GOAL_IDEAS.map((x, i) => `<button class="chip" data-act="goalIdea" data-v="${i}">${esc(x.title)}</button>`).join("")}</div></section>`;
   const stats = `<div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="stat"><b>${active.length}</b><span>active goals</span></div><div class="stat"><b>${achieved.length}</b><span>achieved</span></div></div>`;
