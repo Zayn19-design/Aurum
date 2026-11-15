@@ -310,7 +310,7 @@ main{overflow-y:auto;padding:28px 32px 40px}
 .sk-rk svg{width:26px;height:32px;display:block;margin:0 auto 3px}
 .sk-rk.sk-lk{opacity:.32}.sk-rk.sk-lk svg{filter:grayscale(1)}
 .sk-rk.cur{color:var(--ink);font-weight:600}.sk-rk.cur svg{filter:drop-shadow(0 0 6px var(--c1));transform:scale(1.2)}
-.sk-rk b{display:block;font-family:var(--font-mono);font-weight:500;font-size:10px;color:#7E7A72}
+.sk-rk b{display:block;font-family:var(--font-mono);font-weight:500;font-size:11px;color:#7E7A72}.sk-rk.cur b{color:var(--c2)}
 .sk-road{position:relative;height:118px}
 .sk-line,.sk-fill{position:absolute;top:58px;height:4px;border-radius:4px}.sk-line{left:1%;right:1%;background:var(--line)}.sk-fill{left:1%;background:linear-gradient(90deg,#55565C,var(--c1))}
 .sk-nd{position:absolute;top:44px;width:32px;height:32px;margin-left:-16px;border-radius:50%;display:grid;place-items:center}
@@ -1661,7 +1661,7 @@ function vStreaks() {
   </section>
   <div class="sk-stats"><div class="sk-st"><b>${L.next - d}</b><span>days to next</span></div><div class="sk-st"><b ${nt ? `style="color:${nt[2][1]}"` : ""}>${nt ? nt[1] : "Max"}</b><span>${nt ? `next colour in ${nt[0] - d}d` : "every colour unlocked"}</span></div><div class="sk-st"><b>${toYear[0]}</b><span>${toYear[1]}</span></div></div>
   <section class="card"><div class="card-h"><h2>Flame ranks</h2><span class="small muted">${k + 1} of ${FTIERS.length} unlocked</span></div>
-    <div class="sk-ranks">${FTIERS.map((x, i) => `<div class="sk-rk ${i > k ? "sk-lk" : i === k ? "cur" : ""}">${flameSVG(x[2])}${x[1]}<b>${x[0] ? x[0] + "d" : "start"}</b></div>`).join("")}</div></section>
+    <div class="sk-ranks">${FTIERS.map((x, i) => `<div class="sk-rk ${i > k ? "sk-lk" : i === k ? "cur" : ""}"><span class="sk-fl" title="${x[1]}">${flameSVG(x[2])}</span><b>${x[0] ? x[0] + "d" : "start"}</b></div>`).join("")}</div></section>
   <section class="card"><div class="card-h"><h2>Milestone road</h2><span class="small muted">${MS.filter(m => m <= d).length} of ${MS.length} hit · best ${L.best}</span></div><div class="sk-road">${road}</div></section>
   </div>
   <div class="row" style="justify-content:flex-end"><button class="btn ghost sm" data-act="lockEdit">Change start date</button><button class="btn ghost sm" style="color:var(--flame)" data-act="lockReset">Reset to day 1</button></div>`;
