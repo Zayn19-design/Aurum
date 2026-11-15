@@ -241,6 +241,8 @@ main{overflow-y:auto;padding:28px 32px 40px}
 .goal-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .goal.achieved{opacity:.92}
 .goal.achieved h3{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--g) 60%,transparent)}
+.step-date{display:block;font-size:12px;color:var(--muted);text-decoration:none}
+.goal .item.done .grow{text-decoration:none}.goal .item.done .step-t{text-decoration:line-through}
 .goal-ideas{display:flex;gap:8px;flex-wrap:wrap}
 @media (max-width:860px){.goalgrid{grid-template-columns:1fr}}
 .cele-card{max-width:min(92vw,560px)}.cele-card h2{overflow-wrap:anywhere}
@@ -1411,6 +1413,7 @@ function goalWhen(date) {
   if (n < 730) { const m = Math.round(n / 30.44); return [String(m), "months to go"]; }
   return [(n / 365.25).toFixed(1).replace(/\.0$/, ""), "years to go"];
 }
+function fmtShort(s) { const d = parseYMD(s); return `${MON[d.getMonth()]} ${d.getDate()}${d.getFullYear() !== parseYMD(today()).getFullYear() ? ", " + d.getFullYear() : ""}`; }
 function fmtLong(s) { const d = parseYMD(s); return `${MON[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`; }
 function goalCard(g) {
   const [an, ac] = garea(g), steps = g.steps || [], pct = goalPct(g), doneN = steps.filter(x => x.done).length;
@@ -1421,9 +1424,9 @@ function goalCard(g) {
       ${g.done ? `<div class="goal-when"><b>✓</b><span>${g.doneOn ? fmtLong(g.doneOn) : "Achieved"}</span></div>` : when ? `<div class="goal-when"><b ${when[1].includes("overdue") ? 'style="color:var(--flame)"' : ""}>${when[0]}</b><span>${when[1]}</span></div>` : ""}
     </div>
     ${g.why ? `<p class="goal-why">${esc(g.why)}</p>` : ""}
-    ${g.target ? `<span class="small muted">Target: ${fmtLong(g.target)}</span>` : ""}
+    ${g.created || g.target ? `<span class="small muted goal-dates">${[g.created ? `Added ${fmtLong(g.created)}` : "", g.target ? `Target ${fmtLong(g.target)}` : ""].filter(Boolean).join(" · ")}</span>` : ""}
     ${steps.length ? `<div class="goal-prog"><div class="goal-bar"><i style="width:${Math.round(pct * 100)}%"></i></div><span class="num">${doneN}/${steps.length} steps</span></div>` : ""}
-    <div class="list">${steps.map(x => `<div class="item ${x.done ? "done" : ""}"><button class="check ${x.done ? "on" : ""}" data-act="goalStep" data-id="${g.id}" data-s="${x.id}" aria-label="Mark ${esc(x.text)} ${x.done ? "not done" : "done"}"></button><span class="grow">${esc(x.text)}</span><button class="btn ghost sm x" data-act="delGoalStep" data-id="${g.id}" data-s="${x.id}" aria-label="Delete step">✕</button></div>`).join("")}</div>
+    <div class="list">${steps.map(x => `<div class="item ${x.done ? "done" : ""}"><button class="check ${x.done ? "on" : ""}" data-act="goalStep" data-id="${g.id}" data-s="${x.id}" aria-label="Mark ${esc(x.text)} ${x.done ? "not done" : "done"}"></button><span class="grow"><span class="step-t">${esc(x.text)}</span>${x.created ? `<span class="step-date">Added ${fmtShort(x.created)}</span>` : ""}</span><button class="btn ghost sm x" data-act="delGoalStep" data-id="${g.id}" data-s="${x.id}" aria-label="Delete step">✕</button></div>`).join("")}</div>
     ${g.done ? "" : `<form class="addrow" data-form="goalStep" data-id="${g.id}"><input class="input" id="gs-${g.id}" placeholder="Add a step towards this goal" aria-label="Add a step to ${esc(g.title)}"><button class="btn sm">Add</button></form>`}
     <div class="goal-foot"><button class="btn ghost sm" data-act="editGoal" data-id="${g.id}">Edit</button>
       ${g.done ? `<button class="btn sm" data-act="goalDone" data-id="${g.id}">Move back to active</button>` : `<button class="btn primary sm" data-act="goalDone" data-id="${g.id}">Mark achieved</button>`}</div>
@@ -1805,7 +1808,7 @@ document.addEventListener("submit", e => {
   }
   if (kind === "daily") { const inp = form.querySelector("input"), v = inp.value.trim(); if (!v) return; S.meta.dailyTasks = [...dailyList(), { id: uid(), text: v }]; if (!S.meta.dailySince) S.meta.dailySince = today(); save("meta"); render(); const q = document.getElementById("dailyIn"); q && q.focus(); }
   if (kind === "quickEvent") { const inp = form.querySelector("input"), v = inp.value.trim(); if (!v) return; const isB = /birthday|b-day|bday/i.test(v); S.events.push({ id: uid(), title: v, date: evSel, time: "", notes: "", type: isB ? "birthday" : "event", repeat: isB ? "yearly" : "" }); save("events"); render(); const q = document.getElementById("qeIn"); q && q.focus(); }
-  if (kind === "goalStep") { const inp = form.querySelector("input"), v = inp.value.trim(), g = goalById(form.dataset.id); if (!v || !g) return; (g.steps || (g.steps = [])).push({ id: uid(), text: v, done: false }); save("goals"); render(); const q = document.getElementById(inp.id); q && q.focus(); }
+  if (kind === "goalStep") { const inp = form.querySelector("input"), v = inp.value.trim(), g = goalById(form.dataset.id); if (!v || !g) return; (g.steps || (g.steps = [])).push({ id: uid(), text: v, done: false, created: today() }); save("goals"); render(); const q = document.getElementById(inp.id); q && q.focus(); }
   if (kind === "ask") { const inp = $("#askIn"); const q = inp.value.trim(); if (q) { inp.value = ""; ask(q); } }
 });
 function alertField(id, msg) { const el = document.getElementById(id); el.setCustomValidity(msg); el.reportValidity(); el.addEventListener("input", () => el.setCustomValidity(""), { once: true }); }
@@ -1827,7 +1830,7 @@ function aiContext() {
     school_timetable_all_days: Object.fromEntries(Object.entries(TT).map(([d, l]) => ["Day " + d, l.map(e => `${PERIODS[e[1]][0]}-${PERIODS[e[2]][1]} ${e[0] === "free" ? "Free" : SUBJ[e[0]].name}`)])),
     csec_subjects: SUBJECTS.map(s => s.name),
     study_materials: S.study.map(s => `[${SUBJ[s.subject] ? SUBJ[s.subject].name : s.subject}] ${s.title}${s.notes ? " - " + s.notes.slice(0, 200) : ""} (saved ${s.created || "?"})`),
-    goals: S.goals.map(g => `${g.done ? "[achieved " + (g.doneOn || "") + "] " : "[active] "}${g.title} (${garea(g)[0]}${g.target ? ", target " + g.target : ""})${(g.steps || []).length ? " steps: " + g.steps.map(x => (x.done ? "[x] " : "[ ] ") + x.text).join("; ") : ""}${g.why ? " why: " + g.why.slice(0, 200) : ""}`),
+    goals: S.goals.map(g => `${g.done ? "[achieved " + (g.doneOn || "") + "] " : "[active] "}${g.title} (${garea(g)[0]}${g.target ? ", target " + g.target : ""})${(g.steps || []).length ? " steps: " + g.steps.map(x => (x.done ? "[x] " : "[ ] ") + x.text + (x.created ? " (added " + x.created + ")" : "")).join("; ") : ""}${g.why ? " why: " + g.why.slice(0, 200) : ""}${g.created ? " added " + g.created : ""}`),
     locked_in_streak: (() => { const L = lockInfo(); return L ? `${L.days} days locked in since ${L.start}; next milestone ${L.next} days on ${L.nextDate}; best ever ${L.best}` : "none"; })()
   };
 }
@@ -1846,7 +1849,7 @@ const AI_TOOLS = [
   { name: "save_study_material", description: "Save a study note, topic or link under one of the user's CSEC subjects.", inputSchema: { type: "object", properties: { subject: { type: "string", enum: SUBJECTS.map(s => s.k), description: SUBJECTS.map(s => s.k + "=" + s.name).join(", ") }, title: { type: "string" }, link: { type: "string" }, notes: { type: "string" } }, required: ["subject", "title"] },
     execute: i => { if (!SUBJ[i.subject]) throw new Error("Unknown subject"); S.study.push({ id: uid(), subject: i.subject, title: i.title, link: i.link || "", notes: i.notes || "", created: today() }); save("study"); return { ok: true }; } },
   { name: "add_goal", description: "Add a long-term goal to the user's Goals page, optionally with steps.", inputSchema: { type: "object", properties: { title: { type: "string" }, area: { type: "string", enum: Object.keys(GAREAS) }, target: { type: "string", description: "Target date YYYY-MM-DD, optional" }, why: { type: "string" }, steps: { type: "array", items: { type: "string" } } }, required: ["title"] },
-    execute: i => { S.goals.push({ id: uid(), title: i.title, area: GAREAS[i.area] ? i.area : "personal", target: i.target || "", why: i.why || "", steps: (i.steps || []).map(t => ({ id: uid(), text: t, done: false })), done: false, created: today() }); save("goals"); return { ok: true }; } },
+    execute: i => { S.goals.push({ id: uid(), title: i.title, area: GAREAS[i.area] ? i.area : "personal", target: i.target || "", why: i.why || "", steps: (i.steps || []).map(t => ({ id: uid(), text: t, done: false, created: today() })), done: false, created: today() }); save("goals"); return { ok: true }; } },
 ];
 
 async function ask(q) {
