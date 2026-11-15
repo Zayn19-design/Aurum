@@ -258,8 +258,9 @@ main{overflow-y:auto;padding:28px 32px 40px}
 .lv-bw{position:relative;width:180px;height:180px;display:grid;place-items:center;flex:none}
 .lv-rays{position:absolute;left:-60px;top:-60px;width:300px;height:300px;border-radius:50%;background:repeating-conic-gradient(rgba(245,217,122,.32) 0 9deg,transparent 9deg 22.5deg);-webkit-mask:radial-gradient(circle,#000 25%,transparent 70%);mask:radial-gradient(circle,#000 25%,transparent 70%);opacity:0;transition:opacity .6s;animation:lvSpin 9s linear infinite}
 .lv-rays.in{opacity:1}@keyframes lvSpin{to{transform:rotate(360deg)}}
-.lv-badge{position:relative;width:124px;height:124px;border-radius:50%;background:#2B2C30;border:6px solid #D9B440;box-shadow:0 0 0 4px #1B1C1F,0 0 0 7px #8A6D1A,0 0 40px color-mix(in srgb,var(--g) 45%,transparent);display:grid;place-items:center;transform:scale(0) rotate(-540deg);color:var(--g)}
-.lv-badge svg{width:60px;height:60px}
+.lv-badge{position:relative;width:124px;height:124px;border-radius:50%;background:#2B2C30;border:6px solid var(--rim,#D9B440);box-shadow:0 0 0 4px #1B1C1F,0 0 0 7px color-mix(in srgb,var(--rim,#D9B440) 55%,#000),0 0 40px color-mix(in srgb,var(--g) 45%,transparent);display:grid;place-items:center;transform:scale(0) rotate(-540deg);color:var(--g)}
+.lv-badge > svg{width:60px;height:60px}
+.lv-badge .lv-fl{position:absolute;width:74px;height:86px;top:10px}.lv-badge .lv-n{position:relative;margin-top:30px;font-size:30px;font-weight:700;color:var(--nc,#1E1F22)}
 .lv-badge.in{animation:lvFly .75s cubic-bezier(.2,1.4,.4,1) forwards}@keyframes lvFly{to{transform:scale(1) rotate(0)}}
 .lv-t{text-align:center;max-width:560px;opacity:0;transform:translateY(12px);transition:all .5s}.lv-t.in{opacity:1;transform:none}
 .lv-t p{margin:0;font-size:12px;letter-spacing:.3em;color:var(--g);font-weight:700}
@@ -278,6 +279,52 @@ main{overflow-y:auto;padding:28px 32px 40px}
 .lv-close{position:absolute;bottom:calc(14px + env(safe-area-inset-bottom));font-size:12px;color:#B0ABA0;opacity:0;transition:opacity .5s}.lv-close.in{opacity:1}
 @media (max-height:640px){.lvl{gap:10px}.lv-bw{width:150px;height:150px}.lv-badge{width:104px;height:104px}}
 @media (prefers-reduced-motion: reduce){.lv-ban,.lv-badge,.lv-t,.lv-stats,.lv-tag{opacity:1!important;transform:none!important;animation:none!important}.lv-dude .shades{opacity:1;transform:none}}
+
+/* streaks: flame ring */
+.sk-hero{border-radius:18px;border:1px solid color-mix(in srgb,var(--c1) 45%,var(--line));background:radial-gradient(120% 75% at 50% 28%,color-mix(in srgb,var(--c1) 22%,var(--surface)),var(--surface) 68%);padding:18px 16px 20px;text-align:center;position:relative;overflow:hidden}
+.sk-rw{position:relative;width:250px;height:250px;margin:0 auto}
+.sk-rsvg{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 0 12px color-mix(in srgb,var(--c1) 60%,transparent))}
+.sk-rsvg circle{fill:none;stroke-width:12}
+.sk-shim{transform-origin:125px 125px;animation:skSpin 5s linear infinite}@keyframes skSpin{to{transform:rotate(360deg)}}
+.sk-glow{position:absolute;left:50%;top:52%;width:180px;height:180px;transform:translate(-50%,-50%);background:radial-gradient(closest-side,color-mix(in srgb,var(--c1) 50%,transparent),transparent);animation:skGp 2.2s ease-in-out infinite alternate}
+@keyframes skGp{to{opacity:.6;transform:translate(-50%,-50%) scale(1.1)}}
+.sk-fbox{position:absolute;left:50%;top:50%;width:150px;height:180px;transform:translate(-50%,-54%)}
+.sk-fsvg{position:absolute;inset:0;width:100%;height:100%;transform-origin:50% 95%}
+.sk-aur .sk-fsvg,.sk-aur .sk-rsvg{animation:skHue 6s linear infinite}@keyframes skHue{to{filter:hue-rotate(360deg)}}
+.sk-fo,.sk-fm,.sk-fc{transform-origin:100px 232px;animation:skF1 1.7s ease-in-out infinite alternate}.sk-fm{animation:skF2 1.15s ease-in-out infinite alternate}.sk-fc{animation:skF3 .8s ease-in-out infinite alternate}
+@keyframes skF1{0%{transform:none}50%{transform:scale(1.03,.95) skewX(2.5deg)}100%{transform:scale(.97,1.05) skewX(-2.5deg)}}
+@keyframes skF2{0%{transform:skewX(-2deg)}100%{transform:scale(.95,1.07) skewX(3deg)}}
+@keyframes skF3{0%{transform:scale(1,.96)}100%{transform:scale(.94,1.06) skewX(-3deg)}}
+.sk-num{position:absolute;left:0;right:0;top:63%;text-shadow:0 0 10px var(--c2),0 0 2px var(--c2);transform:translateY(-50%);font-family:var(--font-display);font-weight:700;line-height:1;color:var(--nc)}
+.sk-num small{display:block;font-size:10px;letter-spacing:.3em;font-weight:700;margin-top:2px}
+.sk-emb{position:absolute;bottom:26px;width:4px;height:4px;border-radius:50%;background:var(--c2);box-shadow:0 0 6px var(--c1);opacity:0;animation:skRise linear infinite}
+@keyframes skRise{0%{opacity:0;transform:none}15%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-150px)}}
+.sk-tier{font-size:12px;letter-spacing:.28em;font-weight:700;color:var(--c1);margin:10px 0 0;filter:brightness(1.15)}
+.sk-big{font-family:var(--font-display);font-weight:700;font-size:26px;margin:4px 0 2px}
+.sk-since{color:var(--muted);font-size:14px;margin:0}
+.sk-nx{margin:10px 0 0;font-size:14px;color:var(--muted)}.sk-nx b{color:var(--ink)}
+.sk-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sk-st{border-radius:12px;border:1px solid var(--line);background:var(--surface);padding:12px}.sk-st b{display:block;font-family:var(--font-mono);font-weight:500;font-size:20px;color:var(--c2)}.sk-st span{font-size:12px;color:var(--muted)}
+.sk-ranks{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px 4px}
+.sk-rk{text-align:center;font-size:11px;color:var(--muted);line-height:1.2}
+.sk-rk svg{width:26px;height:32px;display:block;margin:0 auto 3px}
+.sk-rk.sk-lk{opacity:.32}.sk-rk.sk-lk svg{filter:grayscale(1)}
+.sk-rk.cur{color:var(--ink);font-weight:600}.sk-rk.cur svg{filter:drop-shadow(0 0 6px var(--c1));transform:scale(1.2)}
+.sk-rk b{display:block;font-family:var(--font-mono);font-weight:500;font-size:10px;color:#7E7A72}
+.sk-road{position:relative;height:118px}
+.sk-line,.sk-fill{position:absolute;top:58px;height:4px;border-radius:4px}.sk-line{left:1%;right:1%;background:var(--line)}.sk-fill{left:1%;background:linear-gradient(90deg,#55565C,var(--c1))}
+.sk-nd{position:absolute;top:44px;width:32px;height:32px;margin-left:-16px;border-radius:50%;display:grid;place-items:center}
+.sk-nd svg{width:16px;height:16px}
+.sk-nd.f{background:var(--bg);border:2px solid #55565C;color:#7E7A72}
+.sk-nd.n{background:var(--bg);border:2px solid var(--nn);color:var(--nn);animation:skNp 1.4s ease-in-out infinite}
+@keyframes skNp{50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--nn) 20%,transparent),0 0 18px var(--nn)}}
+.sk-nl{position:absolute;top:84px;width:64px;margin-left:-32px;text-align:center;font-size:12px;color:var(--muted);line-height:1.25}
+.sk-nl b{display:block;font-family:var(--font-mono);font-weight:500;font-size:14px;color:var(--ink)}
+.sk-pin{position:absolute;top:2px;margin-left:-22px;width:44px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--c2)}
+.sk-pin svg{width:20px;height:24px;display:block;margin:0 auto 2px}
+.sk-pin::after{content:"";display:block;width:2px;height:12px;background:var(--c1);margin:2px auto 0}
+@media (max-width:420px){.sk-st{padding:10px}.sk-st b{font-size:18px}}
+@media (prefers-reduced-motion: reduce){.sk-shim,.sk-fo,.sk-fm,.sk-fc,.sk-glow,.sk-emb,.sk-nd.n{animation:none}.sk-emb{display:none}}
 /* study subjects */
 .subjgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .subj{position:relative;border:1px solid var(--line);border-top:6px solid var(--s);border-radius:16px;background:linear-gradient(160deg,color-mix(in srgb,var(--s) 13%,var(--surface)) 0%,var(--surface) 60%);padding:14px 16px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left;min-height:190px;transition:transform .15s,box-shadow .15s}
@@ -628,6 +675,7 @@ async function connect() {
       });
       if (changed) { migrate(); cacheLocal(); render(); }
       setSync(snap.metadata && snap.metadata.fromCache ? "wait" : "ok");
+      if (!(snap.metadata && snap.metadata.fromCache)) checkStreakMilestone();
     };
     unsub = db.collection(colPath).onSnapshot({ includeMetadataChanges: false }, handle, () => setSync("err"));
   } catch (e) { setSync("err"); }
@@ -1505,18 +1553,21 @@ const SALUTE_DUDE = `<svg class="lv-dude" viewBox="0 0 100 100" aria-hidden="tru
 function hapticTap() { try { const l = document.createElement("label"), i = document.createElement("input"); i.type = "checkbox"; i.setAttribute("switch", ""); l.appendChild(i); l.style.cssText = "position:fixed;opacity:0;pointer-events:none;left:-99px"; document.body.appendChild(l); l.click(); l.remove(); } catch (e) {} }
 function buzz(p) { try { if (navigator.vibrate && navigator.vibrate(p)) return; } catch (e) {} const a = Array.isArray(p) ? p : [p]; let t = 0; a.forEach((ms, k) => { if (k % 2 === 0) setTimeout(hapticTap, t); t += ms; }); }
 function goalLevelUp(g) {
-  const old = document.getElementById("lvl"); if (old) old.remove();
   const key = GAREAS[g.area] ? g.area : "other", [an, ac] = GAREAS[key];
   const steps = g.steps || [], doneN = steps.filter(x => x.done).length;
   const days = g.created ? Math.max(1, daysBetween(g.created, g.doneOn || today())) : null;
   const cap = key === "school" ? "Belt to ass delivered Zayn" : "Goal crushed zayn, Keep it pushing!!!!";
   const stats = [steps.length ? `<div class="lv-sb"><b data-n="${doneN}" data-of="${steps.length}">0/${steps.length}</b><span>steps done</span></div>` : "", days !== null ? `<div class="lv-sb"><b data-n="${days}">0</b><span>day${days === 1 ? "" : "s"} to get it</span></div>` : ""].join("");
-  const el = document.createElement("div"); el.id = "lvl"; el.className = "lvl"; el.setAttribute("role", "status"); el.style.setProperty("--g", ac);
-  el.innerHTML = `<canvas></canvas><div class="lv-ban">ACHIEVEMENT UNLOCKED</div>
-    <div class="lv-bw"><div class="lv-rays"></div><div class="lv-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${GICON[key]}</svg></div></div>
-    <div class="lv-t"><p>${an.toUpperCase()} GOAL</p><h2>${esc(g.title)}</h2></div>
-    ${stats ? `<div class="lv-stats">${stats}</div>` : ""}
-    <div class="lv-tag"><span>${esc(cap)}</span>${SALUTE_DUDE}</div><div class="lv-close">Tap anywhere to close</div>`;
+  levelUp({ ac, ban: "ACHIEVEMENT UNLOCKED", badge: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${GICON[key]}</svg>`, kicker: `${an.toUpperCase()} GOAL`, title: g.title, stats, cap });
+}
+function levelUp(o) {
+  const old = document.getElementById("lvl"); if (old) old.remove();
+  const el = document.createElement("div"); el.id = "lvl"; el.className = "lvl"; el.setAttribute("role", "status"); el.style.setProperty("--g", o.ac); if (o.rim) el.style.setProperty("--rim", o.rim);
+  el.innerHTML = `<canvas></canvas><div class="lv-ban">${o.ban}</div>
+    <div class="lv-bw"><div class="lv-rays"></div><div class="lv-badge">${o.badge}</div></div>
+    <div class="lv-t"><p>${esc(o.kicker)}</p><h2>${esc(o.title)}</h2></div>
+    ${o.stats ? `<div class="lv-stats">${o.stats}</div>` : ""}
+    <div class="lv-tag"><span>${esc(o.cap)}</span>${SALUTE_DUDE}</div><div class="lv-close">Tap anywhere to close</div>`;
   document.body.appendChild(el);
   const q = s => el.querySelector(s), T = [], at = (ms, f) => T.push(setTimeout(f, ms));
   let alive = true;
@@ -1572,33 +1623,63 @@ function lockInfo() {
   return { start: L.start, days, next, prev, best: Math.max(L.best || 0, days), nextDate: addDays(L.start, next - 1), pct: (days - prev) / (next - prev) };
 }
 function lockSpan(d) { const w = Math.floor(d / 7), r = d % 7; return [w && `${w} week${w > 1 ? "s" : ""}`, r && `${r} day${r > 1 ? "s" : ""}`].filter(Boolean).join(", ") || "0 days"; }
+const FTIERS = [[0, "Ember", ["#7F1D1D", "#DC2626", "#FCA5A5"], "#3B0A0A"], [7, "Spark", ["#9A3412", "#F97316", "#FED7AA"], "#3A1405"], [14, "Gold", ["#92400E", "#EAB308", "#FEF08A"], "#3A2605"], [21, "Mint", ["#065F46", "#34D399", "#D1FAE5"], "#063B2C"], [30, "Aqua", ["#155E75", "#22D3EE", "#CFFAFE"], "#08323D"], [45, "Sky", ["#075985", "#38BDF8", "#E0F2FE"], "#0A2A40"], [60, "Royal", ["#1E3A8A", "#3B82F6", "#DBEAFE"], "#0B1E3F"], [90, "Midnight", ["#1E1B4B", "#4F46E5", "#C7D2FE"], "#141046"], [120, "Violet", ["#4C1D95", "#A855F7", "#F3E8FF"], "#2A0D52"], [180, "Magenta", ["#831843", "#EC4899", "#FCE7F3"], "#4A0A28"], [270, "Rose", ["#7C2D12", "#FB7185", "#FFE4E6"], "#4A0A14"], [365, "Inferno", ["#92400E", "#D9B440", "#FFF7D6"], "#3A2605"], [500, "Aurora", ["#5B21B6", "#22D3EE", "#BBF7D0"], "#1E1B4B"], [730, "Diamond", ["#475569", "#CBD5E1", "#FFFFFF"], "#1E293B"], [1000, "Legend", ["#0A0A0A", "#D9B440", "#FFF4D0"], "#1A1405"]];
+const ftIdx = d => { let k = 0; FTIERS.forEach((x, i) => { if (d >= x[0]) k = i; }); return k; };
+const FLAME_P = ["M100 8C128 58 178 92 172 152C167 205 136 236 100 236C64 236 33 205 28 152C24 104 58 84 70 46C80 78 90 86 96 98C92 62 94 34 100 8Z", "M100 62C120 98 152 122 148 166C145 203 124 228 100 228C76 228 55 203 52 166C49 132 74 116 82 88C88 110 94 116 98 124C96 102 97 82 100 62Z", "M100 112C112 136 130 152 128 180C126 205 115 222 100 222C85 222 74 205 72 180C70 158 86 146 90 128C94 142 97 146 99 152C98 138 99 124 100 112Z"];
+const flameSVG = (c, cls = "") => `<svg ${cls ? `class="${cls}"` : ""} viewBox="0 0 200 250" aria-hidden="true">${FLAME_P.map((d, i) => `<path fill="${c[i]}" d="${d}"/>`).join("")}</svg>`;
+const SK_ICON = { check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>', lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', flame: '<path d="M12 3c2 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-4.5 3-7 1 2 1.5 2.5 2 3 0-2.5 0-4.5 1-7z"/>' };
+const skIc = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${SK_ICON[k]}</svg>`;
 function vStreaks() {
   const L = lockInfo();
   if (!L) return `<div class="head"><div><h1>Streaks</h1></div></div><section class="card"><button class="btn primary" data-act="lockStart">Start a Locked in streak</button></section>`;
-  const R = 92, C = 2 * Math.PI * R, sd = parseYMD(L.start);
+  const d = L.days, k = ftIdx(d), t = FTIERS[k], c = t[2], nt = FTIERS[k + 1], sd = parseYMD(L.start), C = 2 * Math.PI * 112;
+  const vars = `--c0:${c[0]};--c1:${c[1]};--c2:${c[2]};--nc:${t[3]}`;
+  const embers = Array.from({ length: k >= 11 ? 16 : k >= 7 ? 11 : 7 }, () => `<span class="sk-emb" style="left:${(40 + Math.random() * 70).toFixed(0)}px;--dx:${(Math.random() * 50 - 25).toFixed(0)}px;animation-duration:${(1.5 + Math.random() * 1.8).toFixed(2)}s;animation-delay:${(-Math.random() * 3).toFixed(2)}s"></span>`).join("");
+  const toYear = d >= 365 ? [(d / 365).toFixed(1).replace(/\.0$/, "") + " yr", "locked in"] : [Math.round(d / 365 * 100) + "%", "of the way to 1 year"];
+  // milestone road
+  const MS = MILESTONES, ni0 = MS.findIndex(m => m > d), ni = ni0 < 0 ? MS.length : ni0, s0 = Math.min(Math.max(0, ni - 2), MS.length - 6), win = MS.slice(s0, s0 + 6);
+  const x = i => 8 + i * 16.8;
+  const px = ni0 < 0 ? 99 : L.prev === 0 ? 1 + (x(0) - 1) * L.pct : x(MS.indexOf(L.prev) - s0) + L.pct * 16.8;
+  const road = `<div class="sk-line"></div><div class="sk-fill" style="width:${Math.max(0, px - 1)}%"></div>` + win.map((m, i) => {
+    const tc = FTIERS[ftIdx(m)], kk = m <= d ? "d" : m === L.next ? "n" : "f";
+    const st = kk === "d" ? `background:${tc[2][1]};color:${tc[3]}` : kk === "n" ? `--nn:${tc[2][1]}` : "";
+    return `<div class="sk-nd ${kk}" style="left:${x(i)}%;${st}">${skIc(kk === "d" ? "check" : kk === "f" ? "lock" : "flame")}</div><div class="sk-nl" style="left:${x(i)}%;${kk === "n" ? `color:${tc[2][1]}` : ""}"><b>${m}</b>${kk === "n" ? `in ${m - d}d` : "days"}</div>`;
+  }).join("") + `<div class="sk-pin" style="left:${px}%">${flameSVG(c)}TODAY</div>`;
   return `<div class="head"><div><h1>Streaks</h1><p class="sub">One streak. Every day counts.</p></div></div>
-  <section class="lock">
-    <div class="lock-ring">
-      <svg viewBox="0 0 220 220" aria-hidden="true"><circle cx="110" cy="110" r="${R}" class="lr-bg"/><circle cx="110" cy="110" r="${R}" class="lr-fg" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - L.pct)}"/></svg>
-      <div class="lock-num"><b class="num">${L.days}</b><span>day${L.days === 1 ? "" : "s"}</span></div>
+  <div style="${vars};display:flex;flex-direction:column;gap:16px">
+  <section class="sk-hero ${t[1] === "Aurora" ? "sk-aur" : ""}">
+    <div class="sk-rw"><div class="sk-glow"></div>
+      <svg class="sk-rsvg" viewBox="0 0 250 250" aria-hidden="true"><defs><linearGradient id="skRg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c[2]}"/><stop offset=".5" stop-color="${c[1]}"/><stop offset="1" stop-color="${c[0]}"/></linearGradient></defs>
+        <circle cx="125" cy="125" r="112" stroke="url(#skRg)"/><circle class="sk-shim" cx="125" cy="125" r="112" stroke="#fff" stroke-opacity=".55" stroke-linecap="round" stroke-dasharray="46 ${(C - 46).toFixed(1)}" style="stroke-width:6"/></svg>
+      <div class="sk-fbox">${embers}<svg class="sk-fsvg" viewBox="0 0 200 250" aria-hidden="true" style="transform:scale(${(.66 + k * .025).toFixed(3)})"><g class="sk-fo"><path fill="${c[0]}" d="${FLAME_P[0]}"/></g><g class="sk-fm"><path fill="${c[1]}" d="${FLAME_P[1]}"/></g><g class="sk-fc"><path fill="${c[2]}" d="${FLAME_P[2]}"/></g></svg>
+        <div class="sk-num" style="font-size:${d >= 1000 ? 30 : d >= 100 ? 36 : 42}px">${d}<small>DAY${d === 1 ? "" : "S"}</small></div></div>
     </div>
-    <div class="lock-body">
-      <p class="lock-k">Locked in</p>
-      <h2 class="lock-h">${lockSpan(L.days)} strong.</h2>
-      <p class="lock-sub">Since ${DAYS[dow(L.start)]}, ${MON[sd.getMonth()]} ${sd.getDate()}, ${sd.getFullYear()}. Adds one every day on its own.</p>
-      <div class="lock-next"><div class="row" style="justify-content:space-between"><span>Next: <b>${L.next} days</b></span><span class="num">${L.next - L.days} to go · ${fmtDate(L.nextDate)}</span></div><div class="lock-bar"><i style="width:${Math.round(L.pct * 100)}%"></i></div></div>
-    </div>
+    <p class="sk-tier">LOCKED IN · ${t[1].toUpperCase()} RANK</p>
+    <h2 class="sk-big">${lockSpan(d)} strong.</h2>
+    <p class="sk-since">Since ${DAYS[dow(L.start)]}, ${MON[sd.getMonth()]} ${sd.getDate()}, ${sd.getFullYear()}</p>
+    <p class="sk-nx">Next: <b>${L.next} days</b> · ${L.next - d} to go · ${fmtDate(L.nextDate)}</p>
   </section>
-  <div class="stats">
-    <div class="stat"><b>${L.days}</b><span>days locked in</span></div>
-    <div class="stat"><b>${Math.floor(L.days / 7)}</b><span>full weeks</span></div>
-    <div class="stat"><b>${MILESTONES.filter(m => m <= L.days).length}</b><span>milestones hit</span></div>
-    <div class="stat"><b>${L.best}</b><span>best ever</span></div>
+  <div class="sk-stats"><div class="sk-st"><b>${L.next - d}</b><span>days to next</span></div><div class="sk-st"><b ${nt ? `style="color:${nt[2][1]}"` : ""}>${nt ? nt[1] : "Max"}</b><span>${nt ? `next colour in ${nt[0] - d}d` : "every colour unlocked"}</span></div><div class="sk-st"><b>${toYear[0]}</b><span>${toYear[1]}</span></div></div>
+  <section class="card"><div class="card-h"><h2>Flame ranks</h2><span class="small muted">${k + 1} of ${FTIERS.length} unlocked</span></div>
+    <div class="sk-ranks">${FTIERS.map((x, i) => `<div class="sk-rk ${i > k ? "sk-lk" : i === k ? "cur" : ""}">${flameSVG(x[2])}${x[1]}<b>${x[0] ? x[0] + "d" : "start"}</b></div>`).join("")}</div></section>
+  <section class="card"><div class="card-h"><h2>Milestone road</h2><span class="small muted">${MS.filter(m => m <= d).length} of ${MS.length} hit · best ${L.best}</span></div><div class="sk-road">${road}</div></section>
   </div>
-  <section class="card"><h2>Milestones</h2>
-    <div class="badges">${MILESTONES.map(m => `<div class="badge ${m <= L.days ? "on" : m === L.next ? "nextb" : ""}"><b class="num">${m}</b><span>${m <= L.days ? "Unlocked" : m === L.next ? `${m - L.days} to go` : "days"}</span></div>`).join("")}</div>
-  </section>
   <div class="row" style="justify-content:flex-end"><button class="btn ghost sm" data-act="lockEdit">Change start date</button><button class="btn ghost sm" style="color:var(--flame)" data-act="lockReset">Reset to day 1</button></div>`;
+}
+function streakLevelUp(m) {
+  const k = ftIdx(m), t = FTIERS[k], c = t[2], newColour = t[0] === m;
+  levelUp({ ac: c[1], rim: c[1], nc: t[3], ban: "MILESTONE UNLOCKED", badge: `${flameSVG(c, "lv-fl")}<b class="lv-n" style="color:${t[3]};${m >= 1000 ? "font-size:24px" : ""}">${m}</b>`,
+    kicker: newColour ? `NEW COLOUR · ${t[1].toUpperCase()} FLAME` : `LOCKED IN · ${t[1].toUpperCase()} RANK`, title: `${m} days locked in`, stats: "", cap: `${m} days. Still locked in Zayn` });
+}
+let streakCeleChecked = false;
+function checkStreakMilestone() {
+  if (streakCeleChecked || !fbUser || !S.meta) return;
+  const L = lockInfo(); if (!L) return;
+  streakCeleChecked = true;
+  const d = L.days, hit = MILESTONES.includes(d) || (d > 1000 && d % 365 === 0);
+  if (!hit || S.meta.lockCele === `${L.start}:${d}`) return;
+  S.meta.lockCele = `${L.start}:${d}`; save("meta");
+  setTimeout(() => { if (!document.getElementById("lvl") && !sheetHandlers) streakLevelUp(d); }, 900);
 }
 
 let aiAvailable = null, aiBusy = false;
