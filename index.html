@@ -118,7 +118,7 @@ main{overflow-y:auto;padding:28px 32px 40px}
 .ev{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
 .ev:first-child{border-top:0}
 .cal{width:48px;flex:none;text-align:center;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
-.cal small{display:block;background:var(--flame);color:#fff;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.cal small{display:block;background:var(--k,var(--flame));color:#fff;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
 .cal b{display:block;font-family:var(--font-mono);font-size:18px;padding:2px 0}
 
 .bars{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;align-items:end;height:150px;padding-top:18px;border-bottom:1px solid var(--line);background:repeating-linear-gradient(to top,transparent 0,transparent 37px,var(--line) 37px,var(--line) 38px)}
@@ -221,6 +221,39 @@ main{overflow-y:auto;padding:28px 32px 40px}
 }
 
 
+
+/* events: charcoal + gold restyle */
+.evx-head h1{color:#F6E7B8}
+.evx-head h1::after{content:"";display:block;width:34px;height:3px;border-radius:3px;margin-top:8px;background:linear-gradient(90deg,#F5D97A,#C9A227)}
+.evx .card{background:#2C2E37;border:1px solid rgba(217,180,64,.38)}
+.evx .card.evx-cal{border-color:rgba(217,180,64,.5)}
+.evx .card.evx-plain{border-color:#40434F}
+.evx .card > h2,.evx .card > .card-h > h2{display:flex;align-items:center;gap:8px;color:#fff}
+.evx .card > h2::before,.evx .card > .card-h > h2::before{content:"";width:4px;height:16px;border-radius:3px;flex:none;background:linear-gradient(180deg,#F5D97A,#C9A227)}
+.evx .evx-cal h2{color:#F6E7B8}
+.evx .evx-cal > .row > .btn{background:#33363F;color:#F5D97A;border-color:#474A56}
+.evx .calhead span{color:#A8A7B0;letter-spacing:.06em}
+.evx .ec{background:#363944;color:#ECEAF2;font-family:var(--font-mono);font-weight:600;position:relative;overflow:hidden}
+.evx .ec.past{background:#2F313A}.evx .ec.past .ec-n{color:#6C6E7A}
+.evx .ec.has{background:color-mix(in srgb,var(--k) 22%,#363944);box-shadow:inset 0 3px 0 var(--k)}
+.evx .ec.sel{border-color:#F5D97A;background:color-mix(in srgb,#F5D97A 12%,#363944)}
+.evx .ec.has.sel{background:color-mix(in srgb,var(--k) 22%,#363944)}
+.evx .ec.today{background:linear-gradient(160deg,#5B8CFF,#9B6BFF);border-color:transparent;box-shadow:0 0 0 2px #F5D97A,0 0 16px rgba(130,120,255,.55);color:#fff}
+.evx .ec.today .ec-n{background:none;color:#fff;padding:0}
+.evx .ec-chip{font-family:"IBM Plex Sans",system-ui,sans-serif;color:#fff;background:color-mix(in srgb,var(--c) 24%,#2C2E37)}
+.evx .ec-lab{display:none}
+.evx .chips .small.muted{color:#C4C2CC}
+.evx .muted,.evx .empty{color:#C4C2CC}
+.evx .addrow .input{background:#23252C;border-color:#474A56}
+.evx .evx-more{background:#33363F;border-color:#474A56;color:#E3E1EA}
+.evx .evx-gold{color:#F5D97A}
+.evx .ev{border-top-color:#3A3D48}
+.evx .ev .cal{background:#23252C;border-color:color-mix(in srgb,var(--k) 60%,transparent)}
+.evx .ev .cal small{color:#1A1B20;font-weight:800}
+.evx .ev .pill{background:color-mix(in srgb,var(--k) 20%,transparent);color:var(--k);font-weight:700}
+.evx .evx-bd .pill{background:rgba(125,211,252,.2);color:#7DD3FC;font-weight:700}
+.evx b,.evx .ev div[style*="font-weight:600"]{color:#fff}
+@media (max-width:860px){.evx .ec-dots{display:none}.evx .ec-lab{display:block;position:absolute;left:2px;right:2px;bottom:4px;font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:9px;font-weight:700;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;color:var(--k)}.evx .ec{min-height:56px;justify-content:flex-start;padding-top:6px}.evx .ec.today .ec-lab{color:#fff}}
 /* goals */
 .gv{text-align:center;padding:4px 6px 0;margin:0 auto 4px;max-width:620px}
 .gv-rule{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:10px}
@@ -773,7 +806,7 @@ function blockHTML(b, isToday) {
 }
 function evRow(e) {
   const d = parseYMD(e.date); if (e.type === "birthday" && !/birthday/i.test(e.notes || "")) e = { ...e, notes: ["Birthday", e.notes].filter(Boolean).join(" · ") };
-  return `<div class="ev" data-act="editEvent" data-id="${e.id}" role="button" tabindex="0"><div class="cal"><small>${MON[d.getMonth()]}</small><b>${d.getDate()}</b></div><div class="grow" style="flex:1;min-width:0"><div style="font-weight:600;overflow-wrap:anywhere">${esc(e.title)}</div><div class="small muted">${fmtDate(e.date)}${e.time ? " · " + fmtTime(e.time) : ""}${e.notes ? " · " + esc(e.notes) : ""}</div></div><span class="pill ${daysBetween(today(), e.date) <= 2 ? "flame" : "accent"}">${whenLabel(e.date)}</span></div>`;
+  return `<div class="ev" style="--k:${(ETYPES[e.type] || ETYPES.event)[1]}" data-act="editEvent" data-id="${e.id}" role="button" tabindex="0"><div class="cal"><small>${MON[d.getMonth()]}</small><b>${d.getDate()}</b></div><div class="grow" style="flex:1;min-width:0"><div style="font-weight:600;overflow-wrap:anywhere">${esc(e.title)}</div><div class="small muted">${fmtDate(e.date)}${e.time ? " · " + fmtTime(e.time) : ""}${e.notes ? " · " + esc(e.notes) : ""}</div></div><span class="pill ${daysBetween(today(), e.date) <= 2 ? "flame" : "accent"}">${whenLabel(e.date)}</span></div>`;
 }
 
 /* ---------- verse of the day (KJV, public domain) ---------- */
@@ -1157,7 +1190,7 @@ function vWeek() {
   }).join("")}</div>`;
 }
 
-const ETYPES = { event: ["Event", "var(--accent)"], birthday: ["Birthday", "var(--flame)"], exam: ["Exam / test", "var(--violet)"], appt: ["Appointment", "var(--good)"], other: ["Other", "var(--amber)"] };
+const ETYPES = { event: ["Event", "#4ADE80"], birthday: ["Birthday", "#7DD3FC"], exam: ["Exam / test", "#F472B6"], appt: ["Appointment", "#A98BFF"], other: ["Other", "#D9B440"] };
 let evCursor = today(), evSel = today();
 function occursOn(e, d) { return e.repeat === "yearly" ? e.date.slice(5) === d.slice(5) && d >= e.date.slice(0, 4) + "-01-01" : e.date === d; }
 function eventsOn(d) { return S.events.filter(e => occursOn(e, d)).sort((a, b) => (a.time || "").localeCompare(b.time || "")); }
@@ -1173,18 +1206,19 @@ function vEvents() {
   let cells = Array.from({ length: off }, () => `<span class="ec blank"></span>`).join("");
   for (let i = 1; i <= n; i++) {
     const d = ymd(new Date(cy, cm, i)), evs = eventsOn(d);
-    cells += `<button class="ec ${d === t ? "today" : ""} ${d === evSel ? "sel" : ""} ${d < t ? "past" : ""}" data-act="evSel" data-d="${d}" aria-label="${fmtDate(d)}${evs.length ? ", " + evs.length + " event" + (evs.length > 1 ? "s" : "") : ""}">
+    cells += `<button class="ec ${d === t ? "today" : ""} ${d === evSel ? "sel" : ""} ${d < t ? "past" : ""} ${evs.length ? "has" : ""}" ${evs.length ? `style="--k:${(ETYPES[evs[0].type] || ETYPES.event)[1]}"` : ""} data-act="evSel" data-d="${d}" aria-label="${fmtDate(d)}${evs.length ? ", " + evs.length + " event" + (evs.length > 1 ? "s" : "") : ""}">
       <span class="ec-n num">${i}</span>
       <span class="ec-list">${evs.slice(0, 2).map(e => `<span class="ec-chip" style="--c:${(ETYPES[e.type] || ETYPES.event)[1]}">${esc(e.title)}</span>`).join("")}${evs.length > 2 ? `<span class="ec-more">+${evs.length - 2} more</span>` : ""}</span>
+      ${evs.length ? `<span class="ec-lab">${esc(evs[0].title)}${evs.length > 1 ? ` +${evs.length - 1}` : ""}</span>` : ""}
       <span class="ec-dots">${evs.slice(0, 4).map(e => `<i style="--c:${(ETYPES[e.type] || ETYPES.event)[1]}"></i>`).join("")}</span>
     </button>`;
   }
   const selEvs = eventsOn(evSel), sd = parseYMD(evSel);
   const up = upcomingEvents(365).slice(0, 8);
   const bdays = S.events.filter(e => e.type === "birthday").map(e => ({ e, nd: nextOcc(e, t) })).sort((a, b) => a.nd.localeCompare(b.nd));
-  return `<div class="head"><div><h1>Events</h1><p class="sub">Tap a day to add something to it.</p></div><button class="btn primary" data-act="addEvent" data-d="${evSel}">Add event</button></div>
-  <div class="grid ev-layout">
-    <section class="card">
+  return `<div class="head evx-head"><div><h1>Events</h1></div></div>
+  <div class="grid ev-layout evx">
+    <section class="card evx-cal">
       <div class="row" style="justify-content:space-between"><button class="btn" data-act="evNav" data-n="-1" aria-label="Previous month">←</button>
         <div class="row"><h2>${["January","February","March","April","May","June","July","August","September","October","November","December"][cm]} ${cy}</h2>${evCursor.slice(0, 7) !== t.slice(0, 7) ? `<button class="btn ghost sm" data-act="evNav" data-n="0">Today</button>` : ""}</div>
         <button class="btn" data-act="evNav" data-n="1" aria-label="Next month">→</button></div>
@@ -1196,10 +1230,10 @@ function vEvents() {
       <section class="card"><div class="card-h"><h2>${evSel === t ? "Today · " : ""}${DAYS[dow(evSel)]}, ${MON[sd.getMonth()]} ${sd.getDate()}</h2></div>
         <div class="list">${selEvs.map(e => { const [l, col] = ETYPES[e.type] || ETYPES.event; return `<div class="item" data-act="editEvent" data-id="${e.id}" role="button" tabindex="0" style="cursor:pointer"><i style="width:4px;align-self:stretch;border-radius:4px;background:${col};flex:none"></i><span class="grow"><b>${esc(e.title)}</b><span class="small muted" style="display:block">${l}${e.time ? " · " + fmtTime(e.time) : ""}${e.repeat === "yearly" ? " · every year" : ""}${e.notes ? " · " + esc(e.notes) : ""}</span></span></div>`; }).join("") || `<p class="empty">Nothing on this day.</p>`}</div>
         <form class="addrow" data-form="quickEvent"><input class="input" id="qeIn" placeholder="Type an event for this day…" autocomplete="off"><button class="btn primary">Add</button></form>
-        <button class="btn sm" style="align-self:flex-start" data-act="addEvent" data-d="${evSel}">More options (time, birthday, repeat)</button>
+        <button class="btn sm evx-more" style="align-self:flex-start" data-act="addEvent" data-d="${evSel}">More options (time, birthday, repeat)</button>
       </section>
-      <section class="card"><h2>Coming up</h2><div>${up.map(evRow).join("") || `<p class="empty">Nothing in the next year.</p>`}</div></section>
-      <section class="card"><div class="card-h"><h2>Saved birthdays</h2><button class="btn ghost sm" data-act="addBirthday">Add birthday</button></div>
+      <section class="card evx-plain"><h2>Coming up</h2><div>${up.map(evRow).join("") || `<p class="empty">Nothing in the next year.</p>`}</div></section>
+      <section class="card evx-bd"><div class="card-h"><h2>Saved birthdays</h2><button class="btn ghost sm evx-gold" data-act="addBirthday">Add birthday</button></div>
         <div class="list">${bdays.map(({ e, nd }) => `<div class="item" data-act="editEvent" data-id="${e.id}" role="button" tabindex="0" style="cursor:pointer"><span class="grow"><b>${esc(e.title)}</b><span class="small muted" style="display:block">${MON[parseYMD(e.date).getMonth()]} ${parseYMD(e.date).getDate()} · every year</span></span><span class="pill ${daysBetween(t, nd) <= 7 ? "flame" : ""}">${whenLabel(nd)}</span></div>`).join("") || `<p class="empty">Save birthdays here and they'll show up on the calendar every year.</p>`}</div></section>
     </div>
   </div>`;
