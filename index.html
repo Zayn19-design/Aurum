@@ -246,6 +246,38 @@ main{overflow-y:auto;padding:28px 32px 40px}
 .goal-ideas{display:flex;gap:8px;flex-wrap:wrap}
 @media (max-width:860px){.goalgrid{grid-template-columns:1fr}}
 .cele-card{max-width:min(92vw,560px)}.cele-card h2{overflow-wrap:anywhere}
+
+/* goal completed: level up */
+.lvl{position:fixed;inset:0;z-index:110;background:#1B1C1F;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px 18px calc(24px + env(safe-area-inset-bottom));overflow:hidden;cursor:pointer;font-family:var(--font-display);animation:celeIn .25s ease-out}
+.lvl.out{animation:celeOut .4s ease-in forwards}
+.lvl canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+.lvl.shake{animation:lvShk .45s cubic-bezier(.36,.07,.19,.97)}
+@keyframes lvShk{10%,90%{transform:translate(-2px,1px)}20%,80%{transform:translate(5px,-3px)}30%,50%,70%{transform:translate(-8px,4px)}40%,60%{transform:translate(8px,-2px)}}
+.lv-ban{padding:9px 22px;border-radius:10px;background:linear-gradient(180deg,#F5D97A,#C9A227);color:#1E1F22;font-weight:700;font-size:15px;letter-spacing:.2em;white-space:nowrap;opacity:0;transform:translateY(-90px) scale(1.5)}
+.lv-ban.in{animation:lvSlam .3s cubic-bezier(.5,0,.75,0) forwards}@keyframes lvSlam{to{opacity:1;transform:none}}
+.lv-bw{position:relative;width:180px;height:180px;display:grid;place-items:center;flex:none}
+.lv-rays{position:absolute;left:-60px;top:-60px;width:300px;height:300px;border-radius:50%;background:repeating-conic-gradient(rgba(245,217,122,.32) 0 9deg,transparent 9deg 22.5deg);-webkit-mask:radial-gradient(circle,#000 25%,transparent 70%);mask:radial-gradient(circle,#000 25%,transparent 70%);opacity:0;transition:opacity .6s;animation:lvSpin 9s linear infinite}
+.lv-rays.in{opacity:1}@keyframes lvSpin{to{transform:rotate(360deg)}}
+.lv-badge{position:relative;width:124px;height:124px;border-radius:50%;background:#2B2C30;border:6px solid #D9B440;box-shadow:0 0 0 4px #1B1C1F,0 0 0 7px #8A6D1A,0 0 40px color-mix(in srgb,var(--g) 45%,transparent);display:grid;place-items:center;transform:scale(0) rotate(-540deg);color:var(--g)}
+.lv-badge svg{width:60px;height:60px}
+.lv-badge.in{animation:lvFly .75s cubic-bezier(.2,1.4,.4,1) forwards}@keyframes lvFly{to{transform:scale(1) rotate(0)}}
+.lv-t{text-align:center;max-width:560px;opacity:0;transform:translateY(12px);transition:all .5s}.lv-t.in{opacity:1;transform:none}
+.lv-t p{margin:0;font-size:12px;letter-spacing:.3em;color:var(--g);font-weight:700}
+.lv-t h2{margin:6px 0 0;font-size:clamp(22px,6vw,28px);line-height:1.15;color:#F3EEE3;font-weight:700;overflow-wrap:anywhere}
+.lv-stats{display:flex;gap:12px;opacity:0;transition:opacity .4s}.lv-stats.in{opacity:1}
+.lv-sb{min-width:124px;padding:10px 14px;border-radius:12px;background:#313237;border:1px solid #44454B;text-align:center}
+.lv-sb b{display:block;font-family:var(--font-mono);font-size:24px;font-weight:500;color:#F5D97A}.lv-sb span{font-size:12px;color:#B0ABA0;font-weight:600}
+.lv-tag{display:flex;align-items:center;justify-content:center;gap:12px;max-width:620px;text-align:center;font-size:clamp(22px,6.4vw,30px);font-weight:700;line-height:1.1;color:#F6E7B8;text-shadow:0 0 26px rgba(245,217,122,.55);opacity:0;transform:scale(2.2)}
+.lv-tag.in{animation:lvTag .32s cubic-bezier(.2,1.5,.4,1) forwards}@keyframes lvTag{to{opacity:1;transform:scale(1)}}
+.lv-dude{width:58px;height:58px;flex:none;overflow:visible;filter:drop-shadow(0 0 10px rgba(245,217,122,.45))}
+.lv-dude .shades{transform:translateY(-70px);opacity:0}
+.lv-tag.cool .shades{animation:lvDrp .45s cubic-bezier(.3,1.6,.5,1) forwards}@keyframes lvDrp{0%{opacity:1;transform:translateY(-70px)}100%{opacity:1;transform:none}}
+.lv-tag.cool .glint{animation:lvGl .6s ease-in-out .55s forwards}@keyframes lvGl{to{transform:skewX(-25deg) translateX(150px)}}
+.lv-dude .hand{transform-origin:58px 34px}
+.lv-tag.salute .hand{animation:lvSal .5s ease-in-out 2 alternate}@keyframes lvSal{to{transform:rotate(-16deg) translate(-2px,-3px)}}
+.lv-close{position:absolute;bottom:calc(14px + env(safe-area-inset-bottom));font-size:12px;color:#B0ABA0;opacity:0;transition:opacity .5s}.lv-close.in{opacity:1}
+@media (max-height:640px){.lvl{gap:10px}.lv-bw{width:150px;height:150px}.lv-badge{width:104px;height:104px}}
+@media (prefers-reduced-motion: reduce){.lv-ban,.lv-badge,.lv-t,.lv-stats,.lv-tag{opacity:1!important;transform:none!important;animation:none!important}.lv-dude .shades{opacity:1;transform:none}}
 /* study subjects */
 .subjgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .subj{position:relative;border:1px solid var(--line);border-top:6px solid var(--s);border-radius:16px;background:linear-gradient(160deg,color-mix(in srgb,var(--s) 13%,var(--surface)) 0%,var(--surface) 60%);padding:14px 16px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left;min-height:190px;transition:transform .15s,box-shadow .15s}
@@ -1429,7 +1461,7 @@ function goalCard(g) {
     <div class="list">${steps.map(x => `<div class="item ${x.done ? "done" : ""}"><button class="check ${x.done ? "on" : ""}" data-act="goalStep" data-id="${g.id}" data-s="${x.id}" aria-label="Mark ${esc(x.text)} ${x.done ? "not done" : "done"}"></button><span class="grow"><span class="step-t">${esc(x.text)}</span>${x.created ? `<span class="step-date">Added ${fmtShort(x.created)}</span>` : ""}</span><button class="btn ghost sm x" data-act="delGoalStep" data-id="${g.id}" data-s="${x.id}" aria-label="Delete step">✕</button></div>`).join("")}</div>
     ${g.done ? "" : `<form class="addrow" data-form="goalStep" data-id="${g.id}"><input class="input" id="gs-${g.id}" placeholder="Add a step towards this goal" aria-label="Add a step to ${esc(g.title)}"><button class="btn sm">Add</button></form>`}
     <div class="goal-foot"><button class="btn ghost sm" data-act="editGoal" data-id="${g.id}">Edit</button>
-      ${g.done ? `<button class="btn sm" data-act="goalDone" data-id="${g.id}">Move back to active</button>` : `<button class="btn primary sm" data-act="goalDone" data-id="${g.id}">Mark achieved</button>`}</div>
+      ${g.done ? `<button class="btn sm" data-act="goalDone" data-id="${g.id}">Move back to active</button>` : `<button class="btn primary sm" data-act="goalDone" data-id="${g.id}">Goal completed</button>`}</div>
   </section>`;
 }
 function vGoals() {
@@ -1449,6 +1481,85 @@ function vGoals() {
     : list.slice().sort((a, b) => (a.target || "9999").localeCompare(b.target || "9999") || (a.created || "").localeCompare(b.created || ""));
   const empty = goalTab === "achieved" ? `<p class="empty">Nothing achieved yet. Your first one is coming.</p>` : `<p class="empty">No active goals. Tap "Add goal" to set a new one.</p>`;
   return `${tabs}${head}${stats}${chips}${list.length ? `<div class="goalgrid">${list.map(goalCard).join("")}</div>` : empty}`;
+}
+
+/* ---------- goal completed: level up ---------- */
+const GICON = {
+  school: '<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/><path d="M22 9v6"/>',
+  fitness: '<path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"/>',
+  career: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',
+  money: '<circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2s1.3 1.7 3 2 3 .9 3 2-1.3 2-3 2c-1.4 0-2.6-.6-3-1.5M12 6v2M12 16v2"/>',
+  personal: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+  other: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/>'
+};
+const SALUTE_DUDE = `<svg class="lv-dude" viewBox="0 0 100 100" aria-hidden="true">
+<defs><clipPath id="lvLens"><path d="M14 40h32v9c0 10-7 14-16 14s-16-4-16-14zM54 40h32v9c0 10-7 14-16 14s-16-4-16-14z"/></clipPath></defs>
+<circle cx="50" cy="54" r="40" fill="#FFCC4D"/><circle cx="50" cy="54" r="40" fill="none" stroke="#E0A82E" stroke-width="3"/>
+<circle cx="33" cy="50" r="4.5" fill="#5A3A12"/><circle cx="67" cy="50" r="4.5" fill="#5A3A12"/>
+<path d="M36 74q14 9 30-3" fill="none" stroke="#6B3E10" stroke-width="4" stroke-linecap="round"/>
+<g class="hand"><path d="M54 30c6-12 22-22 36-20 6 1 7 7 3 10-8 6-20 12-33 16z" fill="#FFCC4D" stroke="#E0A82E" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M64 26l22-12M62 31l26-13" stroke="#E0A82E" stroke-width="2" stroke-linecap="round"/></g>
+<g class="shades"><path d="M10 38h80v6H10z" fill="#111"/><path d="M14 40h32v9c0 10-7 14-16 14s-16-4-16-14zM54 40h32v9c0 10-7 14-16 14s-16-4-16-14z" fill="#111"/>
+<g clip-path="url(#lvLens)"><rect class="glint" x="-30" y="30" width="10" height="40" fill="#fff" opacity=".85" transform="skewX(-25)"/></g>
+<path d="M19 45h8M59 45h8" stroke="#555" stroke-width="2.5" stroke-linecap="round"/></g></svg>`;
+function hapticTap() { try { const l = document.createElement("label"), i = document.createElement("input"); i.type = "checkbox"; i.setAttribute("switch", ""); l.appendChild(i); l.style.cssText = "position:fixed;opacity:0;pointer-events:none;left:-99px"; document.body.appendChild(l); l.click(); l.remove(); } catch (e) {} }
+function buzz(p) { try { if (navigator.vibrate && navigator.vibrate(p)) return; } catch (e) {} const a = Array.isArray(p) ? p : [p]; let t = 0; a.forEach((ms, k) => { if (k % 2 === 0) setTimeout(hapticTap, t); t += ms; }); }
+function goalLevelUp(g) {
+  const old = document.getElementById("lvl"); if (old) old.remove();
+  const key = GAREAS[g.area] ? g.area : "other", [an, ac] = GAREAS[key];
+  const steps = g.steps || [], doneN = steps.filter(x => x.done).length;
+  const days = g.created ? Math.max(1, daysBetween(g.created, g.doneOn || today())) : null;
+  const cap = key === "school" ? "Belt to ass delivered Zayn" : "Goal crushed zayn, Keep it pushing!!!!";
+  const stats = [steps.length ? `<div class="lv-sb"><b data-n="${doneN}" data-of="${steps.length}">0/${steps.length}</b><span>steps done</span></div>` : "", days !== null ? `<div class="lv-sb"><b data-n="${days}">0</b><span>day${days === 1 ? "" : "s"} to get it</span></div>` : ""].join("");
+  const el = document.createElement("div"); el.id = "lvl"; el.className = "lvl"; el.setAttribute("role", "status"); el.style.setProperty("--g", ac);
+  el.innerHTML = `<canvas></canvas><div class="lv-ban">ACHIEVEMENT UNLOCKED</div>
+    <div class="lv-bw"><div class="lv-rays"></div><div class="lv-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${GICON[key]}</svg></div></div>
+    <div class="lv-t"><p>${an.toUpperCase()} GOAL</p><h2>${esc(g.title)}</h2></div>
+    ${stats ? `<div class="lv-stats">${stats}</div>` : ""}
+    <div class="lv-tag"><span>${esc(cap)}</span>${SALUTE_DUDE}</div><div class="lv-close">Tap anywhere to close</div>`;
+  document.body.appendChild(el);
+  const q = s => el.querySelector(s), T = [], at = (ms, f) => T.push(setTimeout(f, ms));
+  let alive = true;
+  const close = () => { if (!alive) return; alive = false; T.forEach(clearTimeout); el.classList.add("out"); setTimeout(() => el.remove(), 400); };
+  el.addEventListener("click", close);
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { el.querySelectorAll("[data-n]").forEach(b => b.textContent = b.dataset.of ? `${b.dataset.n}/${b.dataset.of}` : b.dataset.n); q(".lv-close").classList.add("in"); buzz(80); at(8000, close); return; }
+  const cv = q("canvas"), ctx = cv.getContext("2d"), dpr = window.devicePixelRatio || 1;
+  let W = 0, H = 0; const size = () => { W = el.clientWidth; H = el.clientHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }; size();
+  let P = [], R = [];
+  const rnd = (a, b) => a + Math.random() * (b - a), pick = a => a[Math.floor(Math.random() * a.length)];
+  const GOLD = ["#FFF4D0", "#F5D97A", "#D9B440", "#E9A23B"], AC = getComputedStyle(q(".lv-badge")).color || "#D9B440";
+  const ctr = node => { const r = node.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2, r]; };
+  const burst = (x, y, n, o) => { for (let i = 0; i < n; i++) { const a = o.ang !== undefined ? o.ang + rnd(-o.spread, o.spread) : rnd(0, 6.283), sp = rnd(o.s0, o.s1); P.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, g: o.g || 0, d: o.d || .97, l: 1, dl: rnd(o.l0 || .008, o.l1 || .02), c: pick(o.cols), r: rnd(o.r0 || 1, o.r1 || 3), k: o.kind || "dot" }); } };
+  const ring = (x, y, o) => R.push({ x, y, r: 4, v: o.v, a: 1, da: o.da, c: o.c, w: o.w });
+  const shake = () => { el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); };
+  (function frame() {
+    if (!alive && !el.isConnected) return;
+    ctx.clearRect(0, 0, W, H); ctx.globalCompositeOperation = "lighter";
+    R = R.filter(o => o.a > 0); R.forEach(o => { o.r += o.v; o.v *= .985; o.a -= o.da; ctx.globalAlpha = Math.max(0, o.a); ctx.strokeStyle = o.c; ctx.lineWidth = o.w * o.a + 1; ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, 6.283); ctx.stroke(); });
+    P = P.filter(p => p.l > 0); P.forEach(p => { p.vx *= p.d; p.vy = p.vy * p.d + p.g; p.x += p.vx; p.y += p.vy; p.l -= p.dl; ctx.globalAlpha = Math.max(0, p.l);
+      if (p.k === "spark") { ctx.strokeStyle = p.c; ctx.lineWidth = p.r; ctx.lineCap = "round"; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - p.vx * 3, p.y - p.vy * 3); ctx.stroke(); }
+      else { ctx.fillStyle = p.c; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill(); } });
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over";
+    if (el.isConnected) requestAnimationFrame(frame);
+  })();
+  at(200, () => q(".lv-badge").classList.add("in"));
+  at(700, () => { shake(); buzz([70, 40, 120]); q(".lv-rays").classList.add("in"); const [x, y] = ctr(q(".lv-bw"));
+    ring(x, y, { v: 8, da: .025, c: AC, w: 5 }); ring(x, y, { v: 5, da: .02, c: "#F5D97A", w: 3 });
+    burst(x, y, 110, { s0: 3, s1: 10, d: .95, g: .06, cols: GOLD.concat([AC, "#FFFFFF"]), r0: 1.2, r1: 3.2, l0: .008, l1: .018 }); });
+  at(950, () => q(".lv-ban").classList.add("in"));
+  at(1250, () => { shake(); buzz(60); const [x, , r] = ctr(q(".lv-ban")); burst(x, r.bottom, 40, { ang: Math.PI / 2, spread: 1.3, s0: 2, s1: 6, g: .2, cols: GOLD, kind: "spark", r0: 1, r1: 2 }); });
+  at(1400, () => q(".lv-t").classList.add("in"));
+  at(1750, () => { const sb = q(".lv-stats"); if (!sb) return; sb.classList.add("in"); const nums = [...sb.querySelectorAll("[data-n]")], t0 = performance.now();
+    (function tick(t) { const k = Math.min(1, (t - t0) / 1100), e = 1 - Math.pow(1 - k, 3); nums.forEach(b => { const v = Math.round(+b.dataset.n * e); b.textContent = b.dataset.of ? `${v}/${b.dataset.of}` : v; }); if (k < 1 && alive) requestAnimationFrame(tick); })(t0); });
+  at(3050, () => q(".lv-tag").classList.add("in"));
+  at(3200, () => { shake(); buzz([90, 50, 90]); const [, y, r] = ctr(q(".lv-tag"));
+    burst(r.left + 20, y, 45, { ang: Math.PI, spread: .6, s0: 3, s1: 11, g: .18, cols: GOLD, kind: "spark", r0: 1.2, r1: 2.4, l0: .014, l1: .026 });
+    burst(r.right - 20, y, 45, { ang: 0, spread: .6, s0: 3, s1: 11, g: .18, cols: GOLD, kind: "spark", r0: 1.2, r1: 2.4, l0: .014, l1: .026 }); });
+  at(3800, () => q(".lv-tag").classList.add("cool"));
+  at(4180, () => { buzz(40); const d = q(".lv-dude").getBoundingClientRect(); burst(d.left + d.width / 2, d.top + d.height * .45, 22, { s0: 1.5, s1: 5, d: .92, cols: ["#FFFFFF", "#FFF4D0"], kind: "spark", r0: 1, r1: 1.8, l0: .03, l1: .05 }); });
+  at(4700, () => { q(".lv-tag").classList.add("salute"); buzz([30, 470, 30]); });
+  at(5600, () => q(".lv-close").classList.add("in"));
+  at(9000, close);
 }
 
 /* ---------- locked in counter ---------- */
@@ -1770,7 +1881,7 @@ document.addEventListener("click", e => {
     case "editGoal": { const g = goalById(id); if (g) openForm("Edit goal", F.goal(), g, v => { Object.assign(g, v); save("goals"); render(); }, () => { S.goals = S.goals.filter(x => x !== g); save("goals"); render(); }); break; }
     case "goalStep": { const g = goalById(id), st = g && (g.steps || []).find(x => x.id === el.dataset.s); if (st) { st.done = !st.done; save("goals"); render(); } break; }
     case "delGoalStep": { const g = goalById(id); if (g) { g.steps = (g.steps || []).filter(x => x.id !== el.dataset.s); save("goals"); render(); } break; }
-    case "goalDone": { const g = goalById(id); if (g) { g.done = !g.done; g.doneOn = g.done ? today() : ""; save("goals"); render(); if (g.done) celebrate({ k: "Goal achieved", h: g.title, sub: "Locked in and delivered. Set the next one." }); } break; }
+    case "goalDone": { const g = goalById(id); if (g) { g.done = !g.done; g.doneOn = g.done ? today() : ""; save("goals"); render(); if (g.done) goalLevelUp(g); } break; }
     case "openTimetable": studyTab = "timetable"; studySubject = null; go("study"); break;
     case "ttDay": ttDay = +el.dataset.v; render(); break;
     case "openSubject": studySubject = el.dataset.v || null; render(); $("#main").scrollTop = 0; break;
