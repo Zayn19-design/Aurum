@@ -1560,8 +1560,7 @@ function vGoals() {
   const head = `<div class="head"><div><h1>Goals</h1><p class="sub">Where you're headed. Break each goal into steps and tick them off.</p></div><button class="btn primary" data-act="addGoal">Add goal</button></div>`;
   if (!S.goals.length) return `${tabs}${head}<section class="card"><h2>Set your first goal</h2><p class="muted" style="margin:0">Big or small, this term or five years out. Add your own, or start from one of these:</p>
     <div class="goal-ideas">${GOAL_IDEAS.map((x, i) => `<button class="chip" data-act="goalIdea" data-v="${i}">${esc(x.title)}</button>`).join("")}</div></section>`;
-  const steps = S.goals.flatMap(g => g.steps || []);
-  const stats = `<div class="stats"><div class="stat"><b>${active.length}</b><span>active goals</span></div><div class="stat"><b>${achieved.length}</b><span>achieved</span></div><div class="stat"><b>${steps.filter(x => x.done).length}</b><span>steps done</span></div><div class="stat"><b>${steps.filter(x => !x.done).length}</b><span>steps to go</span></div></div>`;
+  const stats = `<div class="stats" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="stat"><b>${active.length}</b><span>active goals</span></div><div class="stat"><b>${achieved.length}</b><span>achieved</span></div></div>`;
   let list = (goalTab === "achieved" ? achieved : active);
   const areas = [...new Set(list.map(g => GAREAS[g.area] ? g.area : "other"))];
   if (goalArea && !areas.includes(goalArea)) goalArea = "";
