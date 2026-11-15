@@ -14,7 +14,7 @@
 <title>Aurum</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&family=Cormorant+Garamond:ital,wght@1,600&family=Cinzel:wght@500&display=swap" rel="stylesheet">
 <style>
 :root{
   /* Layout: left rail on desktop, bottom tab bar on phones; content as cards on a cool paper ground */
@@ -222,6 +222,13 @@ main{overflow-y:auto;padding:28px 32px 40px}
 
 
 /* goals */
+.gv{text-align:center;padding:4px 6px 0;margin:0 auto 4px;max-width:620px}
+.gv-rule{display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:10px}
+.gv-rule i{height:1px;flex:1;max-width:90px;background:linear-gradient(90deg,transparent,#D9B440)}.gv-rule i:last-child{background:linear-gradient(90deg,#D9B440,transparent)}
+.gv-rule svg{width:14px;height:18px;flex:none}
+.gv p{margin:0;font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-weight:600;font-size:clamp(21px,5.6vw,26px);line-height:1.25;background:linear-gradient(180deg,#FBEFC4,#D9B440 70%,#B8922A);-webkit-background-clip:text;background-clip:text;color:transparent}
+.gv span{display:block;margin-top:8px;font-family:"Cinzel",Georgia,serif;font-size:11px;letter-spacing:.3em;color:var(--muted)}
+
 .goalgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .goal{position:relative;overflow:hidden;border-color:color-mix(in srgb,var(--g) 35%,var(--line))}
 .goal::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--g)}
@@ -1514,7 +1521,8 @@ function goalCard(g) {
 }
 function vGoals() {
   const active = S.goals.filter(g => !g.done), achieved = S.goals.filter(g => g.done);
-  const tabs = `<div class="tabs" role="tablist">${[["active", `Active · ${active.length}`], ["achieved", `Achieved · ${achieved.length}`]].map(([k, l]) => `<button class="tab" role="tab" aria-selected="${goalTab === k}" data-act="goalTab" data-v="${k}">${l}</button>`).join("")}</div>`;
+  const verse = `<figure class="gv" role="note" aria-label="Philippians 4:13"><div class="gv-rule" aria-hidden="true"><i></i><svg viewBox="0 0 14 18"><path d="M5.5 0h3v5h5.5v3H8.5v10h-3V8H0V5h5.5z" fill="#D9B440"/></svg><i></i></div><p>I can do all things through Christ who gives me strength.</p><span>PHILIPPIANS 4:13</span></figure>`;
+  const tabs = verse + `<div class="tabs" role="tablist">${[["active", `Active · ${active.length}`], ["achieved", `Achieved · ${achieved.length}`]].map(([k, l]) => `<button class="tab" role="tab" aria-selected="${goalTab === k}" data-act="goalTab" data-v="${k}">${l}</button>`).join("")}</div>`;
   const head = `<div class="head"><div><h1>Goals</h1><p class="sub">Where you're headed. Break each goal into steps and tick them off.</p></div><button class="btn primary" data-act="addGoal">Add goal</button></div>`;
   if (!S.goals.length) return `${tabs}${head}<section class="card"><h2>Set your first goal</h2><p class="muted" style="margin:0">Big or small, this term or five years out. Add your own, or start from one of these:</p>
     <div class="goal-ideas">${GOAL_IDEAS.map((x, i) => `<button class="chip" data-act="goalIdea" data-v="${i}">${esc(x.title)}</button>`).join("")}</div></section>`;
